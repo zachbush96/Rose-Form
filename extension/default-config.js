@@ -1,0 +1,1886 @@
+window.DEFAULT_ROSE_BPS_CONFIG = {
+  "project": "Rose ReliaTrax BPS Automation",
+  "version": "0.4.4",
+  "updated": "2026-05-19",
+  "selector": "textarea.qn-textarea, input.qn-editable-cb",
+  "expectedFieldCount": 264,
+  "defaultsOverwriteExisting": true,
+  "autoDefaultAnswers": {},
+  "prompts": [
+    {
+      "id": "prompt1",
+      "title": "Prompt 1: Living, Substance, Tobacco, Withdrawal, Treatment",
+      "body": "You are preparing structured data for Rose's ReliaTrax Biopsychosocial Assessment automation. Return valid JSON only. Do not use markdown, commentary, trailing commas, or keys outside the requested JSON shape. Use the client's first name in narrative fields when known. Write concise, clinical, full-sentence documentation for narrative fields. Frame client-reported legal, medical, mental health, substance use, and family history as client report rather than objective fact. Use reports, denies, or endorses language for client-reported content and for clinically supported inferences from the interview. Avoid casual phrasing and em dashes. Use formal medical terminology for all drugs and substance names; normalize slang or street names to medical terms, for example methamphetamine instead of meth or crystal meth, fentanyl instead of fent, and Opioids (Percocet) instead of Percs. Do not invent unsupported clinical facts, but do not treat every missing explicit answer as Information not provided. First apply clinical inference when the transcript gives a reasonable basis, especially for substance effects, withdrawal, tolerance, behavioral or functional changes, days used in the last 30 from last-use dates, education impact from dropping out, and trauma or grief impact. If there is no basis to infer a specific detail such as exact dates, names, caseworker information, provider names, or exact counts, use Information not provided. Use Rose's specified defaults and use clinically supported inference for fields marked as default, inference, or repurposed in Rose_instructions.txt and for inference examples carried over from Original_Prompt.txt. If a client clearly contradicts a default or inference, the client report wins. Use lowercase n/a for non-applicable follow-ups. Use Information not provided when a field was not asked and no default/inference rule applies. Use Unknown only where Rose specifies it or when a specified detail is unknown. For checkbox objects, set exactly the matching option true when the answer is known/defaulted/inferred and leave other options false. Apply these Rose rules for this section. Referral source defaults to Self-referral unless another source is reported. Living-with defaults to Other residents at [sober living name] when the current living location is sober living and no different arrangement is reported. For each substance, the age_first_use field is the single ReliaTrax textbox for both the substance name and age of first use. Return the value as one concise line in this exact pattern: [Substance]: age [age]. If the age is approximate, preserve the approximation, for example: Alcohol: age 16 or 17. If no explicit age is given but the transcript supports a reasonable estimate, write [Substance]: estimated age [estimate]. If the age cannot be determined, write [Substance]: Information not provided. Do not return only the age, do not include the question label, do not use line breaks in age_first_use, and do not add a separate substance key outside the requested JSON shape. Amount and frequency default to Daily use at peak unless the client gives a more specific amount or pattern. Tolerance, sees use as a problem, and tried to quit default to Yes for reported substances unless explicitly contradicted. For each sober_duration field, answer the ReliaTrax question How long were you sober? by prioritizing the client's longest reported period of sobriety for that specific substance. If the transcript mentions both a longest/prior period and the current sobriety period for the same substance, document only the longest period in a full sentence, optionally including when it occurred if reported. Example: Bobby reports his longest period of sobriety was approximately 6 months. Do not replace a reported longest sobriety period with the current shorter period, and do not combine prior and current periods in shorthand such as 10 months (previous), 2 weeks (current). If no longest period is specified for that substance, document the client's current period of sobriety when it can be determined from the transcript, last-use date, or recent pattern. Include the substance name and relevant context in the sentence when helpful. Example: Ashley reports two months of sobriety from cocaine, primarily by abstaining from alcohol. If a substance is mentioned, infer typical withdrawal symptoms, tolerance, behavioral changes, functional changes, and common relationship/work/health/legal consequences when the client does not answer those follow-ups directly and the broader interview supports the inference. Days used in last 30 is a calculated/inference field; infer it from the last-use date, reported recent pattern, and assessment date when possible. Return the value as Estimated X days in the last 30 when a calculation is made, and enter 0 for continuous abstinence over 30 days. Recent pattern may be inferred from timeline and last use. Behavioral changes are inferred from the full interview. If no second or third substance is reported, use n/a for that substance's follow-up text fields. If no other past substances are reported, write that the client reports no other substances used in the past. Tobacco no-history is checked only for no history. Vape contains nicotine defaults to Yes when vaping is reported unless nicotine-free is specified. Tobacco problem, wanting to quit, and tried-to-quit-past fields document interest in quitting resources. Withdrawal seizure defaults to No if not specified. Withdrawal onset defaults to Several hours after cessation of use when withdrawal is present. Withdrawal duration defaults to Reports symptoms lasting approximately one week when withdrawal is present, except marijuana defaults to Reports symptoms lasting approximately 2-3 days. Client-specified onset or duration overrides these defaults. Withdrawal follow-ups are n/a when no withdrawal. Detox count is 0 if none. If only a total rehab count is reported, split reasonably between inpatient/residential and outpatient, using 2 inpatient and 1 outpatient for a total of 3. Sponsor/mentor defaults to No if not specified. Describe support-group experience per Rose's no-experience, experience-without-details, or detailed-response rules. Return ONLY this JSON structure: {\"living_situation\":{\"referral_source\":\"\",\"reason_for_services\":\"\",\"current_living_location\":\"\",\"living_with\":\"\"},\"substance_use\":{\"no_history\":false,\"substance_1\":{\"age_first_use\":\"\",\"amount_used\":\"\",\"frequency_used\":\"\",\"tolerance\":\"\",\"method\":\"\",\"last_use_date\":\"\",\"days_used_last_30\":\"\",\"recent_pattern\":\"\",\"behavioral_changes\":\"\",\"consequences\":\"\",\"sees_use_as_problem\":{\"yes\":false,\"no\":false},\"tried_to_quit\":{\"yes\":false,\"no\":false},\"sober_duration\":\"\"},\"substance_2\":{\"age_first_use\":\"\",\"amount_used\":\"\",\"frequency_used\":\"\",\"tolerance\":\"\",\"method\":\"\",\"last_use_date\":\"\",\"days_used_last_30\":\"\",\"recent_pattern\":\"\",\"behavioral_changes\":\"\",\"consequences\":\"\",\"sees_use_as_problem\":{\"yes\":false,\"no\":false},\"tried_to_quit\":{\"yes\":false,\"no\":false},\"sober_duration\":\"\"},\"substance_3\":{\"age_first_use\":\"\",\"amount_used\":\"\",\"frequency_used\":\"\",\"tolerance\":\"\",\"method\":\"\",\"last_use_date\":\"\",\"days_used_last_30\":\"\",\"recent_pattern\":\"\",\"behavioral_changes\":\"\",\"consequences\":\"\",\"extra_notes\":\"\",\"sees_use_as_problem\":{\"yes\":false,\"no\":false},\"tried_to_quit\":{\"yes\":false,\"no\":false},\"sober_duration\":\"\"},\"other_substances\":\"\"},\"tobacco\":{\"no_history\":false,\"uses_tobacco_or_vapes\":{\"yes\":false,\"no\":false},\"vape_contains_nicotine\":{\"yes\":false,\"no\":false},\"amount_and_frequency\":\"\",\"considers_problem\":{\"yes\":false,\"no\":false},\"wants_to_quit_now\":{\"yes\":false,\"no\":false},\"tried_to_quit_past\":\"\"},\"withdrawal\":{\"no_history\":false,\"experienced_withdrawal\":{\"yes\":false,\"no\":false},\"symptoms\":\"\",\"seizure_due_to_withdrawal\":{\"yes\":false,\"no\":false},\"symptom_duration\":\"\",\"onset_after_last_use\":\"\",\"management\":\"\"},\"previous_substance_use_treatment\":{\"detox_count\":\"\",\"inpatient_residential_count\":\"\",\"outpatient_count\":\"\",\"support_groups_experience\":{\"yes\":false,\"no\":false},\"sponsor_or_mentor\":{\"yes\":false,\"no\":false},\"support_group_experience_description\":\"\"}}"
+    },
+    {
+      "id": "prompt2",
+      "title": "Prompt 2: Mental Health, Risk, Trauma, Violence",
+      "body": "You are preparing structured data for Rose's ReliaTrax Biopsychosocial Assessment automation. Return valid JSON only. Do not use markdown, commentary, trailing commas, or keys outside the requested JSON shape. Use the client's first name in narrative fields when known. Write concise, clinical, full-sentence documentation for narrative fields. Frame client-reported legal, medical, mental health, substance use, and family history as client report rather than objective fact. Use reports, denies, or endorses language for client-reported content and for clinically supported inferences from the interview. Avoid casual phrasing and em dashes. Use formal medical terminology for all drugs and substance names; normalize slang or street names to medical terms, for example methamphetamine instead of meth or crystal meth, fentanyl instead of fent, and Opioids (Percocet) instead of Percs. Do not invent unsupported clinical facts, but do not treat every missing explicit answer as Information not provided. First apply clinical inference when the transcript gives a reasonable basis, especially for substance effects, withdrawal, tolerance, behavioral or functional changes, days used in the last 30 from last-use dates, education impact from dropping out, and trauma or grief impact. If there is no basis to infer a specific detail such as exact dates, names, caseworker information, provider names, or exact counts, use Information not provided. Use Rose's specified defaults and use clinically supported inference for fields marked as default, inference, or repurposed in Rose_instructions.txt and for inference examples carried over from Original_Prompt.txt. If a client clearly contradicts a default or inference, the client report wins. Use lowercase n/a for non-applicable follow-ups. Use Information not provided when a field was not asked and no default/inference rule applies. Use Unknown only where Rose specifies it or when a specified detail is unknown. For checkbox objects, set exactly the matching option true when the answer is known/defaulted/inferred and leave other options false. Apply these Rose rules for this section. No mental health history is checked only when the client reports no diagnosis and no relevant mental health history. Diagnosed_by defaults to Unknown unless a provider is specified. Agreement with diagnosis, substance use at diagnosis, and whether use impacted diagnosis require specific handling. For agrees_with_diagnosis, use the client's direct report when available. For using_substances_at_diagnosis, default to: Client reports they were not using substances at the time of their diagnosis. If the client provides information about substance use at the time of diagnosis, document the field as either: Client reports they were using substances at the time of their diagnosis. or Client reports they were not using substances at the time of their diagnosis., depending on the client's report. If the client agrees with the documented diagnosis, set agrees_with_diagnosis.yes to true and document substance_use_impacted_diagnosis as: [First name] reports he/she does not believe his/her substance use impacted his/her diagnosis. If the client does not agree with the documented diagnosis and the diagnosis occurred within the timeline of reported substance use, set agrees_with_diagnosis.no to true, document using_substances_at_diagnosis to state that the client was using substances at the time of diagnosis, and document substance_use_impacted_diagnosis in this pattern: [First name] reports he/she was using substances at the time of diagnosis and does not currently agree with his/her diagnosis of [X], but reports he/she might agree with a diagnosis of [Y] instead. Use the actual documented diagnosis for [X] and the client's stated alternative diagnosis or clinically supported alternative wording for [Y]; if no alternative diagnosis is provided or supported, state that no alternative diagnosis was provided. If the transcript does not provide information on whether the client agrees with the diagnosis, leave both agrees_with_diagnosis checkboxes false and document substance_use_impacted_diagnosis as: [First name] did not provide information on whether he/she agrees with his/her diagnosis. Never check not_interested_in_resources. Current symptoms should include frequency, duration, intensity, and medication management when available; if no symptoms, document that the client reports no current mental health symptoms. Eating_disorder_history is a repurposed field: if hallucinations are reported, put hallucination details first, then a line break and Eating disorder/disordered eating: No unless eating concerns are reported. If hallucinations are denied and no eating history is reported, enter No. Current SI defaults to No when no current mental health symptoms and no SI is otherwise reported. Suicide plan and means default to No unless specified. SI, suicide-attempt, and self-harm follow-ups are n/a when the related history is No. If SI history exists but thoughts are not described, use Rose's general hopelessness/no-options wording. If attempt history exists but current feelings are not provided, default to regret. Access to self-harm means defaults to n/a. Self-harm-feelings defaults to Rose's regret/no-current-risk wording when history exists unless current risk is reported. Risk_harming_self and risk_harming_self_reason are inference fields using SI, attempts, self-harm, recency, means, protective factors, coping, and current presentation. Protective_factors is inferred from supports, goals, family, children, faith, recovery, coping, sober living, future orientation, and treatment engagement. Trauma impact is inferred from full interview when trauma/grief still affects the client; if trauma or grief is acknowledged but the client does not explicitly describe impact, infer likely emotional and functional impacts from symptoms, coping, relationships, substance use, and current presentation. Grief details are n/a when no grief/loss. Current thoughts of hurting others default to No unless specified. Domestic abuse perpetration defaults to No when not asked and nothing suggests it. Violence current risk and rationale are inference fields using current thoughts, history, intoxication context, current sobriety, coping, symptoms, impulse control, and environment. Return ONLY this JSON structure: {\"mental_health\":{\"no_history\":false,\"diagnosis_history\":\"\",\"age_diagnosed\":\"\",\"diagnosed_by\":\"\",\"agrees_with_diagnosis\":{\"yes\":false,\"no\":false},\"using_substances_at_diagnosis\":\"\",\"substance_use_impacted_diagnosis\":\"\"},\"mental_health_treatment\":{\"psychiatric_hospitalizations\":{\"yes\":false,\"no\":false},\"currently_working_with_psychiatrist\":{\"yes\":false,\"no\":false},\"currently_working_with_therapist\":{\"yes\":false,\"no\":false},\"mental_health_professionals_contact\":\"\",\"not_interested_in_resources\":false},\"symptoms_suicide_self_harm\":{\"current_symptoms\":\"\",\"hallucinations\":{\"yes\":false,\"no\":false},\"eating_disorder_history\":\"\",\"current_suicidal_ideation\":{\"yes\":false,\"no\":false},\"plan_to_end_life\":{\"yes\":false,\"no\":false},\"means_or_plan_to_obtain_means\":{\"yes\":false,\"no\":false},\"history_suicidal_ideation\":{\"yes\":false,\"no\":false},\"suicidal_ideation_life_context\":\"\",\"suicidal_ideation_dates\":\"\",\"suicidal_ideation_thoughts\":\"\",\"history_suicide_attempts\":{\"yes\":false,\"no\":false},\"attempt_count\":\"\",\"attempt_dates\":\"\",\"attempt_methods\":\"\",\"under_influence_during_attempts\":\"\",\"feelings_about_past_attempts\":\"\",\"protective_factors\":\"\",\"history_self_harm\":{\"yes\":false,\"no\":false},\"self_harm_dates\":\"\",\"self_harm_methods\":\"\",\"feelings_about_past_self_harm\":\"\",\"access_to_self_harm_means\":\"\",\"risk_harming_self\":{\"yes\":false,\"no\":false},\"risk_harming_self_reason\":\"\"},\"trauma_grief\":{\"trauma_history\":{\"yes\":false,\"no\":false},\"trauma_current_impact\":\"\",\"interested_in_trauma_treatment\":\"\",\"current_grief_or_loss\":\"\",\"grieving_what\":\"\"},\"violence\":{\"history_violent_behavior\":{\"yes\":false,\"no\":false},\"current_thoughts_hurting_others\":{\"yes\":false,\"no\":false},\"perpetrator_domestic_abuse\":{\"yes\":false,\"no\":false},\"current_risk_for_violence\":{\"yes\":false,\"no\":false},\"violence_risk_reason\":\"\"}}"
+    },
+    {
+      "id": "prompt3",
+      "title": "Prompt 3: Legal, Family, Spiritual, Cultural, Medical, Meds",
+      "body": "You are preparing structured data for Rose's ReliaTrax Biopsychosocial Assessment automation. Return valid JSON only. Do not use markdown, commentary, trailing commas, or keys outside the requested JSON shape. Use the client's first name in narrative fields when known. Write concise, clinical, full-sentence documentation for narrative fields. Frame client-reported legal, medical, mental health, substance use, and family history as client report rather than objective fact. Use reports, denies, or endorses language for client-reported content and for clinically supported inferences from the interview. Avoid casual phrasing and em dashes. Use formal medical terminology for all drugs and substance names; normalize slang or street names to medical terms, for example methamphetamine instead of meth or crystal meth, fentanyl instead of fent, and Opioids (Percocet) instead of Percs. Do not invent unsupported clinical facts, but do not treat every missing explicit answer as Information not provided. First apply clinical inference when the transcript gives a reasonable basis, especially for substance effects, withdrawal, tolerance, behavioral or functional changes, days used in the last 30 from last-use dates, education impact from dropping out, and trauma or grief impact. If there is no basis to infer a specific detail such as exact dates, names, caseworker information, provider names, or exact counts, use Information not provided. Use Rose's specified defaults and use clinically supported inference for fields marked as default, inference, or repurposed in Rose_instructions.txt and for inference examples carried over from Original_Prompt.txt. If a client clearly contradicts a default or inference, the client report wins. Use lowercase n/a for non-applicable follow-ups. Use Information not provided when a field was not asked and no default/inference rule applies. Use Unknown only where Rose specifies it or when a specified detail is unknown. For checkbox objects, set exactly the matching option true when the answer is known/defaulted/inferred and leave other options false. Apply these Rose rules for this section. Lifetime arrests and arrest results are direct client-report narrative fields. Sex-crime conviction is a direct client-report narrative field and must be stated as Client reports xyz. If the client denies a sex-crime conviction, write: Client reports no history of sex-crime convictions. If not asked and no information suggests a sex-crime conviction, default to: Client reports no history of sex-crime convictions. Current warrants and probation/parole are direct yes/no fields. Mother/father deceased details are n/a when the parent is living; if deceased and details are missing, use Information not provided because exact death dates and causes should not be inferred. Parent medical, mental health, and substance-abuse histories default to No unless reported or inferred from broader family/childhood content. Siblings defaults to Yes unless the client reports being an only child. Growing-up experience should include enough culture/value detail to support the cultural field. Religion active defaults to Yes when a religion is reported unless the client says not active; if no religion, active_in_religion is n/a. Culture_values_raised_with mirrors or closely tracks growing_up_experience. Childhood socioeconomic status is inferred: homelessness/severe instability/poverty suggests Lower; stable childhood with no hardship usually Middle; explicit wealth/privilege Upper. If no physical health problems, document denial. Pain issues may be inferred from physical health; pain follow-ups are n/a when no pain, and Information not provided for missing pain details when pain exists. Opiates for pain defaults to No; opiates_prescribed is n/a when opiates for pain is No. PCP must be current; provider names and clinic names are Information not provided if not stated. Last full physical is Over a year, Within the last year, or a specific timeframe; set more_than_one_year accordingly. Allergy_reaction is repurposed to list allergies, not reaction symptoms; if no allergies, allergy_reaction and epipen are n/a. EpiPen defaults to No when allergies exist but no need is reported. Medication slots are capped at three. Extract medications from the full transcript, including medications mentioned in mental health, substance-use treatment, withdrawal, medical history, or symptom-management discussion. Prioritize medications used for substance-use treatment, withdrawal support, psychiatric symptoms, or other mental health conditions first. After those, list other prescribed/current medications. Do not list vitamins, supplements, herbal products, protein powders, or over-the-counter wellness products unless the transcript clearly identifies them as prescribed medication. If more than three qualifying medications are reported, include the three highest-priority medications using that order. If no qualifying medication exists for a slot, set name, dosage_frequency, and side_effects to n/a and leave all currently_taking and mixed_with_alcohol_or_drugs checkbox values false. Do not check No for empty medication slots. For listed medications, dosage_frequency defaults to Unknown when not stated, side_effects defaults to None reported, currently_taking defaults to Yes, and mixed_with_alcohol_or_drugs defaults to No unless specified. Return ONLY this JSON structure: {\"legal\":{\"lifetime_arrest_count\":\"\",\"sex_crime_conviction\":\"\",\"arrest_results\":\"\",\"current_warrants\":{\"yes\":false,\"no\":false},\"probation_or_parole\":{\"yes\":false,\"no\":false}},\"family\":{\"mother_living\":{\"yes\":false,\"no\":false},\"mother_deceased_details\":\"\",\"mother_relationship\":\"\",\"mother_medical_history\":\"\",\"mother_mental_health_history\":\"\",\"mother_substance_abuse_history\":\"\",\"father_living\":{\"yes\":false,\"no\":false},\"father_deceased_details\":\"\",\"father_relationship\":\"\",\"father_medical_history\":\"\",\"father_mental_health_history\":\"\",\"father_substance_abuse_history\":\"\",\"has_siblings\":{\"yes\":false,\"no\":false},\"growing_up_experience\":\"\"},\"spiritual_cultural\":{\"religion_affiliation\":\"\",\"active_in_religion\":\"\",\"culture_values_raised_with\":\"\",\"childhood_socioeconomic_status\":\"\"},\"medical\":{\"current_physical_health_problems\":\"\",\"pain_issues\":{\"yes\":false,\"no\":false},\"pain_location\":\"\",\"pain_start\":\"\",\"pain_helpers\":\"\",\"pain_functioning_impact\":\"\",\"used_opiates_for_pain\":\"\",\"opiates_prescribed\":\"\",\"abused_opiates\":\"\",\"has_primary_care\":\"\",\"primary_care_clinic_or_doctor\":\"\",\"primary_care_doctor_name\":\"\",\"last_full_physical\":\"\",\"more_than_one_year_since_physical\":{\"yes\":false,\"no\":false},\"allergies\":{\"yes\":false,\"no\":false},\"allergy_reaction\":\"\",\"has_or_needs_epipen\":\"\",\"dental_problems\":{\"yes\":false,\"no\":false},\"dentist_next_plan\":\"\"},\"medications\":{\"medication_1\":{\"name\":\"\",\"dosage_frequency\":\"\",\"side_effects\":\"\",\"currently_taking\":{\"yes\":false,\"no\":false},\"mixed_with_alcohol_or_drugs\":{\"yes\":false,\"no\":false}},\"medication_2\":{\"name\":\"\",\"dosage_frequency\":\"\",\"side_effects\":\"\",\"currently_taking\":{\"yes\":false,\"no\":false},\"mixed_with_alcohol_or_drugs\":{\"yes\":false,\"no\":false}},\"medication_3\":{\"name\":\"\",\"dosage_frequency\":\"\",\"side_effects\":\"\",\"currently_taking\":{\"yes\":false,\"no\":false},\"mixed_with_alcohol_or_drugs\":{\"yes\":false,\"no\":false}}}}"
+    },
+    {
+      "id": "prompt4",
+      "title": "Prompt 4: Sexual, Vocational, Education, Military, Strengths",
+      "body": "You are preparing structured data for Rose's ReliaTrax Biopsychosocial Assessment automation. Return valid JSON only. Do not use markdown, commentary, trailing commas, or keys outside the requested JSON shape. Use the client's first name in narrative fields when known. Write concise, clinical, full-sentence documentation for narrative fields. Frame client-reported legal, medical, mental health, substance use, and family history as client report rather than objective fact. Use reports, denies, or endorses language for client-reported content and for clinically supported inferences from the interview. Avoid casual phrasing and em dashes. Use formal medical terminology for all drugs and substance names; normalize slang or street names to medical terms, for example methamphetamine instead of meth or crystal meth, fentanyl instead of fent, and Opioids (Percocet) instead of Percs. Do not invent unsupported clinical facts, but do not treat every missing explicit answer as Information not provided. First apply clinical inference when the transcript gives a reasonable basis, especially for substance effects, withdrawal, tolerance, behavioral or functional changes, days used in the last 30 from last-use dates, education impact from dropping out, and trauma or grief impact. If there is no basis to infer a specific detail such as exact dates, names, caseworker information, provider names, or exact counts, use Information not provided. Use Rose's specified defaults and use clinically supported inference for fields marked as default, inference, or repurposed in Rose_instructions.txt and for inference examples carried over from Original_Prompt.txt. If a client clearly contradicts a default or inference, the client report wins. Use lowercase n/a for non-applicable follow-ups. Use Information not provided when a field was not asked and no default/inference rule applies. Use Unknown only where Rose specifies it or when a specified detail is unknown. For checkbox objects, set exactly the matching option true when the answer is known/defaulted/inferred and leave other options false. Apply these Rose rules for this section. Safe sex always defaults to Yes. Partners last year defaults to Information not provided. Blackouts prior to sex defaults to No. Paid or been paid for sex defaults to never. Substance impact on sex life defaults to Information not provided. Sexual testing is direct yes/no; if tested, sexual-health resources default to No and additional_notes is n/a unless retesting/details are reported; if not tested, resources default to Yes unless declined and notes should say the client would like testing. Looking for work is Yes/No from report; if currently employed, assume not looking unless otherwise stated. Employment_start_date is repurposed as the employment-status narrative. Wage and full-time/part-time are n/a when not working. Persons living on income defaults to Self. Trouble at work due to substance use should be a full denial or details, inferred from reported job loss, discipline, attendance issues, impairment, or other work consequences when the client does not answer directly. Educational.liked_school_when_younger is repurposed for highest education completed and GED-resource status. If the highest education completed is high school or below, include whether the client specified interest in GED resources or declined or was not interested in GED resources. If GED-resource interest was not asked or not stated, explicitly include that GED-resource interest was not specified. If education history is limited but the client dropped out, infer reduced school engagement and possible academic struggles unless contradicted. Clubs/sports defaults to No if not mentioned. Substance-use interference with school may be inferred from the substance timeline, dropout, attendance, discipline, or academic impairment. Military fields are all n/a when no military history. Relationship_length is repurposed for marital/relationship status. If single/divorced/widowed, all relationship follow-ups are n/a. If married/in relationship, infer relationship_description when possible and substance impact on relationship defaults to Yes for SUD history unless contradicted. For partner_uses_substances, if the client is single, divorced, or widowed, report n/a. Otherwise report what the client states about partner substance use; if not stated, use Information not provided. Substances in partner living space defaults to n/a. Children_count_and_location is repurposed to answer the Original_Prompt.txt children questions together: how many children the client has and where they are living. If the client reports no children, write: [First name] reports he/she does not have children, using the client's first name and correct pronoun. If the client has children, combine the number of children, their ages or adult/minor status when provided, and where they are living in concise clinical sentences. CPS fields are n/a when no children; CPS details are n/a when no CPS involvement. Recovery supports are inferred from full interview. Fun activities may be inferred if not directly asked. Substance impact on activities defaults to Yes for clients with SUD history unless contradicted; No if no substance-use history. Gambling/spending/technology defaults to No, no, no when all denied; otherwise document details. Personal challenge is inferred from presenting problems and current barriers. Personal strengths uses the client's reported strengths; when strengths are not directly asked, infer strengths from protective factors, treatment engagement, recovery supports, resilience, family commitments, employment, coping, faith, and future orientation. Return ONLY this JSON structure: {\"sexual_history\":{\"practices_safe_sex\":{\"yes\":false,\"no\":false,\"sometimes\":false},\"partners_last_year\":\"\",\"blackouts_prior_to_sex\":{\"yes\":false,\"no\":false},\"paid_or_been_paid_for_sex\":{\"yes_paid\":false,\"yes_been_paid\":false,\"never\":false},\"substance_use_impacted_sex_life\":\"\",\"tested_std_hepatitis_hiv\":{\"yes\":false,\"no\":false},\"wants_sexual_health_resources_if_no\":{\"yes\":false,\"no\":false},\"additional_notes\":\"\"},\"vocational\":{\"looking_for_work\":{\"yes\":false,\"no\":false},\"employment_start_date\":\"\",\"hourly_wage_or_annual_income\":\"\",\"full_time_or_part_time\":\"\",\"persons_living_on_income\":\"\",\"financial_state\":\"\",\"trouble_at_work_due_to_substance_use\":\"\"},\"educational\":{\"liked_school_when_younger\":\"\",\"diagnosed_learning_disabilities\":\"\",\"clubs_or_sports\":\"\",\"substance_use_interfered_with_school\":\"\"},\"military\":{\"active_duty\":\"\",\"deployed\":\"\",\"highest_rank\":\"\",\"discharge_status\":\"\",\"substance_use_interfered_with_military\":\"\"},\"current_marital_status_and_living_environment\":{\"relationship_length\":\"\",\"relationship_description\":\"\",\"substance_use_impacted_relationship\":\"\",\"partner_uses_substances\":\"\",\"substances_in_partner_living_space\":\"\",\"children_count_and_location\":\"\",\"cps_involvement\":\"\",\"cps_case_details\":\"\",\"recovery_support_people\":\"\"},\"hobbies_activities\":{\"fun_activities\":\"\",\"substance_use_impacted_activities\":{\"yes\":false,\"no\":false}},\"additional_addiction_questions\":{\"gambling_concerns\":\"\",\"spending_or_impulsive_spending_concerns\":\"\",\"technology_use_concerns\":\"\"},\"strengths_challenges\":{\"personal_challenge\":\"\",\"personal_strengths\":\"\"}}"
+    }
+  ],
+  "fieldMap": [
+    {
+      "paths": [
+        "living_situation.referral_source"
+      ],
+      "fillIndex": 0
+    },
+    {
+      "paths": [
+        "living_situation.reason_for_services"
+      ],
+      "fillIndex": 1
+    },
+    {
+      "paths": [
+        "living_situation.current_living_location"
+      ],
+      "fillIndex": 2
+    },
+    {
+      "paths": [
+        "living_situation.living_with"
+      ],
+      "fillIndex": 3
+    },
+    {
+      "paths": [
+        "substance_use.no_history"
+      ],
+      "fillIndex": 4
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.age_first_use"
+      ],
+      "fillIndex": 5
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.amount_used"
+      ],
+      "fillIndex": 6
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.frequency_used"
+      ],
+      "fillIndex": 7
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.tolerance"
+      ],
+      "fillIndex": 8
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.method"
+      ],
+      "fillIndex": 9
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.last_use_date"
+      ],
+      "fillIndex": 10
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.days_used_last_30"
+      ],
+      "fillIndex": 11
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.recent_pattern"
+      ],
+      "fillIndex": 12
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.behavioral_changes"
+      ],
+      "fillIndex": 13
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.consequences"
+      ],
+      "fillIndex": 14
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.sees_use_as_problem.yes",
+        "substance_use.substance_1.problem_yes"
+      ],
+      "fillIndex": 15
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.sees_use_as_problem.no",
+        "substance_use.substance_1.problem_no"
+      ],
+      "fillIndex": 16
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.tried_to_quit.yes",
+        "substance_use.substance_1.tried_to_quit_yes"
+      ],
+      "fillIndex": 17
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.tried_to_quit.no",
+        "substance_use.substance_1.tried_to_quit_no"
+      ],
+      "fillIndex": 18
+    },
+    {
+      "paths": [
+        "substance_use.substance_1.sober_duration"
+      ],
+      "fillIndex": 19
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.age_first_use"
+      ],
+      "fillIndex": 20
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.amount_used"
+      ],
+      "fillIndex": 21
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.frequency_used"
+      ],
+      "fillIndex": 22
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.tolerance"
+      ],
+      "fillIndex": 23
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.method"
+      ],
+      "fillIndex": 24
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.last_use_date"
+      ],
+      "fillIndex": 25
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.days_used_last_30"
+      ],
+      "fillIndex": 26
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.recent_pattern"
+      ],
+      "fillIndex": 27
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.behavioral_changes"
+      ],
+      "fillIndex": 28
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.consequences"
+      ],
+      "fillIndex": 29
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.sees_use_as_problem.yes",
+        "substance_use.substance_2.problem_yes"
+      ],
+      "fillIndex": 30
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.sees_use_as_problem.no",
+        "substance_use.substance_2.problem_no"
+      ],
+      "fillIndex": 31
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.tried_to_quit.yes",
+        "substance_use.substance_2.tried_to_quit_yes"
+      ],
+      "fillIndex": 32
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.tried_to_quit.no",
+        "substance_use.substance_2.tried_to_quit_no"
+      ],
+      "fillIndex": 33
+    },
+    {
+      "paths": [
+        "substance_use.substance_2.sober_duration"
+      ],
+      "fillIndex": 34
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.age_first_use"
+      ],
+      "fillIndex": 35
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.amount_used"
+      ],
+      "fillIndex": 36
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.frequency_used"
+      ],
+      "fillIndex": 37
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.tolerance"
+      ],
+      "fillIndex": 38
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.method"
+      ],
+      "fillIndex": 39
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.last_use_date"
+      ],
+      "fillIndex": 40
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.days_used_last_30"
+      ],
+      "fillIndex": 41
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.recent_pattern"
+      ],
+      "fillIndex": 42
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.behavioral_changes"
+      ],
+      "fillIndex": 43
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.consequences"
+      ],
+      "fillIndex": 44
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.extra_notes"
+      ],
+      "fillIndex": 45
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.sees_use_as_problem.yes",
+        "substance_use.substance_3.problem_yes"
+      ],
+      "fillIndex": 46
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.sees_use_as_problem.no",
+        "substance_use.substance_3.problem_no"
+      ],
+      "fillIndex": 47
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.tried_to_quit.yes",
+        "substance_use.substance_3.tried_to_quit_yes"
+      ],
+      "fillIndex": 48
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.tried_to_quit.no",
+        "substance_use.substance_3.tried_to_quit_no"
+      ],
+      "fillIndex": 49
+    },
+    {
+      "paths": [
+        "substance_use.substance_3.sober_duration"
+      ],
+      "fillIndex": 50
+    },
+    {
+      "paths": [
+        "substance_use.other_substances"
+      ],
+      "fillIndex": 51
+    },
+    {
+      "paths": [
+        "tobacco.no_history"
+      ],
+      "fillIndex": 52
+    },
+    {
+      "paths": [
+        "tobacco.uses_tobacco_or_vapes.yes",
+        "tobacco.uses_tobacco_or_vapes_yes"
+      ],
+      "fillIndex": 53
+    },
+    {
+      "paths": [
+        "tobacco.uses_tobacco_or_vapes.no",
+        "tobacco.uses_tobacco_or_vapes_no"
+      ],
+      "fillIndex": 54
+    },
+    {
+      "paths": [
+        "tobacco.vape_contains_nicotine.yes",
+        "tobacco.vape_contains_nicotine_yes"
+      ],
+      "fillIndex": 55
+    },
+    {
+      "paths": [
+        "tobacco.vape_contains_nicotine.no",
+        "tobacco.vape_contains_nicotine_no"
+      ],
+      "fillIndex": 56
+    },
+    {
+      "paths": [
+        "tobacco.amount_and_frequency"
+      ],
+      "fillIndex": 57
+    },
+    {
+      "paths": [
+        "tobacco.considers_problem.yes",
+        "tobacco.considers_problem_yes"
+      ],
+      "fillIndex": 58
+    },
+    {
+      "paths": [
+        "tobacco.considers_problem.no",
+        "tobacco.considers_problem_no"
+      ],
+      "fillIndex": 59
+    },
+    {
+      "paths": [
+        "tobacco.wants_to_quit_now.yes",
+        "tobacco.wants_to_quit_now_yes"
+      ],
+      "fillIndex": 60
+    },
+    {
+      "paths": [
+        "tobacco.wants_to_quit_now.no",
+        "tobacco.wants_to_quit_now_no"
+      ],
+      "fillIndex": 61
+    },
+    {
+      "paths": [
+        "tobacco.tried_to_quit_past"
+      ],
+      "fillIndex": 62
+    },
+    {
+      "paths": [
+        "withdrawal.no_history"
+      ],
+      "fillIndex": 63
+    },
+    {
+      "paths": [
+        "withdrawal.experienced_withdrawal.yes",
+        "withdrawal.experienced_withdrawal_yes"
+      ],
+      "fillIndex": 64
+    },
+    {
+      "paths": [
+        "withdrawal.experienced_withdrawal.no",
+        "withdrawal.experienced_withdrawal_no"
+      ],
+      "fillIndex": 65
+    },
+    {
+      "paths": [
+        "withdrawal.symptoms"
+      ],
+      "fillIndex": 66
+    },
+    {
+      "paths": [
+        "withdrawal.seizure_due_to_withdrawal.yes",
+        "withdrawal.seizure_due_to_withdrawal_yes"
+      ],
+      "fillIndex": 67
+    },
+    {
+      "paths": [
+        "withdrawal.seizure_due_to_withdrawal.no",
+        "withdrawal.seizure_due_to_withdrawal_no"
+      ],
+      "fillIndex": 68
+    },
+    {
+      "paths": [
+        "withdrawal.symptom_duration"
+      ],
+      "fillIndex": 69
+    },
+    {
+      "paths": [
+        "withdrawal.onset_after_last_use"
+      ],
+      "fillIndex": 70
+    },
+    {
+      "paths": [
+        "withdrawal.management"
+      ],
+      "fillIndex": 71
+    },
+    {
+      "paths": [
+        "previous_substance_use_treatment.detox_count"
+      ],
+      "fillIndex": 72
+    },
+    {
+      "paths": [
+        "previous_substance_use_treatment.inpatient_residential_count"
+      ],
+      "fillIndex": 73
+    },
+    {
+      "paths": [
+        "previous_substance_use_treatment.outpatient_count"
+      ],
+      "fillIndex": 74
+    },
+    {
+      "paths": [
+        "previous_substance_use_treatment.support_groups_experience.yes",
+        "previous_substance_use_treatment.support_groups_experience_yes"
+      ],
+      "fillIndex": 75
+    },
+    {
+      "paths": [
+        "previous_substance_use_treatment.support_groups_experience.no",
+        "previous_substance_use_treatment.support_groups_experience_no"
+      ],
+      "fillIndex": 76
+    },
+    {
+      "paths": [
+        "previous_substance_use_treatment.sponsor_or_mentor.yes",
+        "previous_substance_use_treatment.sponsor_or_mentor_yes"
+      ],
+      "fillIndex": 77
+    },
+    {
+      "paths": [
+        "previous_substance_use_treatment.sponsor_or_mentor.no",
+        "previous_substance_use_treatment.sponsor_or_mentor_no"
+      ],
+      "fillIndex": 78
+    },
+    {
+      "paths": [
+        "previous_substance_use_treatment.support_group_experience_description"
+      ],
+      "fillIndex": 79
+    },
+    {
+      "paths": [
+        "mental_health.no_history"
+      ],
+      "fillIndex": 80
+    },
+    {
+      "paths": [
+        "mental_health.diagnosis_history"
+      ],
+      "fillIndex": 81
+    },
+    {
+      "paths": [
+        "mental_health.age_diagnosed"
+      ],
+      "fillIndex": 82
+    },
+    {
+      "paths": [
+        "mental_health.diagnosed_by"
+      ],
+      "fillIndex": 83
+    },
+    {
+      "paths": [
+        "mental_health.agrees_with_diagnosis.yes",
+        "mental_health.agrees_with_diagnosis_yes"
+      ],
+      "fillIndex": 84
+    },
+    {
+      "paths": [
+        "mental_health.agrees_with_diagnosis.no",
+        "mental_health.agrees_with_diagnosis_no"
+      ],
+      "fillIndex": 85
+    },
+    {
+      "paths": [
+        "mental_health.using_substances_at_diagnosis"
+      ],
+      "fillIndex": 86
+    },
+    {
+      "paths": [
+        "mental_health.substance_use_impacted_diagnosis"
+      ],
+      "fillIndex": 87
+    },
+    {
+      "paths": [
+        "mental_health_treatment.psychiatric_hospitalizations.yes",
+        "mental_health_treatment.psychiatric_hospitalizations_yes"
+      ],
+      "fillIndex": 88
+    },
+    {
+      "paths": [
+        "mental_health_treatment.psychiatric_hospitalizations.no",
+        "mental_health_treatment.psychiatric_hospitalizations_no"
+      ],
+      "fillIndex": 89
+    },
+    {
+      "paths": [
+        "mental_health_treatment.currently_working_with_psychiatrist.yes",
+        "mental_health_treatment.currently_working_with_psychiatrist_yes"
+      ],
+      "fillIndex": 90
+    },
+    {
+      "paths": [
+        "mental_health_treatment.currently_working_with_psychiatrist.no",
+        "mental_health_treatment.currently_working_with_psychiatrist_no"
+      ],
+      "fillIndex": 91
+    },
+    {
+      "paths": [
+        "mental_health_treatment.currently_working_with_therapist.yes",
+        "mental_health_treatment.currently_working_with_therapist_yes"
+      ],
+      "fillIndex": 92
+    },
+    {
+      "paths": [
+        "mental_health_treatment.currently_working_with_therapist.no",
+        "mental_health_treatment.currently_working_with_therapist_no"
+      ],
+      "fillIndex": 93
+    },
+    {
+      "paths": [
+        "mental_health_treatment.mental_health_professionals_contact"
+      ],
+      "fillIndex": 94
+    },
+    {
+      "paths": [
+        "mental_health_treatment.not_interested_in_resources"
+      ],
+      "fillIndex": 95
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.current_symptoms"
+      ],
+      "fillIndex": 96
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.hallucinations.yes",
+        "symptoms_suicide_self_harm.hallucinations_yes"
+      ],
+      "fillIndex": 97
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.hallucinations.no",
+        "symptoms_suicide_self_harm.hallucinations_no"
+      ],
+      "fillIndex": 98
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.eating_disorder_history"
+      ],
+      "fillIndex": 99
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.current_suicidal_ideation.yes",
+        "symptoms_suicide_self_harm.current_suicidal_ideation_yes"
+      ],
+      "fillIndex": 100
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.current_suicidal_ideation.no",
+        "symptoms_suicide_self_harm.current_suicidal_ideation_no"
+      ],
+      "fillIndex": 101
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.plan_to_end_life.yes",
+        "symptoms_suicide_self_harm.plan_to_end_life_yes"
+      ],
+      "fillIndex": 102
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.plan_to_end_life.no",
+        "symptoms_suicide_self_harm.plan_to_end_life_no"
+      ],
+      "fillIndex": 103
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.means_or_plan_to_obtain_means.yes",
+        "symptoms_suicide_self_harm.means_or_plan_to_obtain_means_yes"
+      ],
+      "fillIndex": 104
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.means_or_plan_to_obtain_means.no",
+        "symptoms_suicide_self_harm.means_or_plan_to_obtain_means_no"
+      ],
+      "fillIndex": 105
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.history_suicidal_ideation.yes",
+        "symptoms_suicide_self_harm.history_suicidal_ideation_yes"
+      ],
+      "fillIndex": 106
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.history_suicidal_ideation.no",
+        "symptoms_suicide_self_harm.history_suicidal_ideation_no"
+      ],
+      "fillIndex": 107
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.suicidal_ideation_life_context"
+      ],
+      "fillIndex": 108
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.suicidal_ideation_dates"
+      ],
+      "fillIndex": 109
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.suicidal_ideation_thoughts"
+      ],
+      "fillIndex": 110
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.history_suicide_attempts.yes",
+        "symptoms_suicide_self_harm.history_suicide_attempts_yes"
+      ],
+      "fillIndex": 111
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.history_suicide_attempts.no",
+        "symptoms_suicide_self_harm.history_suicide_attempts_no"
+      ],
+      "fillIndex": 112
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.attempt_count"
+      ],
+      "fillIndex": 113
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.attempt_dates"
+      ],
+      "fillIndex": 114
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.attempt_methods"
+      ],
+      "fillIndex": 115
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.under_influence_during_attempts"
+      ],
+      "fillIndex": 116
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.feelings_about_past_attempts"
+      ],
+      "fillIndex": 117
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.protective_factors"
+      ],
+      "fillIndex": 118
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.history_self_harm.yes",
+        "symptoms_suicide_self_harm.history_self_harm_yes"
+      ],
+      "fillIndex": 119
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.history_self_harm.no",
+        "symptoms_suicide_self_harm.history_self_harm_no"
+      ],
+      "fillIndex": 120
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.self_harm_dates"
+      ],
+      "fillIndex": 121
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.self_harm_methods"
+      ],
+      "fillIndex": 122
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.feelings_about_past_self_harm"
+      ],
+      "fillIndex": 123
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.access_to_self_harm_means"
+      ],
+      "fillIndex": 124
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.risk_harming_self.yes",
+        "symptoms_suicide_self_harm.risk_harming_self_yes"
+      ],
+      "fillIndex": 125
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.risk_harming_self.no",
+        "symptoms_suicide_self_harm.risk_harming_self_no"
+      ],
+      "fillIndex": 126
+    },
+    {
+      "paths": [
+        "symptoms_suicide_self_harm.risk_harming_self_reason"
+      ],
+      "fillIndex": 127
+    },
+    {
+      "paths": [
+        "trauma_grief.trauma_history.yes",
+        "trauma_grief.trauma_history_yes"
+      ],
+      "fillIndex": 128
+    },
+    {
+      "paths": [
+        "trauma_grief.trauma_history.no",
+        "trauma_grief.trauma_history_no"
+      ],
+      "fillIndex": 129
+    },
+    {
+      "paths": [
+        "trauma_grief.trauma_current_impact"
+      ],
+      "fillIndex": 130
+    },
+    {
+      "paths": [
+        "trauma_grief.interested_in_trauma_treatment"
+      ],
+      "fillIndex": 131
+    },
+    {
+      "paths": [
+        "trauma_grief.current_grief_or_loss"
+      ],
+      "fillIndex": 132
+    },
+    {
+      "paths": [
+        "trauma_grief.grieving_what"
+      ],
+      "fillIndex": 133
+    },
+    {
+      "paths": [
+        "violence.history_violent_behavior.yes",
+        "violence.history_violent_behavior_yes"
+      ],
+      "fillIndex": 134
+    },
+    {
+      "paths": [
+        "violence.history_violent_behavior.no",
+        "violence.history_violent_behavior_no"
+      ],
+      "fillIndex": 135
+    },
+    {
+      "paths": [
+        "violence.current_thoughts_hurting_others.yes",
+        "violence.current_thoughts_hurting_others_yes"
+      ],
+      "fillIndex": 136
+    },
+    {
+      "paths": [
+        "violence.current_thoughts_hurting_others.no",
+        "violence.current_thoughts_hurting_others_no"
+      ],
+      "fillIndex": 137
+    },
+    {
+      "paths": [
+        "violence.perpetrator_domestic_abuse.yes",
+        "violence.perpetrator_domestic_abuse_yes"
+      ],
+      "fillIndex": 138
+    },
+    {
+      "paths": [
+        "violence.perpetrator_domestic_abuse.no",
+        "violence.perpetrator_domestic_abuse_no"
+      ],
+      "fillIndex": 139
+    },
+    {
+      "paths": [
+        "violence.current_risk_for_violence.yes",
+        "violence.current_risk_for_violence_yes"
+      ],
+      "fillIndex": 140
+    },
+    {
+      "paths": [
+        "violence.current_risk_for_violence.no",
+        "violence.current_risk_for_violence_no"
+      ],
+      "fillIndex": 141
+    },
+    {
+      "paths": [
+        "violence.violence_risk_reason"
+      ],
+      "fillIndex": 142
+    },
+    {
+      "paths": [
+        "legal.lifetime_arrest_count"
+      ],
+      "fillIndex": 143
+    },
+    {
+      "paths": [
+        "legal.sex_crime_conviction"
+      ],
+      "fillIndex": 144
+    },
+    {
+      "paths": [
+        "legal.arrest_results"
+      ],
+      "fillIndex": 145
+    },
+    {
+      "paths": [
+        "legal.current_warrants.yes",
+        "legal.current_warrants_yes"
+      ],
+      "fillIndex": 146
+    },
+    {
+      "paths": [
+        "legal.current_warrants.no",
+        "legal.current_warrants_no"
+      ],
+      "fillIndex": 147
+    },
+    {
+      "paths": [
+        "legal.probation_or_parole.yes",
+        "legal.probation_or_parole_yes"
+      ],
+      "fillIndex": 148
+    },
+    {
+      "paths": [
+        "legal.probation_or_parole.no",
+        "legal.probation_or_parole_no"
+      ],
+      "fillIndex": 149
+    },
+    {
+      "paths": [
+        "family.mother_living.yes",
+        "family.mother_living_yes"
+      ],
+      "fillIndex": 150
+    },
+    {
+      "paths": [
+        "family.mother_living.no",
+        "family.mother_living_no"
+      ],
+      "fillIndex": 151
+    },
+    {
+      "paths": [
+        "family.mother_deceased_details"
+      ],
+      "fillIndex": 152
+    },
+    {
+      "paths": [
+        "family.mother_relationship"
+      ],
+      "fillIndex": 153
+    },
+    {
+      "paths": [
+        "family.mother_medical_history"
+      ],
+      "fillIndex": 154
+    },
+    {
+      "paths": [
+        "family.mother_mental_health_history"
+      ],
+      "fillIndex": 155
+    },
+    {
+      "paths": [
+        "family.mother_substance_abuse_history"
+      ],
+      "fillIndex": 156
+    },
+    {
+      "paths": [
+        "family.father_living.yes",
+        "family.father_living_yes"
+      ],
+      "fillIndex": 157
+    },
+    {
+      "paths": [
+        "family.father_living.no",
+        "family.father_living_no"
+      ],
+      "fillIndex": 158
+    },
+    {
+      "paths": [
+        "family.father_deceased_details"
+      ],
+      "fillIndex": 159
+    },
+    {
+      "paths": [
+        "family.father_relationship"
+      ],
+      "fillIndex": 160
+    },
+    {
+      "paths": [
+        "family.father_medical_history"
+      ],
+      "fillIndex": 161
+    },
+    {
+      "paths": [
+        "family.father_mental_health_history"
+      ],
+      "fillIndex": 162
+    },
+    {
+      "paths": [
+        "family.father_substance_abuse_history"
+      ],
+      "fillIndex": 163
+    },
+    {
+      "paths": [
+        "family.has_siblings.yes",
+        "family.has_siblings_yes"
+      ],
+      "fillIndex": 164
+    },
+    {
+      "paths": [
+        "family.has_siblings.no",
+        "family.has_siblings_no"
+      ],
+      "fillIndex": 165
+    },
+    {
+      "paths": [
+        "family.growing_up_experience"
+      ],
+      "fillIndex": 166
+    },
+    {
+      "paths": [
+        "spiritual_cultural.religion_affiliation"
+      ],
+      "fillIndex": 167
+    },
+    {
+      "paths": [
+        "spiritual_cultural.active_in_religion"
+      ],
+      "fillIndex": 168
+    },
+    {
+      "paths": [
+        "spiritual_cultural.culture_values_raised_with"
+      ],
+      "fillIndex": 169
+    },
+    {
+      "paths": [
+        "spiritual_cultural.childhood_socioeconomic_status"
+      ],
+      "fillIndex": 170
+    },
+    {
+      "paths": [
+        "medical.current_physical_health_problems"
+      ],
+      "fillIndex": 171
+    },
+    {
+      "paths": [
+        "medical.pain_issues.yes",
+        "medical.pain_issues_yes"
+      ],
+      "fillIndex": 172
+    },
+    {
+      "paths": [
+        "medical.pain_issues.no",
+        "medical.pain_issues_no"
+      ],
+      "fillIndex": 173
+    },
+    {
+      "paths": [
+        "medical.pain_location"
+      ],
+      "fillIndex": 174
+    },
+    {
+      "paths": [
+        "medical.pain_start"
+      ],
+      "fillIndex": 175
+    },
+    {
+      "paths": [
+        "medical.pain_helpers"
+      ],
+      "fillIndex": 176
+    },
+    {
+      "paths": [
+        "medical.pain_functioning_impact"
+      ],
+      "fillIndex": 177
+    },
+    {
+      "paths": [
+        "medical.used_opiates_for_pain"
+      ],
+      "fillIndex": 178
+    },
+    {
+      "paths": [
+        "medical.opiates_prescribed"
+      ],
+      "fillIndex": 179
+    },
+    {
+      "paths": [
+        "medical.abused_opiates"
+      ],
+      "fillIndex": 180
+    },
+    {
+      "paths": [
+        "medical.has_primary_care"
+      ],
+      "fillIndex": 181
+    },
+    {
+      "paths": [
+        "medical.primary_care_clinic_or_doctor",
+        "medical.primary_care_clinic"
+      ],
+      "fillIndex": 182
+    },
+    {
+      "paths": [
+        "medical.primary_care_doctor_name",
+        "medical.primary_care_doctor_contact"
+      ],
+      "fillIndex": 183
+    },
+    {
+      "paths": [
+        "medical.last_full_physical"
+      ],
+      "fillIndex": 184
+    },
+    {
+      "paths": [
+        "medical.more_than_one_year_since_physical.yes",
+        "medical.more_than_one_year_since_physical_yes"
+      ],
+      "fillIndex": 185
+    },
+    {
+      "paths": [
+        "medical.more_than_one_year_since_physical.no",
+        "medical.more_than_one_year_since_physical_no"
+      ],
+      "fillIndex": 186
+    },
+    {
+      "paths": [
+        "medical.allergies.yes",
+        "medical.allergies_yes"
+      ],
+      "fillIndex": 187
+    },
+    {
+      "paths": [
+        "medical.allergies.no",
+        "medical.allergies_no"
+      ],
+      "fillIndex": 188
+    },
+    {
+      "paths": [
+        "medical.allergy_reaction"
+      ],
+      "fillIndex": 189
+    },
+    {
+      "paths": [
+        "medical.has_or_needs_epipen"
+      ],
+      "fillIndex": 190
+    },
+    {
+      "paths": [
+        "medical.dental_problems.yes",
+        "medical.dental_problems_yes"
+      ],
+      "fillIndex": 191
+    },
+    {
+      "paths": [
+        "medical.dental_problems.no",
+        "medical.dental_problems_no"
+      ],
+      "fillIndex": 192
+    },
+    {
+      "paths": [
+        "medical.dentist_next_plan"
+      ],
+      "fillIndex": 193
+    },
+    {
+      "paths": [
+        "medications.medication_1.name"
+      ],
+      "fillIndex": 194
+    },
+    {
+      "paths": [
+        "medications.medication_1.dosage_frequency"
+      ],
+      "fillIndex": 195
+    },
+    {
+      "paths": [
+        "medications.medication_1.side_effects"
+      ],
+      "fillIndex": 196
+    },
+    {
+      "paths": [
+        "medications.medication_1.currently_taking.yes",
+        "medications.medication_1.currently_taking_yes"
+      ],
+      "fillIndex": 197
+    },
+    {
+      "paths": [
+        "medications.medication_1.currently_taking.no",
+        "medications.medication_1.currently_taking_no"
+      ],
+      "fillIndex": 198
+    },
+    {
+      "paths": [
+        "medications.medication_1.mixed_with_alcohol_or_drugs.yes",
+        "medications.medication_1.mixed_with_alcohol_or_drugs_yes"
+      ],
+      "fillIndex": 199
+    },
+    {
+      "paths": [
+        "medications.medication_1.mixed_with_alcohol_or_drugs.no",
+        "medications.medication_1.mixed_with_alcohol_or_drugs_no"
+      ],
+      "fillIndex": 200
+    },
+    {
+      "paths": [
+        "medications.medication_2.name"
+      ],
+      "fillIndex": 201
+    },
+    {
+      "paths": [
+        "medications.medication_2.dosage_frequency"
+      ],
+      "fillIndex": 202
+    },
+    {
+      "paths": [
+        "medications.medication_2.side_effects"
+      ],
+      "fillIndex": 203
+    },
+    {
+      "paths": [
+        "medications.medication_2.currently_taking.yes",
+        "medications.medication_2.currently_taking_yes"
+      ],
+      "fillIndex": 204
+    },
+    {
+      "paths": [
+        "medications.medication_2.currently_taking.no",
+        "medications.medication_2.currently_taking_no"
+      ],
+      "fillIndex": 205
+    },
+    {
+      "paths": [
+        "medications.medication_2.mixed_with_alcohol_or_drugs.yes",
+        "medications.medication_2.mixed_with_alcohol_or_drugs_yes"
+      ],
+      "fillIndex": 206
+    },
+    {
+      "paths": [
+        "medications.medication_2.mixed_with_alcohol_or_drugs.no",
+        "medications.medication_2.mixed_with_alcohol_or_drugs_no"
+      ],
+      "fillIndex": 207
+    },
+    {
+      "paths": [
+        "medications.medication_3.name"
+      ],
+      "fillIndex": 208
+    },
+    {
+      "paths": [
+        "medications.medication_3.dosage_frequency"
+      ],
+      "fillIndex": 209
+    },
+    {
+      "paths": [
+        "medications.medication_3.side_effects"
+      ],
+      "fillIndex": 210
+    },
+    {
+      "paths": [
+        "medications.medication_3.currently_taking.yes",
+        "medications.medication_3.currently_taking_yes"
+      ],
+      "fillIndex": 211
+    },
+    {
+      "paths": [
+        "medications.medication_3.currently_taking.no",
+        "medications.medication_3.currently_taking_no"
+      ],
+      "fillIndex": 212
+    },
+    {
+      "paths": [
+        "medications.medication_3.mixed_with_alcohol_or_drugs.yes",
+        "medications.medication_3.mixed_with_alcohol_or_drugs_yes"
+      ],
+      "fillIndex": 213
+    },
+    {
+      "paths": [
+        "medications.medication_3.mixed_with_alcohol_or_drugs.no",
+        "medications.medication_3.mixed_with_alcohol_or_drugs_no"
+      ],
+      "fillIndex": 214
+    },
+    {
+      "paths": [
+        "sexual_history.practices_safe_sex.yes",
+        "sexual_history.practices_safe_sex_yes"
+      ],
+      "fillIndex": 215
+    },
+    {
+      "paths": [
+        "sexual_history.practices_safe_sex.no",
+        "sexual_history.practices_safe_sex_no"
+      ],
+      "fillIndex": 216
+    },
+    {
+      "paths": [
+        "sexual_history.practices_safe_sex.sometimes",
+        "sexual_history.practices_safe_sex_sometimes"
+      ],
+      "fillIndex": 217
+    },
+    {
+      "paths": [
+        "sexual_history.partners_last_year"
+      ],
+      "fillIndex": 218
+    },
+    {
+      "paths": [
+        "sexual_history.blackouts_prior_to_sex.yes",
+        "sexual_history.blackouts_prior_to_sex_yes"
+      ],
+      "fillIndex": 219
+    },
+    {
+      "paths": [
+        "sexual_history.blackouts_prior_to_sex.no",
+        "sexual_history.blackouts_prior_to_sex_no"
+      ],
+      "fillIndex": 220
+    },
+    {
+      "paths": [
+        "sexual_history.paid_or_been_paid_for_sex.yes_paid",
+        "sexual_history.paid_or_been_paid_for_sex_yes_paid"
+      ],
+      "fillIndex": 221
+    },
+    {
+      "paths": [
+        "sexual_history.paid_or_been_paid_for_sex.yes_been_paid",
+        "sexual_history.paid_or_been_paid_for_sex_yes_been_paid"
+      ],
+      "fillIndex": 222
+    },
+    {
+      "paths": [
+        "sexual_history.paid_or_been_paid_for_sex.never",
+        "sexual_history.paid_or_been_paid_for_sex_never"
+      ],
+      "fillIndex": 223
+    },
+    {
+      "paths": [
+        "sexual_history.substance_use_impacted_sex_life"
+      ],
+      "fillIndex": 224
+    },
+    {
+      "paths": [
+        "sexual_history.tested_std_hepatitis_hiv.yes",
+        "sexual_history.tested_std_hepatitis_hiv_yes"
+      ],
+      "fillIndex": 225
+    },
+    {
+      "paths": [
+        "sexual_history.tested_std_hepatitis_hiv.no",
+        "sexual_history.tested_std_hepatitis_hiv_no"
+      ],
+      "fillIndex": 226
+    },
+    {
+      "paths": [
+        "sexual_history.wants_sexual_health_resources_if_no.yes",
+        "sexual_history.wants_sexual_health_resources_if_no_yes"
+      ],
+      "fillIndex": 227
+    },
+    {
+      "paths": [
+        "sexual_history.wants_sexual_health_resources_if_no.no",
+        "sexual_history.wants_sexual_health_resources_if_no_no"
+      ],
+      "fillIndex": 228
+    },
+    {
+      "paths": [
+        "sexual_history.additional_notes"
+      ],
+      "fillIndex": 229
+    },
+    {
+      "paths": [
+        "vocational.looking_for_work.yes",
+        "vocational.looking_for_work_yes"
+      ],
+      "fillIndex": 230
+    },
+    {
+      "paths": [
+        "vocational.looking_for_work.no",
+        "vocational.looking_for_work_no"
+      ],
+      "fillIndex": 231
+    },
+    {
+      "paths": [
+        "vocational.employment_start_date"
+      ],
+      "fillIndex": 232
+    },
+    {
+      "paths": [
+        "vocational.hourly_wage_or_annual_income"
+      ],
+      "fillIndex": 233
+    },
+    {
+      "paths": [
+        "vocational.full_time_or_part_time"
+      ],
+      "fillIndex": 234
+    },
+    {
+      "paths": [
+        "vocational.persons_living_on_income"
+      ],
+      "fillIndex": 235
+    },
+    {
+      "paths": [
+        "vocational.financial_state"
+      ],
+      "fillIndex": 236
+    },
+    {
+      "paths": [
+        "vocational.trouble_at_work_due_to_substance_use"
+      ],
+      "fillIndex": 237
+    },
+    {
+      "paths": [
+        "educational.liked_school_when_younger"
+      ],
+      "fillIndex": 238
+    },
+    {
+      "paths": [
+        "educational.diagnosed_learning_disabilities"
+      ],
+      "fillIndex": 239
+    },
+    {
+      "paths": [
+        "educational.clubs_or_sports"
+      ],
+      "fillIndex": 240
+    },
+    {
+      "paths": [
+        "educational.substance_use_interfered_with_school"
+      ],
+      "fillIndex": 241
+    },
+    {
+      "paths": [
+        "military.active_duty"
+      ],
+      "fillIndex": 242
+    },
+    {
+      "paths": [
+        "military.deployed"
+      ],
+      "fillIndex": 243
+    },
+    {
+      "paths": [
+        "military.highest_rank"
+      ],
+      "fillIndex": 244
+    },
+    {
+      "paths": [
+        "military.discharge_status"
+      ],
+      "fillIndex": 245
+    },
+    {
+      "paths": [
+        "military.substance_use_interfered_with_military"
+      ],
+      "fillIndex": 246
+    },
+    {
+      "paths": [
+        "current_marital_status_and_living_environment.relationship_length",
+        "current.relationship_length"
+      ],
+      "fillIndex": 247
+    },
+    {
+      "paths": [
+        "current_marital_status_and_living_environment.relationship_description",
+        "current.relationship_description"
+      ],
+      "fillIndex": 248
+    },
+    {
+      "paths": [
+        "current_marital_status_and_living_environment.substance_use_impacted_relationship"
+      ],
+      "fillIndex": 249
+    },
+    {
+      "paths": [
+        "current_marital_status_and_living_environment.partner_uses_substances"
+      ],
+      "fillIndex": 250
+    },
+    {
+      "paths": [
+        "current_marital_status_and_living_environment.substances_in_partner_living_space"
+      ],
+      "fillIndex": 251
+    },
+    {
+      "paths": [
+        "current_marital_status_and_living_environment.children_count_and_location",
+        "current.children_count"
+      ],
+      "fillIndex": 252
+    },
+    {
+      "paths": [
+        "current_marital_status_and_living_environment.cps_involvement"
+      ],
+      "fillIndex": 253
+    },
+    {
+      "paths": [
+        "current_marital_status_and_living_environment.cps_case_details"
+      ],
+      "fillIndex": 254
+    },
+    {
+      "paths": [
+        "current_marital_status_and_living_environment.recovery_support_people",
+        "current.recovery_support_people"
+      ],
+      "fillIndex": 255
+    },
+    {
+      "paths": [
+        "hobbies_activities.fun_activities"
+      ],
+      "fillIndex": 256
+    },
+    {
+      "paths": [
+        "hobbies_activities.substance_use_impacted_activities.yes",
+        "hobbies_activities.substance_use_impacted_activities_yes"
+      ],
+      "fillIndex": 257
+    },
+    {
+      "paths": [
+        "hobbies_activities.substance_use_impacted_activities.no",
+        "hobbies_activities.substance_use_impacted_activities_no"
+      ],
+      "fillIndex": 258
+    },
+    {
+      "paths": [
+        "additional_addiction_questions.gambling_concerns"
+      ],
+      "fillIndex": 259
+    },
+    {
+      "paths": [
+        "additional_addiction_questions.spending_or_impulsive_spending_concerns"
+      ],
+      "fillIndex": 260
+    },
+    {
+      "paths": [
+        "additional_addiction_questions.technology_use_concerns"
+      ],
+      "fillIndex": 261
+    },
+    {
+      "paths": [
+        "strengths_challenges.personal_challenge"
+      ],
+      "fillIndex": 262
+    },
+    {
+      "paths": [
+        "strengths_challenges.personal_strengths"
+      ],
+      "fillIndex": 263
+    }
+  ],
+  "notes": [
+    "ReliaTrax does not expose stable friendly field names, so this maps by DOM order.",
+    "Education highest education, military history/status, and current marital status use Rose's repurposed-field mappings and runtime defaults.",
+    "Only update fieldMap when a fresh live snapshot confirms the DOM order changed.",
+    "v0.4.2 expands prompts to the full 264-field JSON shape, aligns runtime defaults with Rose_instructions.txt conditional rules, and keeps editable defaultAnswers after built-in Rose rules.",
+    "Troubleshooting trace logs include field indexes, DOM metadata, matched data path, data source, previous value, and written value. Treat logs as sensitive when live client data is present."
+  ],
+  "defaultAnswerMode": "fill_blanks",
+  "defaultAnswers": [
+    {
+      "question": "living_situation.referral_source",
+      "answer": "Self-referral"
+    },
+    {
+      "question": "withdrawal.seizure_due_to_withdrawal.no",
+      "answer": true
+    },
+    {
+      "question": "previous_substance_use_treatment.sponsor_or_mentor.no",
+      "answer": true
+    },
+    {
+      "question": "mental_health.diagnosed_by",
+      "answer": "Unknown"
+    },
+    {
+      "question": "mental_health_treatment.not_interested_in_resources",
+      "answer": false
+    },
+    {
+      "question": "symptoms_suicide_self_harm.plan_to_end_life.no",
+      "answer": true
+    },
+    {
+      "question": "symptoms_suicide_self_harm.means_or_plan_to_obtain_means.no",
+      "answer": true
+    },
+    {
+      "question": "symptoms_suicide_self_harm.access_to_self_harm_means",
+      "answer": "n/a"
+    },
+    {
+      "question": "violence.current_thoughts_hurting_others.no",
+      "answer": true
+    },
+    {
+      "question": "legal.sex_crime_conviction",
+      "answer": "No"
+    },
+    {
+      "question": "family.mother_medical_history",
+      "answer": "No"
+    },
+    {
+      "question": "family.mother_mental_health_history",
+      "answer": "No"
+    },
+    {
+      "question": "family.mother_substance_abuse_history",
+      "answer": "No"
+    },
+    {
+      "question": "family.father_medical_history",
+      "answer": "No"
+    },
+    {
+      "question": "family.father_mental_health_history",
+      "answer": "No"
+    },
+    {
+      "question": "family.father_substance_abuse_history",
+      "answer": "No"
+    },
+    {
+      "question": "family.has_siblings.yes",
+      "answer": true
+    },
+    {
+      "question": "medical.used_opiates_for_pain",
+      "answer": "No"
+    },
+    {
+      "question": "sexual_history.practices_safe_sex.yes",
+      "answer": true
+    },
+    {
+      "question": "sexual_history.partners_last_year",
+      "answer": "Information not provided"
+    },
+    {
+      "question": "sexual_history.blackouts_prior_to_sex.no",
+      "answer": true
+    },
+    {
+      "question": "sexual_history.paid_or_been_paid_for_sex.never",
+      "answer": true
+    },
+    {
+      "question": "sexual_history.substance_use_impacted_sex_life",
+      "answer": "Information not provided"
+    },
+    {
+      "question": "vocational.persons_living_on_income",
+      "answer": "Self"
+    },
+    {
+      "question": "educational.clubs_or_sports",
+      "answer": "No"
+    },
+    {
+      "question": "military.active_duty",
+      "answer": "n/a"
+    },
+    {
+      "question": "military.deployed",
+      "answer": "n/a"
+    },
+    {
+      "question": "military.highest_rank",
+      "answer": "n/a"
+    },
+    {
+      "question": "military.discharge_status",
+      "answer": "n/a"
+    },
+    {
+      "question": "military.substance_use_interfered_with_military",
+      "answer": "n/a"
+    },
+    {
+      "question": "current_marital_status_and_living_environment.partner_uses_substances",
+      "answer": "Information not provided"
+    },
+    {
+      "question": "current_marital_status_and_living_environment.substances_in_partner_living_space",
+      "answer": "n/a"
+    },
+    {
+      "question": "additional_addiction_questions.gambling_concerns",
+      "answer": "No"
+    },
+    {
+      "question": "additional_addiction_questions.spending_or_impulsive_spending_concerns",
+      "answer": "No"
+    },
+    {
+      "question": "additional_addiction_questions.technology_use_concerns",
+      "answer": "No"
+    }
+  ],
+  "releaseNotes": [
+    "v0.4.1 tightens Prompt 1 substance-use formatting: age_first_use must be a single Substance: age value, days_used_last_30 uses Estimated X days in the last 30 when calculated, and sober_duration prioritizes the longest reported sobriety period over current sobriety.",
+    "v0.4.2 tightens medication handling: Prompt 3 prioritizes substance-use and mental-health medications, excludes vitamins/supplements, and empty medication slots now write n/a text while leaving all medication checkboxes unchecked.",
+    "v0.4.4 adds a prompt-wide substance terminology rule requiring formal medical terminology for drugs and normalization of slang names such as meth, crystal meth, fent, and Percs."
+  ]
+};

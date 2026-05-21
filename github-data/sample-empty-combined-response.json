@@ -1,0 +1,430 @@
+{
+  "living_situation": {
+    "referral_source": "",
+    "reason_for_services": "",
+    "current_living_location": "",
+    "living_with": ""
+  },
+  "substance_use": {
+    "no_history": false,
+    "substance_1": {
+      "age_first_use": "",
+      "amount_used": "",
+      "frequency_used": "",
+      "tolerance": "",
+      "method": "",
+      "last_use_date": "",
+      "days_used_last_30": "",
+      "recent_pattern": "",
+      "behavioral_changes": "",
+      "consequences": "",
+      "sees_use_as_problem": {
+        "yes": false,
+        "no": false
+      },
+      "tried_to_quit": {
+        "yes": false,
+        "no": false
+      },
+      "sober_duration": ""
+    },
+    "substance_2": {
+      "age_first_use": "",
+      "amount_used": "",
+      "frequency_used": "",
+      "tolerance": "",
+      "method": "",
+      "last_use_date": "",
+      "days_used_last_30": "",
+      "recent_pattern": "",
+      "behavioral_changes": "",
+      "consequences": "",
+      "sees_use_as_problem": {
+        "yes": false,
+        "no": false
+      },
+      "tried_to_quit": {
+        "yes": false,
+        "no": false
+      },
+      "sober_duration": ""
+    },
+    "substance_3": {
+      "age_first_use": "",
+      "amount_used": "",
+      "frequency_used": "",
+      "tolerance": "",
+      "method": "",
+      "last_use_date": "",
+      "days_used_last_30": "",
+      "recent_pattern": "",
+      "behavioral_changes": "",
+      "consequences": "",
+      "extra_notes": "",
+      "sees_use_as_problem": {
+        "yes": false,
+        "no": false
+      },
+      "tried_to_quit": {
+        "yes": false,
+        "no": false
+      },
+      "sober_duration": ""
+    },
+    "other_substances": ""
+  },
+  "tobacco": {
+    "no_history": false,
+    "uses_tobacco_or_vapes": {
+      "yes": false,
+      "no": false
+    },
+    "vape_contains_nicotine": {
+      "yes": false,
+      "no": false
+    },
+    "amount_and_frequency": "",
+    "considers_problem": {
+      "yes": false,
+      "no": false
+    },
+    "wants_to_quit_now": {
+      "yes": false,
+      "no": false
+    },
+    "tried_to_quit_past": ""
+  },
+  "withdrawal": {
+    "no_history": false,
+    "experienced_withdrawal": {
+      "yes": false,
+      "no": false
+    },
+    "symptoms": "",
+    "seizure_due_to_withdrawal": {
+      "yes": false,
+      "no": false
+    },
+    "symptom_duration": "",
+    "onset_after_last_use": "",
+    "management": ""
+  },
+  "previous_substance_use_treatment": {
+    "detox_count": "",
+    "inpatient_residential_count": "",
+    "outpatient_count": "",
+    "support_groups_experience": {
+      "yes": false,
+      "no": false
+    },
+    "sponsor_or_mentor": {
+      "yes": false,
+      "no": false
+    },
+    "support_group_experience_description": ""
+  },
+  "mental_health": {
+    "no_history": false,
+    "diagnosis_history": "",
+    "age_diagnosed": "",
+    "diagnosed_by": "",
+    "agrees_with_diagnosis": {
+      "yes": false,
+      "no": false
+    },
+    "using_substances_at_diagnosis": "",
+    "substance_use_impacted_diagnosis": ""
+  },
+  "mental_health_treatment": {
+    "psychiatric_hospitalizations": {
+      "yes": false,
+      "no": false
+    },
+    "currently_working_with_psychiatrist": {
+      "yes": false,
+      "no": false
+    },
+    "currently_working_with_therapist": {
+      "yes": false,
+      "no": false
+    },
+    "mental_health_professionals_contact": "",
+    "not_interested_in_resources": false
+  },
+  "symptoms_suicide_self_harm": {
+    "current_symptoms": "",
+    "hallucinations": {
+      "yes": false,
+      "no": false
+    },
+    "eating_disorder_history": "",
+    "current_suicidal_ideation": {
+      "yes": false,
+      "no": false
+    },
+    "plan_to_end_life": {
+      "yes": false,
+      "no": false
+    },
+    "means_or_plan_to_obtain_means": {
+      "yes": false,
+      "no": false
+    },
+    "history_suicidal_ideation": {
+      "yes": false,
+      "no": false
+    },
+    "suicidal_ideation_life_context": "",
+    "suicidal_ideation_dates": "",
+    "suicidal_ideation_thoughts": "",
+    "history_suicide_attempts": {
+      "yes": false,
+      "no": false
+    },
+    "attempt_count": "",
+    "attempt_dates": "",
+    "attempt_methods": "",
+    "under_influence_during_attempts": "",
+    "feelings_about_past_attempts": "",
+    "protective_factors": "",
+    "history_self_harm": {
+      "yes": false,
+      "no": false
+    },
+    "self_harm_dates": "",
+    "self_harm_methods": "",
+    "feelings_about_past_self_harm": "",
+    "access_to_self_harm_means": "",
+    "risk_harming_self": {
+      "yes": false,
+      "no": false
+    },
+    "risk_harming_self_reason": ""
+  },
+  "trauma_grief": {
+    "trauma_history": {
+      "yes": false,
+      "no": false
+    },
+    "trauma_current_impact": "",
+    "interested_in_trauma_treatment": "",
+    "current_grief_or_loss": "",
+    "grieving_what": ""
+  },
+  "violence": {
+    "history_violent_behavior": {
+      "yes": false,
+      "no": false
+    },
+    "current_thoughts_hurting_others": {
+      "yes": false,
+      "no": false
+    },
+    "perpetrator_domestic_abuse": {
+      "yes": false,
+      "no": false
+    },
+    "current_risk_for_violence": {
+      "yes": false,
+      "no": false
+    },
+    "violence_risk_reason": ""
+  },
+  "legal": {
+    "lifetime_arrest_count": "",
+    "sex_crime_conviction": "",
+    "arrest_results": "",
+    "current_warrants": {
+      "yes": false,
+      "no": false
+    },
+    "probation_or_parole": {
+      "yes": false,
+      "no": false
+    }
+  },
+  "family": {
+    "mother_living": {
+      "yes": false,
+      "no": false
+    },
+    "mother_deceased_details": "",
+    "mother_relationship": "",
+    "mother_medical_history": "",
+    "mother_mental_health_history": "",
+    "mother_substance_abuse_history": "",
+    "father_living": {
+      "yes": false,
+      "no": false
+    },
+    "father_deceased_details": "",
+    "father_relationship": "",
+    "father_medical_history": "",
+    "father_mental_health_history": "",
+    "father_substance_abuse_history": "",
+    "has_siblings": {
+      "yes": false,
+      "no": false
+    },
+    "growing_up_experience": ""
+  },
+  "spiritual_cultural": {
+    "religion_affiliation": "",
+    "active_in_religion": "",
+    "culture_values_raised_with": "",
+    "childhood_socioeconomic_status": ""
+  },
+  "medical": {
+    "current_physical_health_problems": "",
+    "pain_issues": {
+      "yes": false,
+      "no": false
+    },
+    "pain_location": "",
+    "pain_start": "",
+    "pain_helpers": "",
+    "pain_functioning_impact": "",
+    "used_opiates_for_pain": "",
+    "opiates_prescribed": "",
+    "abused_opiates": "",
+    "has_primary_care": "",
+    "primary_care_clinic_or_doctor": "",
+    "primary_care_doctor_name": "",
+    "last_full_physical": "",
+    "more_than_one_year_since_physical": {
+      "yes": false,
+      "no": false
+    },
+    "allergies": {
+      "yes": false,
+      "no": false
+    },
+    "allergy_reaction": "",
+    "has_or_needs_epipen": "",
+    "dental_problems": {
+      "yes": false,
+      "no": false
+    },
+    "dentist_next_plan": ""
+  },
+  "medications": {
+    "medication_1": {
+      "name": "",
+      "dosage_frequency": "",
+      "side_effects": "",
+      "currently_taking": {
+        "yes": false,
+        "no": false
+      },
+      "mixed_with_alcohol_or_drugs": {
+        "yes": false,
+        "no": false
+      }
+    },
+    "medication_2": {
+      "name": "",
+      "dosage_frequency": "",
+      "side_effects": "",
+      "currently_taking": {
+        "yes": false,
+        "no": false
+      },
+      "mixed_with_alcohol_or_drugs": {
+        "yes": false,
+        "no": false
+      }
+    },
+    "medication_3": {
+      "name": "",
+      "dosage_frequency": "",
+      "side_effects": "",
+      "currently_taking": {
+        "yes": false,
+        "no": false
+      },
+      "mixed_with_alcohol_or_drugs": {
+        "yes": false,
+        "no": false
+      }
+    }
+  },
+  "sexual_history": {
+    "practices_safe_sex": {
+      "yes": false,
+      "no": false,
+      "sometimes": false
+    },
+    "partners_last_year": "",
+    "blackouts_prior_to_sex": {
+      "yes": false,
+      "no": false
+    },
+    "paid_or_been_paid_for_sex": {
+      "yes_paid": false,
+      "yes_been_paid": false,
+      "never": false
+    },
+    "substance_use_impacted_sex_life": "",
+    "tested_std_hepatitis_hiv": {
+      "yes": false,
+      "no": false
+    },
+    "wants_sexual_health_resources_if_no": {
+      "yes": false,
+      "no": false
+    },
+    "additional_notes": ""
+  },
+  "vocational": {
+    "looking_for_work": {
+      "yes": false,
+      "no": false
+    },
+    "employment_start_date": "",
+    "hourly_wage_or_annual_income": "",
+    "full_time_or_part_time": "",
+    "persons_living_on_income": "",
+    "financial_state": "",
+    "trouble_at_work_due_to_substance_use": ""
+  },
+  "educational": {
+    "liked_school_when_younger": "",
+    "diagnosed_learning_disabilities": "",
+    "clubs_or_sports": "",
+    "substance_use_interfered_with_school": ""
+  },
+  "military": {
+    "active_duty": "",
+    "deployed": "",
+    "highest_rank": "",
+    "discharge_status": "",
+    "substance_use_interfered_with_military": ""
+  },
+  "current_marital_status_and_living_environment": {
+    "relationship_length": "",
+    "relationship_description": "",
+    "substance_use_impacted_relationship": "",
+    "partner_uses_substances": "",
+    "substances_in_partner_living_space": "",
+    "children_count_and_location": "",
+    "cps_involvement": "",
+    "cps_case_details": "",
+    "recovery_support_people": ""
+  },
+  "hobbies_activities": {
+    "fun_activities": "",
+    "substance_use_impacted_activities": {
+      "yes": false,
+      "no": false
+    }
+  },
+  "additional_addiction_questions": {
+    "gambling_concerns": "",
+    "spending_or_impulsive_spending_concerns": "",
+    "technology_use_concerns": ""
+  },
+  "strengths_challenges": {
+    "personal_challenge": "",
+    "personal_strengths": ""
+  }
+}

@@ -1,0 +1,60 @@
+For example "How many days in the last 30 did you use", we should use the "What was the date of last use" and todays date, to calculate the days used in the last 30. For example, if the date of assement was 05-18-2026, and the last use was 05-03-2026, then the days used in the last 30 would be 15. So the final output should be "Estimated X days in the last 30".
+
+
+
+Rose to send a "Golden Example" of how text within text box's should read. For example, "Bobby describes..." or "Bobby stated..."
+Examples of this are in the file "Golden Text Examples.txt" Look at the Subjective Lauguage rules within the "Original_Prompt.txt" file for more details on how to write these narrative fields. We should use the same language in the "Golden Text Examples.txt" file for the narrative fields in the "Original_Prompt.txt" file. For example, for the field
+
+
+"Recent Patern of Use and how long ahas it been occurrring" , use the prompt template from the "Original_Pormpt.txt" file. 
+
+When it comes to "Age of First use" we should look for explict ages, but if none were given 
+
+Read the "Original_Pormpt.txt" , and update our prompt-1 - prompt-4 , highling how to infer data when a client does not give an explicit answer. Update all 4 of our current prompts to allign with the "Original_Prompt.txt" instructions. 
+
+
+Rephrase the "Last 30 days of use" to include "Estimated X days in the last 30" based on the date of last use and the date of assessment.
+
+[.] For the "Age of first use", include the substance, and then a colon, followed by the age or estimated age of first use or 'Information not provided'. 
+
+
+[.] If they specifiy a longest period of sobriety, we should include that in the "How long were you sober" field. For example, "Bobby reports his longest period of sobriety was approximately 6 months." If they do not specify a longest period of sobriety, report their current period of sobriety.
+
+
+[.] There's a section asking about having children, if they dont have children, we should report "Bobby reports he does not have children.", Use the information outlined within the "Original_Prompt.txt" to write if they do have children.
+
+[.] For the "How long did symptoms last" field, make sure were writing in a way that reflects the clients perspective. For example, "Bobby reports his symptoms lasted for approximately one week." If they do not specify how long their symptoms lasted, we can write "Bobby reports he is unsure how long his symptoms lasted." or "Bobby did not provide information on how long his symptoms lasted." depending on the context of the information provided.
+
+[.] If a client aggrees to their diagnosis under the Mental Health section, we should report that they do not believe their substance use impacted their diagnosis use. If they do not aggree with their diagnosis, and they are within the timeline of their substance use, we should report that they were using substances during the time of diagnosis and that they do not currently aggree with their diagnosis of "X" but they might aggree with the diagnosis of "Y" instead. If they do not provide information on whether they aggree with their diagnosis, we can report "Bobby did not provide information on whether he agrees with his diagnosis."
+
+[.] For the "Were you using any substances at the time of your diagnosis?" field, let's only put a "Yes" or "No" depending on the math of when substances were started and when the diagnosis was. Start with a "Yes" or "No" and then we can add more information if needed. Unless the client explicitly states t
+
+
+[.] For the "Were you using any substances at the time of your diagnosis?" field, let's default to "Client reports they were not using substances at the time of their diagnosis" if they do not provide information on this. If they do provide information, we can report "Client reports they were using substances at the time of their diagnosis." or "Client reports they were not using substances at the time of their diagnosis." depending on what they say.
+
+[.] If we ask for a therapist information or a psychatrist information, and the client does not 
+
+
+[.] For Legal History, specifically the "Have you ever been convicted of a sex crime" field, state it as "Client reports xyz..."
+
+[.] For Medications, if the client does not take any medications, all fields for Medication # 1 - # 3 should either be N/A for text fields, and none of the checkboxes should be checked. We should also prioritize reporting medications dealing with substance use and mental health, and then report other medications after that. We should not be concerned with vitamins or supplements. 
+
+I've noticed some issues with the Medications sections. I've updated the OG_OUTPUT.TXT and Trace_Log_Output.txt to reflect some issues. Cruz *DOES* take medications, but we did not report them correctly. Please examing these files, and out prompts within the "rose-reliatrax-bps-config.json" file to make sure we correctly report and prioritize medications. For Medications, if the client does not take any medications, all fields for Medication # 1 - # 3 should either be N/A for text fields, and none of the checkboxes should be checked. We should also prioritize reporting medications dealing with substance use and mental health, and then report other medications after that. We should not be concerned with vitamins or supplements. 
+
+
+[.] For education history, within the "Did you like school when you were younger?" field, if it is highschool or under, I want the answer to include if they specified if they were intresed in GED resources or not. Include that answer.
+
+[.] Update the prompt within the "rose-reliatrax-bps-config.json" specifically for the "Does your partner use substances?" field. If the client is single, divorced, or widowed, we should report "n/a" for this field. Otherwise report what the client states.
+
+
+[.] For the Withdrawal History, specifically the "How long after you last use did these symptons being?" field, we should if they have any history of withdraw, the default response should be "Several hours after cessation of use" unless otherwise specified by the client. For the "How long did symptions last?" , we should default to "Reports symptons lasting approximately lasting 5-10 days", *UNLESS* the substance is marijuana, in which case we should default to "Reports symptons lasting approximately 2-3 days", unless the client specifies otherwise.
+
+
+[.] Under Medical History, if the client does not have a primary care doctor, set the field "If so, what clinic do you go to" to "n/a" and the "If they are in private practice, what is the name of their doctor?" field to "n/a". 
+[.] Under the "Stubstance Use Information" section, if there's no second or third stustance, put "n/a" in the "Age of first use" field, unless there are second or third substances.
+
+
+
+[.] Under the Mental Health section, if the client was not using substances during the time of their diagnosis, under the field "If yes, do you believe your use impacted your diagnosis?" , we should put "n/a" since they were not using substances. We should default to "n/a" *UNLESS* the client explicitly states whether they believe their use impacted their diagnosis or not. If they do provide information, we can report "Client reports they believe their use impacted their diagnosis.".
+
+[.] Please update the rules within all of the prompts to include that we should write all drugs using their medical terminology. For example we should write "methamphetamine" instead of "meth" or "crystal meth". We should write "fentanyl" instead of "fent" or "Opioids (Percocet)" instead of "Percs". 

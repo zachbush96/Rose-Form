@@ -1,0 +1,88 @@
+{ 
+  "living_situation": { 
+    "referral_source": "", 
+    "reason_for_services": "", 
+    "current_living_location": "Bridge House", 
+    "same_or_different_than_current_location": "", 
+    "living_with": "" 
+  }, 
+  "substance_use": { 
+    "no_history": false, 
+    "substance_1": { 
+      "substance": "fentanyl", 
+      "age_first_use": "early 30s", 
+      "amount_used": "", 
+      "frequency_used": "", 
+      "tolerance": "", 
+      "method": "", 
+      "last_use_date": "a few months ago", 
+      "days_used_last_30": "", 
+      "recent_pattern": "", 
+      "behavioral_changes": "", 
+      "consequences": "overdoses, jail, lost family members, burned bridges", 
+      "sees_use_as_problem": "", 
+      "tried_to_quit": "", 
+      "sober_duration": "almost 2 years after prison; current period a few months"
+    }, 
+    "substance_2": { 
+      "substance": "methamphetamine", 
+      "age_first_use": "15", 
+      "amount_used": "", 
+      "frequency_used": "", 
+      "tolerance": "", 
+      "method": "", 
+      "last_use_date": "over 2 months ago", 
+      "days_used_last_30": "", 
+      "recent_pattern": "", 
+      "behavioral_changes": "", 
+      "consequences": "overdoses, jail, lost family members, burned bridges", 
+      "sees_use_as_problem": "", 
+      "tried_to_quit": "", 
+      "sober_duration": "almost 2 years after prison; current period a few months" 
+    }, 
+    "substance_3": { 
+      "substance": "cannabis", 
+      "age_first_use": "", 
+      "amount_used": "", 
+      "frequency_used": "", 
+      "tolerance": "", 
+      "method": "", 
+      "last_use_date": "", 
+      "days_used_last_30": "", 
+      "recent_pattern": "", 
+      "behavioral_changes": "", 
+      "consequences": "", 
+      "sees_use_as_problem": "", 
+      "tried_to_quit": "", 
+      "sober_duration": "" 
+    }, 
+    "other_substances": "" 
+  }, 
+  "tobacco": { 
+    "no_history": false, 
+    "uses_tobacco_or_vapes": "yes", 
+    "vape_contains_nicotine": "", 
+    "amount_and_frequency": "", 
+    "considers_problem": "", 
+    "wants_to_quit_now": "yes", 
+    "tried_to_quit_past": "" 
+  }, 
+  "withdrawal": { 
+    "no_history": false, 
+    "experienced_withdrawal": "yes", 
+    "symptoms": "got really sick", 
+    "seizure_due_to_withdrawal": "no", 
+    "symptom_duration": "", 
+    "onset_after_last_use": "", 
+    "management": "detox" 
+  }, 
+  "previous_substance_use_treatment": { 
+    "treatment_history_summary": "", 
+    "detox_count": "2", 
+    "inpatient_residential_count": "", 
+    "outpatient_count": "", 
+    "support_groups_experience": "yes", 
+    "sponsor_or_mentor": "", 
+    "support_group_experience_description": "tried multiple times, not a believer, never done much" 
+  } 
+}

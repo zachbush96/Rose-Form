@@ -1,0 +1,2207 @@
+Reliatrax BPS Automation Specification
+Purpose and Workflow Overview
+This document is intended to guide automation of the Reliatrax BPS form using structured output from Bastion GPT. The current workflow is:
+
+Clinician completes the BPS interview verbally with the client.
+
+Clinician does not ask every single question on the Reliatrax form.
+
+Bastion GPT generates structured clinical responses from the interview.
+
+Automation should transfer Bastion GPT output into the correct Reliatrax fields.
+
+Some fields should be populated from direct client answers.
+
+Some fields should use default answers every time unless the client specifically states otherwise.
+
+Some fields require inference from the broader interview rather than direct copying.
+
+Some fields are intentionally repurposed because the Reliatrax form does not provide a separate text box for the information the clinician needs documented.
+
+If a field does not apply or there is no information to fill in, use n/a unless this document specifies another response such as Information not provided, Unknown, or leaving a checkbox blank.
+
+Do not invent clinical information. When information is missing and the rule does not specify a default, use the appropriate missing-information phrase.
+
+The overall goal is to reduce manual copy/paste from Bastion GPT into Reliatrax while keeping the form clinically accurate, consistent, and formatted the way the clinician currently completes it manually.
+
+Global Rules
+Client Naming and Clinical Voice
+Use the client's first name in narrative responses when clinically appropriate.
+
+Prefer full-sentence clinical documentation.
+
+Use phrases such as:
+
+[Client first name] reports...
+
+[Client first name] denies...
+
+[Client first name] states...
+
+[Client first name] cannot recall...
+
+For client-reported legal, medical, mental health, substance use, and family history information, frame it as client report rather than objective fact.
+
+Avoid overly casual phrasing.
+
+Drug/substance terminology rule: Use formal medical terminology for all drugs and substance names. Normalize slang or street names to medical terms, for example methamphetamine instead of meth or crystal meth, fentanyl instead of fent, and Opioids (Percocet) instead of Percs.
+
+Avoid em dashes.
+
+Keep responses concise but clinically complete.
+
+Missing Information Rules
+Use these rules unless a field-specific rule says otherwise:
+
+If a field does not apply, enter n/a.
+
+If the client was asked but does not know or cannot recall, use a full sentence such as:
+
+[Client first name] reports they do not know.
+
+[Client first name] cannot recall this information.
+
+If the client was not asked and there is no default/inference rule, use Information not provided.
+
+Do not leave required text fields blank unless this document explicitly says to leave the field blank.
+
+For checkbox fields, only select a checkbox if the logic in this document indicates which option should be selected.
+
+Direct Ask vs Default vs Inference
+There are four types of fields:
+
+Direct Ask / Direct Entry: The clinician asks the client directly. Use the client’s response.
+
+Default Logic: The clinician does not routinely ask the question and wants the same default response unless the client clearly says something different.
+
+Inference Logic: The system should infer the most clinically appropriate answer from the whole interview, including earlier/later information.
+
+Repurposed Field Logic: The Reliatrax field label does not perfectly match how the clinician uses the field. Follow the clinician’s custom mapping rather than the literal field label.
+
+Default Response Rules
+If the client specifies something different than a default, use the client’s reported information.
+
+Default answers should not override clear client report.
+
+If the client directly contradicts a default, the client’s report wins.
+
+n/a Formatting
+Use lowercase n/a unless a field-specific instruction says otherwise.
+
+The clinician sometimes referred to “NA” verbally, but the final standardized automation value should be n/a.
+
+Reliatrax Form Splitting
+The Reliatrax BPS form is large and may be split into four technical automation parts. This document is one master rule set for the entire form. The four functional sections are:
+
+Living Situation, Substance Use, Tobacco, Withdrawal, Treatment History
+
+Mental Health, Symptoms, Suicide, Self-Harm, Trauma, Grief, Violence
+
+Legal, Family, Spiritual, Cultural, Medical, Medications, Sexual Risk
+
+Vocational, Education, Military, Relationship, Children/CPS, Supports, Hobbies, Gambling/Technology, Strengths/Challenges
+
+Part 1: Living Situation, Substance Use, Tobacco, Withdrawal, and Treatment History
+Living Situation
+Field: Who referred you to services?
+Default:
+
+Enter Self-referral.
+
+Exception:
+
+If the client specifies another referral source, enter the specific referral source instead.
+
+Field: Tell me a bit about why you decided to come to our services.
+Type: Direct ask / direct entry.
+
+Rule:
+
+The clinician asks this question directly.
+
+Enter the client’s stated reason for seeking services.
+
+Use a clinically appropriate summary of what the client says.
+
+Field: Where are you currently living?
+Type: Direct ask / direct entry.
+
+Rule:
+
+Enter the client’s current living situation.
+
+If client is in sober living, enter the name of the sober living house if provided.
+
+If client is living elsewhere, document the reported setting.
+
+Examples:
+
+Purpose Recovery sober living
+
+Serene sober living
+
+With family
+
+Apartment
+
+Homeless/shelter setting
+
+Field: With whom are you living?
+Default for sober living:
+
+Enter Other residents at [name of sober living listed above].
+
+Exception:
+
+If the client reports living with specific people or in a different arrangement, enter what they report.
+
+Substance Use Information
+The form includes Substance of Choice 1, 2, and 3. Use the same logic for each substance.
+
+If no second or third substance is reported, enter n/a for that substance section as applicable.
+
+Field: Substance and Age of First Use
+Format:
+
+[Substance name]
+
+Age of first use: [age]
+
+Example:
+
+Alcohol
+
+Age of first use: 15
+
+Rule:
+
+Use the substance name and the client’s reported age of first use.
+
+Field: In general, how much were you using?
+Default:
+
+Enter Daily use at peak.
+
+Exception:
+
+If client provides a specific amount or pattern, use the client’s specific answer.
+
+Field: How often were you using?
+Default:
+
+Enter Daily use at peak.
+
+Exception:
+
+If client provides a specific frequency, use the client’s specific answer.
+
+Field: At any point, did you develop a tolerance?
+Default:
+
+Select Yes.
+
+Exception:
+
+If the client specifically states they did not develop tolerance, select No.
+
+Field: Method of Use
+Rule:
+
+Enter the client’s reported method of use.
+
+Examples:
+
+oral
+
+smoking
+
+snorting
+
+IV
+
+vaping
+
+inhalation
+
+Field: Date of Last Use
+Rule:
+
+Enter the client’s reported last use date.
+
+Use the exact date if provided.
+
+If client gives approximate timing, summarize clearly.
+
+Field: Days Used in the Last 30
+Type: Calculated field.
+
+Rule:
+
+Calculate based on the client’s date of last use and reported recent pattern.
+
+If client reports continuous abstinence for more than 30 days, enter 0.
+
+If client reports use within the last 30 days, calculate as accurately as possible from the transcript.
+
+Field: Recent Pattern of Use
+Rule:
+
+Enter the client’s reported recent use pattern.
+
+If exact recent pattern is not directly stated, infer from the client’s timeline and reported last use.
+
+Field: Behavioral Changes
+Type: Inference field.
+
+Rule:
+
+Infer behavioral changes related to the specific substance based on:
+
+substance-specific information the client reported,
+
+broader interview content,
+
+behavioral consequences described elsewhere,
+
+legal, family, work, mental health, or housing consequences if connected to use.
+
+Use clinically appropriate language.
+
+Field: Consequences
+Type: Direct ask / direct entry.
+
+Rule:
+
+Clinician asks about consequences directly.
+
+Enter the consequences the client reports.
+
+Field: Do you see your use of substances as a problem?
+Default:
+
+Select Yes.
+
+Exception:
+
+If the client explicitly states they do not see use as a problem, select No.
+
+Field: Have you tried to quit using this substance in the past?
+Default:
+
+Select Yes.
+
+Exception:
+
+If the client explicitly states they have not tried to quit, select No.
+
+Field: How long were you sober?
+Rule:
+
+Enter the client’s longest reported period of sobriety.
+
+Clinician asks this during the interview.
+
+Field: Are there any other substances you have used in the past?
+Rule if no other substances:
+
+Enter [Client first name] reports no other substances used in the past.
+
+Rule if other substances are reported:
+
+List substances and relevant details provided.
+
+Tobacco Assessment
+Field: No history of tobacco use
+Rule:
+
+Only check this if the client reports no history of tobacco use.
+
+Field: Do you smoke cigarettes, cigars, use chewing tobacco, or vape?
+Rule:
+
+Select Yes if the client reports any current tobacco/nicotine use.
+
+Select No if no current tobacco/nicotine use.
+
+Field: If vape, does it contain nicotine?
+Rule:
+
+If client says they vape, assume Yes unless they specify nicotine-free vaping.
+
+If client does not vape and only uses cigarettes, leave blank.
+
+If client does not use tobacco products, leave blank.
+
+Field: How much do you use and how often?
+Rule:
+
+Enter a sentence based on client report.
+
+Examples:
+
+[Client first name] reports vaping daily.
+
+[Client first name] reports cigarette use.
+
+[Client first name] reports no tobacco use.
+
+Field: Do you consider this to be a problem?
+If client wants quitting resources:
+
+Select Yes.
+
+If client does not want quitting resources:
+
+Select No.
+
+Field: Are you wanting to quit now?
+If client wants quitting resources:
+
+Select Yes.
+
+If client does not want quitting resources:
+
+Select No.
+
+Field: Have you tried to quit in the past?
+This field is used to document interest in quitting resources.
+
+If client wants quitting resources:
+
+Enter [Client first name] is interested in resources for quitting.
+
+If client does not want quitting resources:
+
+Enter [Client first name] is not interested in quitting tobacco at this time.
+
+Withdrawal History
+Field: No history of withdrawal
+Rule:
+
+Check this only if the client reports no withdrawal history.
+
+Field: Have you experienced withdrawal?
+Rule:
+
+Select Yes if client reports withdrawal history.
+
+Select No if client reports no withdrawal history.
+
+Field: What symptoms did you experience?
+If withdrawal history is present:
+
+List the withdrawal symptoms the client reports.
+
+Clinician asks this directly.
+
+If no withdrawal history:
+
+Enter [Client first name] reports not experiencing any withdrawal symptoms.
+
+Field: Have you had a seizure due to withdrawal?
+Rule:
+
+Clinician asks this directly.
+
+If client says yes, select Yes.
+
+If client says no, select No.
+
+If not specified, select No.
+
+Field: How long did your symptoms last?
+If withdrawal history is present:
+
+Default to Reports symptoms lasting approximately one week unless the client gives a different duration.
+
+Exception:
+
+If the withdrawal history is for marijuana, default to Reports symptoms lasting approximately 2-3 days unless the client gives a different duration.
+
+If no withdrawal history:
+
+Enter n/a unless the automation requires the field to be left blank. Preferred value is n/a.
+
+Field: How long after your last use did these symptoms begin?
+If withdrawal history is present:
+
+Default to Several hours after cessation of use unless the client gives a different onset.
+
+If no withdrawal history:
+
+Enter n/a.
+
+Field: How did you manage withdrawal symptoms?
+If withdrawal history is present:
+
+Document how client managed symptoms.
+
+Examples:
+
+detox
+
+hospital
+
+medical care
+
+self-managed
+
+tapering
+
+rest/fluids
+
+If no withdrawal history:
+
+Enter n/a.
+
+Detox and Treatment History
+Field: How many times have you detoxed?
+Rule:
+
+Enter the number the client reports.
+
+If none, enter 0.
+
+Field: Total number of inpatient/residential treatments
+Rule:
+
+Clinician typically asks, “Have you been to rehab?”
+
+If client gives exact inpatient/residential count, enter that.
+
+If client gives a general rehab count without differentiating inpatient vs outpatient, divide the count between inpatient/residential and outpatient unless otherwise specified.
+
+Default split rule:
+
+If client says they have been to rehab 3 times, enter:
+
+inpatient/residential: 2 times
+
+outpatient: 1 time
+
+Use similar reasonable split logic unless client specifies exact categories.
+
+Field: Total number of outpatient treatments
+Rule:
+
+Use client’s specific outpatient treatment count if provided.
+
+If only total rehab count is provided, use the split logic above.
+
+Field: Any experience with 12-step programs or other support groups?
+Rule:
+
+Select Yes if client reports any 12-step/support group experience.
+
+Select No if client reports none.
+
+Field: Have you ever had a sponsor or mentor?
+Rule:
+
+Select Yes if yes.
+
+If not specified, select No.
+
+Field: What was that experience for you?
+If no 12-step/support group experience:
+
+Enter [Client first name] reports no experience with 12-step programs or support groups.
+
+If experience exists but details are not provided:
+
+Enter [Client first name] reports participation in [AA/NA/MA/12-step/support group, as applicable].
+
+If client gives details:
+
+Summarize what client reports about participation or experience.
+
+Part 2: Mental Health, Symptoms, Suicide, Self-Harm, Trauma, Grief, and Violence
+Mental Health History
+Field: No history of mental health
+Rule:
+
+Check this only if the client reports never receiving a mental health diagnosis and no relevant mental health history.
+
+If client has ever received a mental health diagnosis, leave unchecked.
+
+Field: Have you ever been given a mental health diagnosis? If yes, state diagnosis.
+Rule:
+
+Enter diagnoses the client reports.
+
+Examples:
+
+PTSD
+
+depression
+
+anxiety
+
+bipolar disorder
+
+ADHD
+
+Field: How old were you when you were diagnosed?
+Format:
+
+Use a full sentence.
+
+Example:
+
+[Client first name] reports they were diagnosed with PTSD at age 12 and depression at age 13.
+
+Field: Who were you diagnosed by?
+Default:
+
+Enter Unknown unless client specifies provider type/name.
+
+Field: Do you agree with the diagnosis?
+Rule:
+
+Select Yes or No based on client report.
+
+If client does not directly answer, infer from what they say about the diagnosis.
+
+Field: Were you using any substances at the time of your diagnosis?
+Rule:
+
+Select Yes or No based on client report.
+
+If not directly stated, infer based on:
+
+age at diagnosis,
+
+age of first substance use,
+
+substance use timeline.
+
+Field: If yes, do you believe this use impacted your diagnosis?
+If client was not using substances at time of diagnosis:
+
+Enter n/a.
+
+If client was using substances at time of diagnosis:
+
+Enter Yes or No based on client report.
+
+If possible, infer from the timeline and reported symptoms.
+
+If client specifically says substance use impacted diagnosis, enter Yes.
+
+If client says it did not, enter No.
+
+Mental Health Treatment
+Field: History of psychiatric hospitalizations
+Rule:
+
+Clinician asks directly.
+
+Select Yes or No based on report.
+
+Field: Are you working with a psychiatrist?
+Rule:
+
+Select Yes if currently working with psychiatrist.
+
+Select No if not currently working with psychiatrist.
+
+Field: Are you currently working with an outpatient or intensive outpatient therapist?
+Rule:
+
+Select Yes or No based on current treatment.
+
+Field: Please provide name and contact information for any mental health professionals you are currently working with.
+Rule:
+
+Include therapist and/or psychiatrist name if provided.
+
+Include organization/agency/practice they work for if provided.
+
+Include additional relevant information such as length of time working together if client reports it.
+
+Clinician asks name and organization for psychiatrist and therapist when applicable.
+
+Field: I am not interested in receiving any resources or referrals.
+Rule:
+
+Never check this box.
+
+Current Mental Health Symptoms
+Field: What current mental health symptoms are you experiencing, if any? Frequency, duration, intensity.
+Type: Direct ask / direct entry.
+
+Rule:
+
+Clinician asks directly whether client is experiencing current mental health symptoms.
+
+If yes, list reported symptoms and include frequency/duration/intensity when available.
+
+Include whether symptoms are managed with medication if relevant.
+
+Include whether symptoms are not managed with medication if client reports that.
+
+If no symptoms:
+
+Enter [Client first name] reports they are not experiencing any mental health symptoms currently.
+
+Field: Do you ever see or hear things that other people do not?
+Rule:
+
+Clinician asks directly.
+
+Select Yes or No based on client report.
+
+Field: Have you ever received treatment or been in need of treatment for an eating disorder or disordered eating?
+Important custom field placement rule:
+
+This field may be used to document hallucination details due to Reliatrax layout.
+
+If client answers Yes to seeing/hearing things other people do not, the expanded details about what they see/hear should be placed in this text box first.
+
+After hallucination details, add a line break and answer the eating disorder question.
+
+If hallucinations are reported:
+
+Format:
+
+[Client first name] reports [details about what they see/hear].
+
+Eating disorder/disordered eating: No.
+
+Eating disorder default:
+
+The clinician does not typically ask this.
+
+If the client has not specifically reported eating disorder/disordered eating history, enter No.
+
+If hallucinations are denied:
+
+Simply enter No for eating disorder/disordered eating unless client specifically reports otherwise.
+
+Suicide Assessment
+Field: Are you currently experiencing suicidal thoughts or ideations?
+Rule:
+
+Select Yes or No based on client report.
+
+Clinician does not always ask this if client denies current mental health symptoms.
+
+If client denies current mental health symptoms and does not otherwise report current SI, default to No.
+
+If client reports current suicidal thoughts/ideation, select Yes.
+
+Field: Do you have a plan to end your life?
+Default:
+
+Select No unless client specifically reports a plan.
+
+Field: Do you have means or a plan to obtain means to enact this plan?
+Default:
+
+Select No unless client specifically reports means or plan to obtain means.
+
+Field: Do you have a history of suicidal thoughts or ideations?
+Rule:
+
+Select Yes if client reports history of SI.
+
+Select No if client denies history.
+
+Field: What was going on in your life when these thoughts have been especially difficult?
+If history of SI is yes:
+
+Clinician asks directly.
+
+Enter what client reports was happening in their life at that time.
+
+If history of SI is no:
+
+Enter n/a.
+
+Field: When did these thoughts occur? Dates and when most recently?
+If history of SI is yes:
+
+Clinician asks directly.
+
+Include most recent occurrence.
+
+Format example:
+
+[Client first name] reports the most recent suicidal thoughts occurred [date/timeframe].
+
+If history of SI is no:
+
+Enter n/a.
+
+Field: Can you describe the thoughts you experienced?
+If history of SI is yes and client describes thoughts:
+
+Enter the client’s description.
+
+If history of SI is yes but client does not specify details:
+
+Default to a general clinical description such as:
+
+[Client first name] reports experiencing hopelessness and feeling like there were no other options.
+
+If history of SI is no:
+
+Enter n/a.
+
+Field: Do you have a history of suicide attempts?
+Rule:
+
+Select Yes or No based on client report.
+
+Field: How many attempts have you had in your lifetime?
+If history of attempts is yes:
+
+Enter number of attempts.
+
+Format:
+
+[Client first name] reports [number] lifetime suicide attempt(s).
+
+If no history of attempts:
+
+Enter n/a.
+
+Field: When did this attempt occur? In what ways did you attempt suicide in the past?
+If history of attempts is yes:
+
+Enter most recent attempt timing and method.
+
+Format:
+
+[Client first name] reports their most recent attempt occurred [date/timeframe] by [method].
+
+If no attempts:
+
+Enter n/a.
+
+Field: Were you under the influence of alcohol or drugs at the time of attempt?
+If history of attempts is yes:
+
+Enter Yes or No if client specifies.
+
+If not specified, enter Unknown.
+
+If no attempts:
+
+Enter n/a.
+
+Field: How do you feel about past attempts now?
+If client specifies or this can be inferred:
+
+Use client’s report or clinical inference.
+
+Default if attempt history exists but no details on current feelings:
+
+Enter [Client first name] reports they regret their attempt.
+
+If no attempts:
+
+Enter n/a.
+
+Field: What are parts of your life that you feel keep you from attempting suicide?
+Type: Inference field.
+
+Rule:
+
+Infer protective factors based on the whole interview unless client provides specific protective factors.
+
+Include supports, goals, family, children, faith, recovery, coping skills, sober living, future orientation, treatment engagement, or other hopeful/protective factors.
+
+Field: Is there anything that you feel would push you toward a suicide attempt in the future?
+Type: Direct ask / direct entry.
+
+Rule:
+
+Clinician asks directly.
+
+Enter client’s response.
+
+Self-Harm Assessment
+Field: Have you ever cut, burned, or intentionally harmed yourself without intent of ending your life?
+Rule:
+
+Select Yes if client reports self-harm history.
+
+Select No if client denies self-harm history.
+
+Field: When did you engage in this behavior and when was the most recent time?
+If self-harm history is yes:
+
+Enter client’s reported timing.
+
+Format:
+
+[Client first name] reports the most recent self-harm occurred [date/timeframe].
+
+If self-harm history is no:
+
+Enter n/a.
+
+Field: In what way did you engage in self-harm?
+If self-harm history is yes:
+
+Enter method reported.
+
+Examples:
+
+cutting
+
+burning
+
+hitting self
+
+other reported method
+
+If self-harm history is no:
+
+Enter n/a.
+
+Field: How do you feel about past self-harm now?
+If self-harm history exists:
+
+Default entry unless otherwise specified:
+
+[Client first name] reports regret regarding past self-harm and does not feel they are at risk of self-harm in the future.
+
+Exception:
+
+If client reports current risk or clinician specifies current risk, do not use the default. Document current risk accurately.
+
+If no self-harm history:
+
+Enter n/a.
+
+Field: Do you have access to means to engage in self-harm?
+Default:
+
+Enter n/a.
+
+Field: Is the client at risk for harming themselves?
+Type: Inference field.
+
+Rule:
+
+Select Yes or No based on clinical inference from:
+
+current SI,
+
+SI history,
+
+suicide attempts,
+
+self-harm history,
+
+recency,
+
+access to means,
+
+protective factors,
+
+coping mechanisms,
+
+current presentation.
+
+Field: Why or why not?
+Rule:
+
+Provide clinical rationale.
+
+Example if no risk:
+
+[Client first name] denies current suicidal ideation, plan, intent, and current self-harm urges. Although they report historical concerns, they identify protective factors and coping mechanisms and do not appear to be at immediate risk of suicide or self-harm at this time.
+
+Example if no history:
+
+[Client first name] denies historical or current suicidal thoughts, suicidal ideation, suicide attempts, or self-harm.
+
+Example if risk present:
+
+Document current risk factors clearly and clinically.
+
+Trauma and Grief
+Field: Have you experienced trauma or grief in your life that still affects you?
+Rule:
+
+Select Yes if client reports trauma/grief that still impacts them.
+
+Select No if client denies trauma/grief impact.
+
+Field: How do those experiences impact your life now?
+If trauma/grief history is present:
+
+Document reported trauma and current impact.
+
+Include relevant trauma history mentioned throughout interview.
+
+Even if client does not want trauma therapy, still document the trauma history if reported.
+
+If no trauma/grief impact:
+
+Enter that client denies trauma history or denies being currently affected by trauma.
+
+Suggested wording:
+
+[Client first name] denies any history of trauma or being currently affected by trauma.
+
+Field: Are you interested in receiving any treatment regarding these experiences, if you have not already?
+Rule:
+
+Enter Yes or No based on client report.
+
+If yes, expand briefly:
+
+Yes, [Client first name] is interested in trauma therapy.
+
+Field: Are you currently experiencing any grief or loss?
+Rule:
+
+Type Yes or No based on client report.
+
+Field: If so, what are you currently grieving?
+If grief/loss is yes:
+
+Explain what client reports grieving.
+
+If grief/loss is no:
+
+Enter n/a.
+
+Violence Assessment
+Field: Any history of violent behavior?
+Rule:
+
+Clinician asks directly.
+
+Select Yes or No based on report.
+
+Field: Any current thoughts of hurting others?
+Default:
+
+Select No unless otherwise specified.
+
+Field: Have you ever been the perpetrator of domestic abuse or domestic violence?
+Rule:
+
+Clinician may ask this directly.
+
+If not asked and client has not reported anything suggesting perpetration of domestic violence, infer No.
+
+If client reports domestic violence perpetration, select Yes.
+
+Field: Is the client at current risk of violence?
+Type: Inference field.
+
+Rule:
+
+Select Yes or No based on the whole interview.
+
+Consider:
+
+current thoughts of harming others,
+
+history of violent behavior,
+
+domestic violence history,
+
+whether violence occurred only while intoxicated,
+
+current sobriety,
+
+coping skills,
+
+mental health symptoms,
+
+impulse control,
+
+current environment.
+
+Field: Why or why not?
+Rule:
+
+Provide clinical rationale.
+
+Example if no risk:
+
+[Client first name] does not appear to be at current risk of violence, as they deny current thoughts of harming others and do not report current violent behavior.
+
+Example if historical violence but no current risk:
+
+[Client first name] reports historical violent behavior associated with substance use; however, they deny current thoughts of harming others, report current sobriety, and identify coping mechanisms, so they do not appear to be at current risk of violence.
+
+Example if current risk:
+
+Clearly describe current violence risk factors.
+
+Part 3: Legal, Family, Spiritual, Cultural, Medical, Medications, and Sexual Risk
+Legal History
+Field: How many times throughout your life have you been arrested, if at all?
+Type: Direct ask / direct entry.
+
+Rule:
+
+Clinician asks directly.
+
+Format:
+
+[Client first name] reports being arrested [number] time(s).
+
+Include relevant context if reported, such as juvenile arrests.
+
+Field: Have you ever been convicted of a sex crime?
+Rule:
+
+If client says yes, enter Yes and include nature/details.
+
+If client says no, enter No.
+
+If not asked and no information suggests sex crime history, default to No.
+
+Field: What were the results of the arrest? e.g., jail time, probation, classes, etc.
+Type: Direct ask / direct entry.
+
+Rule:
+
+Clinician asks directly.
+
+Use client-reported language.
+
+Format:
+
+[Client first name] reports [jail time/probation/classes/etc.].
+
+Field: Do you have any current warrants?
+Rule:
+
+Clinician asks directly.
+
+Select Yes or No.
+
+Field: Are you currently on probation or parole?
+Rule:
+
+Clinician asks directly.
+
+Select Yes or No.
+
+Family History
+Mother
+Field: Is your mother still living?
+Rule:
+
+Clinician asks directly.
+
+Select Yes or No.
+
+Field: If deceased, when did she pass and what was the reason for her passing?
+If mother is living:
+
+Enter n/a.
+
+If mother is deceased and details are provided:
+
+Enter date/timeframe and cause/reason.
+
+If mother is deceased and details are not provided:
+
+Enter Information not provided.
+
+Field: What was your relationship like with your mother? Are you in contact with her?
+Rule:
+
+Clinician asks directly.
+
+Enter client’s report about relationship and contact.
+
+Also infer from broader interview if client gives additional information elsewhere.
+
+Field: Did your mother have any history of medical conditions?
+Type: Inference/default field.
+
+Rule:
+
+If client reports maternal medical history, enter it.
+
+If not specified and no information suggests history, enter No.
+
+Infer from broader interview if client discussed mother’s health elsewhere.
+
+Field: Did your mother have any history of mental health difficulties?
+Type: Inference/default field.
+
+Rule:
+
+If client reports maternal mental health history, enter it.
+
+If not specified and no information suggests history, enter No.
+
+Infer from childhood/family history when applicable.
+
+Field: Did your mother have any history of substance abuse?
+Type: Inference/default field.
+
+Rule:
+
+If client reports maternal substance use/addiction, enter it.
+
+If not specified and no information suggests history, enter No.
+
+Infer from broader childhood/family report if mother’s addiction is mentioned.
+
+Father
+Field: Is your father still living?
+Rule:
+
+Clinician asks directly.
+
+Select Yes or No.
+
+Field: If deceased, when did he pass and what was the reason for his passing?
+If father is living:
+
+Enter n/a.
+
+If father is deceased and details are provided:
+
+Enter date/timeframe and cause/reason.
+
+If father is deceased and details are not provided:
+
+Enter Information not provided.
+
+Field: What was your relationship like with your father? Are you in contact with him?
+Rule:
+
+Clinician typically asks directly.
+
+Enter client’s report about father and contact.
+
+Include relevant father-related information from the whole interview.
+
+Field: Did your father have any history of medical conditions?
+Type: Inference/default field.
+
+Rule:
+
+If client reports paternal medical history, enter it.
+
+If not specified and no information suggests history, enter No.
+
+Infer from broader interview if applicable.
+
+Field: Did your father have any history of mental health difficulties?
+Type: Inference/default field.
+
+Rule:
+
+If client reports paternal mental health history, enter it.
+
+If not specified and no information suggests history, enter No.
+
+Infer from broader interview if applicable.
+
+Field: Did your father have any history of substance abuse?
+Type: Inference/default field.
+
+Rule:
+
+If client reports paternal substance use/addiction, enter it.
+
+If not specified and no information suggests history, enter No.
+
+Infer from broader interview if applicable.
+
+Siblings and Childhood
+Field: Do you have any siblings?
+Default:
+
+Select Yes unless client reports being an only child.
+
+Exception:
+
+If client says they are an only child, select No.
+
+Field: Overall, how would you describe your experience growing up?
+Type: Direct ask / direct entry.
+
+Rule:
+
+Clinician asks directly.
+
+Use direct quote or close paraphrase when possible.
+
+Include childhood experience, family themes, culture, values, and relevant upbringing context.
+
+This field should include enough detail that it can also support the later cultural values field.
+
+Spiritual
+Field: Are you currently affiliated with any religion?
+Rule:
+
+If client names a religion, enter the religion.
+
+If client says no religion, enter No.
+
+Examples:
+
+Christianity
+
+Islam
+
+Muslim
+
+Catholic
+
+Spiritual but not religious
+
+No
+
+Field: If yes, would you consider yourself to be active in your religion?
+Default if religion is reported:
+
+Enter Yes unless client specifies they are not active.
+
+If client says they are not active:
+
+Enter what they report.
+
+If no religion:
+
+Enter n/a.
+
+Cultural
+Field: Can you describe the culture or values that you were raised with?
+Repurposed/mirrored content rule:
+
+Use the same or very similar answer as the field “Overall, how would you describe your experience growing up?”
+
+Make sure the growing-up response includes culture/values information so it can be reused here.
+
+Field: What socioeconomic status did your family belong to when you were growing up? Lower, middle, or upper class?
+Type: Inference field.
+
+Rule:
+
+Clinician does not typically ask directly.
+
+Infer based on the client’s childhood description.
+
+Guidelines:
+
+Homelessness, severe instability, poverty, or similar indicators → Lower.
+
+Significant addiction/instability may suggest Lower, depending on context.
+
+Stable childhood with no major socioeconomic hardship mentioned → usually Middle.
+
+Explicit wealth/financial privilege → Upper.
+
+Medical History
+Field: Are you currently experiencing any physical health problems or do you have any terminal illnesses?
+Type: Direct ask / direct entry.
+
+Rule:
+
+Clinician asks directly.
+
+If none:
+
+[Client first name] denies any physical health problems or terminal illnesses.
+
+If yes:
+
+Document reported physical health problems or terminal illness in full sentence form.
+
+Field: Do you have any pain issues?
+Type: Inference field.
+
+Rule:
+
+Clinician does not always ask directly.
+
+Infer from physical health answer.
+
+If client denies physical health problems and does not mention pain, select No.
+
+If pain is reported, select Yes.
+
+Pain Follow-Up Fields
+Fields include:
+
+Where do you experience pain?
+
+When did your pain begin?
+
+What helps your pain?
+
+How does your pain impact your functioning?
+
+If no pain/physical health issues:
+
+Enter n/a for each pain follow-up field.
+
+If pain is reported:
+
+Complete each field based on client report.
+
+If client reports pain but does not provide a specific detail, enter Information not provided.
+
+If client says they do not know, enter [Client first name] reports they do not know.
+
+Field: Have you ever used opiates for pain?
+Rule:
+
+Clinician sometimes asks, especially if opioid use history is present.
+
+Enter/select Yes or No.
+
+If not specified, default to No.
+
+Field: If so, were these opiates prescribed?
+If opiates for pain = no:
+
+Enter n/a.
+
+If opiates for pain = yes:
+
+Enter one of:
+
+Yes
+
+No
+
+Sometimes
+
+Add relevant details if provided.
+
+Primary Care
+Field: Do you have a primary care doctor/physician?
+Rule:
+
+Client must currently be seeing that provider for this to be Yes.
+
+If they had one in the past but are not currently seeing them, select/enter No.
+
+Field: What clinic do they go through?
+Rule:
+
+Clinician asks directly if client has PCP.
+
+Enter clinic name if known.
+
+If client does not know, document that they do not know.
+
+Field: If private practice, what is your doctor's name?
+Rule:
+
+Clinician asks directly.
+
+If known, enter provider name.
+
+If unknown:
+
+[Client first name] cannot recall their primary care doctor's name.
+
+Field: When was the last time you saw a physician and had a full physical?
+Rule:
+
+Clinician typically asks, “Has it been over a year since your last full physical?”
+
+If yes:
+
+Enter Over a year.
+
+If no:
+
+Enter Within the last year unless exact date is provided.
+
+If exact date/timeframe is provided:
+
+Enter specific date/timeframe.
+
+Field: Has it been more than one year?
+Rule:
+
+Select Yes if more than one year.
+
+Select No if within the last year.
+
+Allergies and Dental
+Field: Any allergies or dental problems?
+Rule:
+
+Clinician asks directly.
+
+Select/enter Yes or No as appropriate.
+
+Field: What occurs when you have an allergic reaction?
+Custom field use rule:
+
+Ignore the literal wording about reaction symptoms.
+
+Use this field to list allergies.
+
+If no allergies:
+
+Enter n/a.
+
+If allergies:
+
+List allergies reported.
+
+Examples:
+
+Penicillin
+
+Sulfa
+
+Latex
+
+Bee stings
+
+Field: Do you have or need an epinephrine pen?
+If no allergies:
+
+Enter n/a.
+
+If allergies:
+
+Enter Yes or No.
+
+If not specified and no EpiPen need is reported, default to No.
+
+Field: Do you have any dental problems?
+Rule:
+
+Clinician asks directly.
+
+Select/enter Yes or No.
+
+Field: When do you plan to see a dentist next?
+If dental problems and no appointment scheduled:
+
+Enter [Client first name] reports they need to get a dental appointment set up.
+
+If appointment scheduled:
+
+Enter appointment timing if provided.
+
+If no dental problems:
+
+Document no current dental appointment needs if needed.
+
+Medications
+There are only three medication slots in the form.
+
+Capacity Rule
+If client reports more than three medications, only enter the first three.
+
+Ignore additional medications because the form only has three medication slots.
+
+If Client Takes No Medications
+For each medication slot/text box:
+
+Medication name = n/a
+
+Dosage/frequency = n/a
+
+Side effects = n/a
+
+Checkboxes for:
+
+Are you currently taking this medication?
+
+Have you ever mixed this medication with alcohol or other drugs?
+
+May be left blank when no medication is listed.
+
+For Each Medication Listed
+Field: Medication Name
+Enter medication name.
+
+Field: Dosage and Frequency of Use
+If client specifies dosage/frequency, enter it.
+
+If not specified, enter Unknown.
+
+Field: Are you experiencing any side effects?
+Default: None reported.
+
+If side effects are reported, document them.
+
+Field: Are you currently taking this medication?
+Default/select Yes unless otherwise specified.
+
+Field: Have you ever mixed this medication with alcohol or other drugs?
+Clinician does not typically ask.
+
+Default/select No unless otherwise specified.
+
+Sexual History and Risk Assessment
+Field: Do you practice safe sex?
+Default:
+
+Always select Yes.
+
+Field: How many partners have you had in the last year?
+Default:
+
+Always enter Information not provided.
+
+Field: Do you have any history of blackouts prior to sex?
+Default:
+
+Always select/enter No.
+
+Field: Have you ever paid or been paid for sex?
+Default:
+
+Always select/enter No.
+
+Field: Has your use of drugs or alcohol impacted your sex life? If so, how?
+Default:
+
+Always enter Information not provided.
+
+Field: Have you been tested for STDs, hepatitis, and HIV?
+Rule:
+
+Clinician asks if client has been tested for STDs and HIV.
+
+Select/enter Yes if client reports being tested.
+
+Select/enter No if client reports not being tested.
+
+Field: If no, would you like resources for sexual health testing?
+If client has been tested:
+
+Select No.
+
+If client has not been tested:
+
+Select Yes, unless the client specifically declines testing resources.
+
+Field: Additional notes under sexual health history
+If client has been tested and does not want retesting:
+
+Enter n/a.
+
+If client has not been tested and wants testing:
+
+Enter [Client first name] reports they have not been tested and would like to be tested.
+
+If client has been tested but wants to be tested again:
+
+Enter [Client first name] reports they have been tested previously but would like to be tested again.
+
+If client says anything other than a simple yes, tested/no further need:
+
+Note the relevant details here.
+
+Part 4: Vocational, Education, Military, Relationships, Children/CPS, Supports, Hobbies, Gambling/Technology, Strengths/Challenges
+Vocational / Employment
+Field: Are you currently looking for work?
+Rule:
+
+Select/enter Yes or No based on client report.
+
+If client currently has a job, assume they are not looking for work unless otherwise specified.
+
+Field: When did you start working there?
+Repurposed narrative field.
+
+Use this field to summarize current employment status.
+
+If not working and not looking:
+
+[Client first name] reports they are not currently working and are not looking for work.
+
+If not working and looking:
+
+[Client first name] reports they are not currently working and are looking for work.
+
+If working:
+
+[Client first name] reports they are working at [employer/job]. They report they have been working there since [date/timeframe].
+
+Include what they do for work and duration if provided.
+
+Field: What is your hourly wage or annual income?
+If not working:
+
+Enter n/a.
+
+If working:
+
+Enter reported wage/income.
+
+Format:
+
+[Client first name] reports their hourly wage is [amount].
+
+Field: Are you full-time or part-time?
+If not working:
+
+Enter n/a.
+
+If working:
+
+Enter Full-time or Part-time based on report.
+
+Field: How many persons are you supporting/living on your income?
+Default:
+
+Enter Self unless otherwise specified.
+
+Field: How would you describe the current state of your finances?
+Type: Direct ask / direct entry.
+
+Rule:
+
+Clinician asks directly.
+
+Good field for direct quote or close paraphrase.
+
+Field: Have you ever been in trouble at work due to substance use? If so, what happened?
+Type: Direct ask / direct entry.
+
+If no:
+
+Enter [Client first name] reports they have not been in trouble at work due to substance use.
+
+If yes and details given:
+
+Enter details.
+
+If yes but no details:
+
+Enter [Client first name] reports they have been in trouble at work due to substance use.
+
+Education
+Field: Did you like school when you were younger?
+Repurposed field.
+
+The form does not provide a separate box for highest level of education, so this field should be used for education level.
+
+Rule:
+
+Enter highest level of education completed.
+
+Examples:
+
+10th grade
+
+High school diploma
+
+GED
+
+Some college
+
+GED resources:
+
+If client did not graduate high school and does not have GED, clinician asks whether they want GED resources.
+
+Include in parentheses whether they want GED resources.
+
+Examples:
+
+10th grade. (Client is interested in GED resources.)
+
+10th grade. (Client denies wanting GED resources at this time.)
+
+Field: Any diagnosed learning disabilities?
+Rule:
+
+If no, enter/select No.
+
+If yes, enter/select Yes and describe the learning disability.
+
+Field: Were you involved in any clubs or sports when you were younger?
+Type: Inference/default field.
+
+Rule:
+
+Clinician does not typically ask.
+
+If client mentions clubs/sports, enter/select Yes and document.
+
+If not mentioned, default to No.
+
+Field: Did the use of drugs or alcohol ever interfere with school?
+Type: Direct ask / direct entry.
+
+If no:
+
+Enter [Client first name] denies that drugs or alcohol interfered with school.
+
+If yes:
+
+Enter [Client first name] reports that drugs or alcohol interfered with school by [details].
+
+Military
+Global Military Rule
+If client reports no military history:
+
+All military fields should be n/a.
+
+Field: Were you on active duty?
+If military history:
+
+Enter/select Yes or No.
+
+Field: Were you deployed?
+If military history:
+
+Enter/select Yes or No.
+
+If yes and details are provided, include details.
+
+Field: What is the highest rank you achieved?
+If military history:
+
+Enter reported rank.
+
+Field: What is your discharge status?
+If military history:
+
+Enter reported discharge status.
+
+Field: Did use of substances interfere with time in the military?
+If military history:
+
+Enter/select Yes or No.
+
+If yes and details are provided, explain.
+
+If yes without details, Yes is sufficient.
+
+Current Marital Status and Living Environment
+Field: If you are in a relationship or married, how long have you been married/in a relationship?
+Repurposed relationship status field.
+
+The form does not provide a separate text field for marital status, so use this field to document status.
+
+If single:
+
+Enter Single.
+
+If divorced:
+
+Enter Divorced.
+
+If widowed:
+
+Enter Widowed.
+
+If married:
+
+Enter Married; [length of marriage].
+
+If in relationship/common law:
+
+Enter relationship status and duration if provided.
+
+Relationship Follow-Up Fields
+Fields include:
+
+How would you describe the relationship?
+
+How has your use of substances impacted your relationship with your partner?
+
+Does your partner use substances?
+
+Are there any substances in your partner’s living space?
+
+If single, divorced, or widowed:
+
+Enter n/a for all relationship follow-up fields.
+
+If married/in relationship:
+
+Field: How would you describe the relationship?
+Infer from client report if not asked.
+
+If no information, enter n/a unless otherwise specified.
+
+Field: How has your use of substances impacted your relationship with your partner?
+If client has substance use history, default to Yes unless otherwise specified.
+
+Add details if provided.
+
+Field: Does your partner use substances?
+Default to Information not provided unless specified.
+
+Field: Are there any substances in your partner’s living space?
+Default to n/a.
+
+Children and CPS
+Field: Where are they currently living?
+Repurposed combined child-count/living-situation field.
+
+The form asks how many children the client has but does not provide a separate text box. Use this field to combine:
+
+number of children,
+
+ages if provided,
+
+whether children are adults/over 18,
+
+where minor children live.
+
+If no children:
+
+Enter [Client first name] reports having no children.
+
+If children are over 18:
+
+Enter [Client first name] reports their children are over 18.
+
+If minor children:
+
+Enter [Client first name] reports having [number] children, ages [ages if provided]. They report the children are currently living [location/caregiver].
+
+Field: Is there current involvement with CPS?
+If no children:
+
+Enter n/a.
+
+If children:
+
+Clinician asks directly if minor children are involved.
+
+Enter/select Yes or No.
+
+Field: Any other relevant information about CPS case?
+If no children:
+
+Enter n/a.
+
+If children and no CPS involvement:
+
+Enter n/a.
+
+If CPS involvement:
+
+Enter relevant CPS details reported by client.
+
+Recovery Supports
+Field: Who are the people that you feel support you in your recovery?
+Type: Inference field.
+
+Rule:
+
+Clinician may ask directly, but often this should be inferred from interview.
+
+Infer from:
+
+family supports,
+
+sober living peers,
+
+recovery community,
+
+sponsors/mentors,
+
+therapists/providers,
+
+friends,
+
+partner/spouse,
+
+children,
+
+faith community,
+
+anyone named as supportive.
+
+Hobbies and Activities
+Field: What do you like to do for fun?
+Rule:
+
+Clinician usually asks directly.
+
+If not directly asked, infer from the interview.
+
+Field: Has your use of substances impacted your engagement in those activities?
+Default for clients with SUD history:
+
+Select/enter Yes.
+
+If no substance use history:
+
+Select/enter No.
+
+Exception:
+
+If client specifically says substances did not impact activities, use client report.
+
+Gambling, Spending, and Technology
+Field: Any concerns around your gambling behaviors, spending habits, or use of technology?
+Type: Direct ask / direct entry.
+
+Default typical response:
+
+Enter No, no, no if client denies concerns in all three areas.
+
+If concerns are reported:
+
+Enter [Client first name] reports concerns about [gambling/spending/technology]...
+
+Include details.
+
+Strengths and Challenges
+Field: What is a personal challenge you have right now?
+Type: Inference field.
+
+Rule:
+
+Clinician does not normally ask this directly.
+
+Infer based on:
+
+presenting problems,
+
+current stressors,
+
+substance use consequences,
+
+mental health symptoms,
+
+housing/legal/family/employment issues,
+
+goals and barriers discussed during interview.
+
+Field: What are some of your personal strengths?
+Type: Direct ask / direct entry.
+
+Rule:
+
+Clinician usually asks this as the final question.
+
+Use client’s reported strengths.
+
+Quotes are acceptable but not required.
+
+Suggested format:
+
+[Client first name] reports personal strengths including [strengths].
+
+Implementation Notes for Zach
+Automation Must Preserve Three Distinct Layers
+1. Source Extraction
+Pull structured information from Bastion GPT output.
+
+2. Logic Application
+Apply clinician-specific rules:
+
+defaults,
+
+inference,
+
+conditional decision trees,
+
+repurposed field mapping,
+
+capacity limits.
+
+3. Reliatrax Field Entry
+Populate the correct Reliatrax textbox/checkbox in the correct screen order.
+
+Important Custom/Repurposed Fields
+These are intentional and should not be treated as errors:
+
+Hallucination details may go in the eating disorder/disordered eating text box, followed by eating disorder response.
+
+Allergy reaction box is used to list allergies, not reaction symptoms.
+
+Education question box about liking school is used for highest education completed and GED resource status.
+
+Relationship duration field is used to store marital/relationship status.
+
+Children living field is used to store number of children, ages, adult/minor status, and living situation.
+
+Vocational start-date field is used as broader employment-status narrative field.
+
+Culture/values field mirrors childhood/growing-up response.
+
+High-Priority Decision Trees
+The following sections require conditional logic rather than simple text transfer:
+
+Substance of choice 1/2/3
+
+Tobacco quitting resources
+
+Withdrawal history
+
+Detox/treatment count splitting
+
+Mental health diagnosis/substance timeline
+
+Hallucinations/eating disorder field
+
+Suicide ideation and attempts
+
+Self-harm and risk determination
+
+Trauma/grief treatment interest
+
+Violence risk determination
+
+Parent medical/MH/SUD inference
+
+Pain follow-ups
+
+Medication slots
+
+Sexual health testing and additional notes
+
+Employment status
+
+Military history
+
+Relationship follow-ups
+
+Children/CPS
+
+Inference Fields
+These fields should be generated using the full interview context, not only one direct answer:
+
+Behavioral changes related to substance use
+
+Days used in last 30
+
+Recent pattern of use if not explicitly stated
+
+Do they agree with mental health diagnosis
+
+Were substances used at time of diagnosis
+
+Did substance use impact diagnosis
+
+Current suicide/self-harm risk
+
+Current violence risk
+
+Trauma impact
+
+Parent medical/MH/SUD histories
+
+Socioeconomic status growing up
+
+Pain issues when not asked directly
+
+Supports in recovery
+
+Clubs/sports if mentioned
+
+Relationship quality
+
+Personal challenge
+
+Substance impact on hobbies/activities
+
+Fields With Fixed Defaults Unless Otherwise Specified
+Referral source: Self-referral
+
+Safe sex: Yes
+
+Substance tolerance: Yes
+
+Substance use seen as problem: Yes
+
+Tried to quit substance: Yes
+
+Vape contains nicotine: Yes if vaping
+
+Sponsor/mentor: No if not specified
+
+Diagnosed by: Unknown unless specified
+
+Not interested in referrals/resources checkbox: never check
+
+Current SI: No if no current MH symptoms and no SI reported
+
+Suicide plan: No unless specified
+
+Means for suicide plan: No unless specified
+
+Current thoughts of hurting others: No unless specified
+
+Sex crime: No if not asked/no report
+
+Parent medical/MH/SUD: No unless specified or inferred
+
+Siblings: Yes unless only child
+
+Active in religion: Yes if religion reported unless otherwise specified
+
+Opiates for pain: No if not specified
+
+EpiPen: No if allergies but no EpiPen need specified
+
+Medication side effects: None reported
+
+Currently taking medication: Yes unless specified
+
+Mixed medication with alcohol/drugs: No unless specified
+
+Sexual partners last year: Information not provided
+
+Blackouts prior to sex: No
+
+Paid/been paid for sex: No
+
+Drugs/alcohol impact on sex life: Information not provided
+
+Persons supported by income: Self
+
+Clubs/sports: No if not mentioned
+
+Relationship partner substances: Information not provided
+
+Substances in partner living space: n/a
+
+Gambling/spending/technology: typically No, no, no unless specified
+
+Fields Where n/a Is Especially Important
+Use n/a for non-applicable follow-up fields, especially:
+
+Unused substance of choice 2/3 fields
+
+Withdrawal follow-ups if no withdrawal
+
+SI follow-ups if no SI history
+
+Suicide attempt follow-ups if no attempts
+
+Self-harm follow-ups if no self-harm
+
+Grief details if no grief
+
+Pain follow-ups if no pain
+
+Opiates prescribed if no opiate use for pain
+
+Allergy follow-ups if no allergies
+
+Medication slots with no medication
+
+Sexual health additional notes if tested and no retesting need
+
+Wage/full-time fields if not working
+
+All military fields if no military history
+
+Relationship follow-ups if single/divorced/widowed
+
+CPS fields if no children
+
+CPS details if no CPS involvement
+
+Final Quality Standard
+The completed automation should produce Reliatrax-ready entries that require minimal manual editing. It should prioritize accuracy, consistency, and faithful representation of client report. It should not over-document unsupported details, but it should use clinician-specified defaults and inference rules exactly as described above.
+

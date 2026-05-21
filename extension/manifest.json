@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Rose ReliaTrax BPS Helper",
+  "version": "0.4.1",
+  "description": "Side panel helper for merging BastionGPT responses, applying Rose defaults, and filling ReliaTrax BPS forms.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_title": "Rose BPS Helper"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  }
+}

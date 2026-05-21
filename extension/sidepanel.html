@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Rose BPS Helper</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Rose BPS Helper</h1>
+      <p class="small header-subtitle">Merge BastionGPT JSON, apply Rose defaults, and fill the ReliaTrax BPS form.</p>
+    </div>
+    <div id="status" class="status">Ready</div>
+  </header>
+
+  <section class="card">
+    <h2>Prompts</h2>
+    <div class="row wrap" id="promptButtons"></div>
+  </section>
+
+  <details class="card collapsible">
+    <summary>
+      <span class="summary-title-row">
+        <span>Rose default answers</span>
+        <span class="pill" id="defaultCount">0 defaults</span>
+      </span>
+      <span class="small">local overrides and extra defaults</span>
+    </summary>
+    <p class="small">Built-in Rose rules run automatically. Use this table only for local overrides or extra defaults, with question paths from the field map such as <code>military.active_duty</code>. For checkboxes, use <code>true</code> or <code>false</code>.</p>
+    <div class="table-wrap">
+      <table class="defaults-table">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Answer</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="defaultsBody"></tbody>
+      </table>
+    </div>
+    <datalist id="questionPathOptions"></datalist>
+    <div class="row wrap">
+      <button id="addDefault">Add default answer</button>
+      <button id="resetDefaultsFromConfig">Reset from loaded GitHub config</button>
+      <button id="clearDefaults" class="danger">Clear local defaults</button>
+    </div>
+  </details>
+
+  <section class="card">
+    <h2>BastionGPT responses</h2>
+    <p class="small">Paste each JSON response separately. This autosaves locally.</p>
+    <textarea id="resp1" placeholder="Prompt 1 JSON"></textarea>
+    <textarea id="resp2" placeholder="Prompt 2 JSON"></textarea>
+    <textarea id="resp3" placeholder="Prompt 3 JSON"></textarea>
+    <textarea id="resp4" placeholder="Prompt 4 JSON"></textarea>
+    <div class="row wrap">
+      <button id="validateMerge">Validate and merge</button>
+      <button id="copyMerged">Copy merged JSON</button>
+      <button id="clearResponses" class="danger">Clear saved responses</button>
+    </div>
+    <pre id="validation"></pre>
+  </section>
+
+  <section class="card">
+    <h2>Fill ReliaTrax</h2>
+    <div class="row wrap">
+      <button id="scanPage">Scan active page</button>
+      <button id="fillPage" class="primary">Fill active page</button>
+    </div>
+    <label class="check"><input type="checkbox" id="dryRun"> Dry run, do not write</label>
+    <p class="small">Default behavior: BastionGPT values win. Rose rules and default answers fill mapped questions that are blank or missing.</p>
+    <pre id="fillResults"></pre>
+  </section>
+
+  <details class="card collapsible troubleshooting" id="troubleshootingPane">
+    <summary>
+      <span>Troubleshooting trace log</span>
+      <span class="small">field writes, skips, DOM details, and input data</span>
+    </summary>
+    <!-- <p class="small warning">Trace logs can contain client assessment text. Clear them before sharing screenshots or files.</p> -->
+    <div class="row wrap">
+      <button id="copyTraceLog">Copy trace log</button>
+      <button id="clearTraceLog" class="danger">Clear trace log</button>
+    </div>
+    <pre id="traceLog"></pre>
+  </details>
+
+  <section class="card">
+    <h2>Remote config</h2>
+    <label for="configUrl">GitHub raw config URL</label>
+    <input id="configUrl" placeholder="https://raw.githubusercontent.com/.../rose-reliatrax-bps-config.json">
+    <div class="row wrap">
+      <button id="loadRemote">Load remote config</button>
+      <button id="useBundled">Use bundled config</button>
+    </div>
+    <p class="small" id="configMeta"></p>
+  </section>
+
+  <script src="default-config.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>
