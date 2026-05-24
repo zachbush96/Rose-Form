@@ -5,14 +5,21 @@ const STORAGE_KEYS = {
   responses: 'roseBpsResponses',
   merged: 'roseBpsMerged',
   defaultRows: 'roseBpsDefaultRows',
-  traceLog: 'roseBpsTraceLog'
+  traceLog: 'roseBpsTraceLog',
+  mode: 'roseBpsActiveMode',
+  discoveryReport: 'roseBpsDiscoveryReport',
+  discoveryPrefix: 'roseBpsDiscoveryPrefix'
 };
 
 const DEFAULT_REMOTE_CONFIG_URL = 'https://raw.githubusercontent.com/zachbush96/Rose_Automation/refs/heads/main/rose-reliatrax-bps-config.json';
+const REMOTE_CONFIG_TIMEOUT_MS = 10000;
 
 let activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
 let defaultRows = [];
 let traceLog = [];
+let activeMode = 'bps';
+let discoveryReport = null;
+let visualMappingMode = 'off';
 const $ = (id) => document.getElementById(id);
 
 function setStatus(msg) { $('status').textContent = msg; }
@@ -184,6 +191,78 @@ function debounceSaveDefaults() {
 function renderTraceLog() {
   logTo('traceLog', traceLog?.length ? traceLog : 'No trace entries yet. Run Scan or Fill to create logs.');
 }
+const MODE_DESCRIPTIONS = {
+  bps: 'Current production workflow for BPS Part 1.',
+  mse: 'Reserved for MSE Part 2. Use Discovery and Mapping to capture the MSE form before building the fill map.',
+  asam: 'Reserved for Case Management and ASAM Part 3. Discovery data will drive the severity grid and ASAM field map.',
+  diagnostics: 'Reserved for Diagnostics Part 4. Discovery data will identify screening, recommendation, DSM V, and level-of-care fields.',
+  treatment: 'Reserved for Treatment Plan. Discovery data will identify the separate plan fields and copy/paste sections.',
+  discovery: 'Scan unknown ReliaTrax or similar forms and export a mapping package for Zach.'
+};
+const PLANNED_MODE_TITLES = {
+  mse: 'MSE Part 2',
+  asam: 'Case Management and ASAM Part 3',
+  diagnostics: 'Diagnostics Part 4',
+  treatment: 'Treatment Plan'
+};
+function renderMode() {
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === activeMode);
+  });
+  $('modeDescription').textContent = MODE_DESCRIPTIONS[activeMode] || MODE_DESCRIPTIONS.bps;
+  document.querySelectorAll('.mode-panel').forEach(panel => {
+    const classes = [...panel.classList];
+    const visible = classes.includes(`mode-${activeMode}`);
+    panel.classList.toggle('hidden', !visible);
+  });
+  if (['mse', 'asam', 'diagnostics', 'treatment'].includes(activeMode)) {
+    $('plannedModeTitle').textContent = PLANNED_MODE_TITLES[activeMode] || 'Mode setup';
+    $('plannedModeBody').textContent = MODE_DESCRIPTIONS[activeMode];
+  }
+}
+async function saveMode(mode) {
+  activeMode = mode || 'bps';
+  await chrome.storage.local.set({ [STORAGE_KEYS.mode]: activeMode });
+  renderMode();
+}
+function formatDiscoveryReport(report) {
+  if (!report) return 'No discovery scan yet.';
+  const lines = [
+    'ReliaTrax Form Discovery Report',
+    '',
+    `Page: ${report.title || '(untitled)'}`,
+    `URL: ${report.url || ''}`,
+    `Scanned: ${report.timestamp || ''}`,
+    `Suggested path prefix: ${report.pathPrefix || '(none)'}`,
+    `Controls found: ${report.totalControls}`,
+    `Text inputs/textareas/selects: ${report.textLikeCount}`,
+    `Checkboxes: ${report.checkboxCount}`,
+    `Radios: ${report.radioCount}`,
+    '',
+    'Sections:'
+  ];
+  (report.sections || []).forEach(section => {
+    lines.push(`- ${section.name}: ${section.controlCount} control${section.controlCount === 1 ? '' : 's'}`);
+  });
+  lines.push('', 'Controls:');
+  (report.controls || []).forEach(control => {
+    const options = (control.options || []).length ? ` | options: ${control.options.join(', ')}` : '';
+    const required = control.required ? ' | required' : '';
+    lines.push(`${control.index}. [${control.section || 'Unsectioned'}] ${control.label || control.name || control.id || control.type}`);
+    lines.push(`   type: ${control.type}${required} | suggestedPath: ${control.suggestedPath || ''}${options}`);
+    if (control.placeholder) lines.push(`   placeholder: ${control.placeholder}`);
+    if (control.name || control.id) lines.push(`   id/name: ${control.id || '(no id)'} / ${control.name || '(no name)'}`);
+    if (control.contextText && control.contextText !== control.label) lines.push(`   context: ${control.contextText}`);
+  });
+  return lines.join('\n');
+}
+function renderDiscoveryReport() {
+  logTo('discoveryResults', discoveryReport ? formatDiscoveryReport(discoveryReport) : 'No discovery scan yet.');
+}
+function renderVisualMappingButtons() {
+  $('showDiscoveryLabels')?.classList.toggle('active-toggle', visualMappingMode === 'labels');
+  $('showDiscoveryHoverLabels')?.classList.toggle('active-toggle', visualMappingMode === 'hover');
+}
 async function appendTrace(entry) {
   traceLog.push({
     ...entry,
@@ -192,8 +271,24 @@ async function appendTrace(entry) {
   await saveTraceLog();
 }
 async function fetchRemoteConfig(url) {
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    throw new Error('Remote config URL is not valid. Use a full GitHub raw URL that starts with https://raw.githubusercontent.com/.');
+  }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REMOTE_CONFIG_TIMEOUT_MS);
+  let res;
+  try {
+    res = await fetch(parsedUrl.href, { cache: 'no-store', signal: controller.signal });
+  } catch (err) {
+    const reason = err.name === 'AbortError' ? 'request timed out' : err.message;
+    throw new Error(`Unable to fetch remote config from ${parsedUrl.href}. Chrome reported: ${reason}. Check internet access, VPN/firewall filtering, GitHub raw access, and that the URL opens in the same Chrome profile. You can use "Use bundled config" to continue with the packaged config.`);
+  } finally {
+    clearTimeout(timeout);
+  }
+  if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}. Confirm the GitHub raw config URL exists and is public or accessible in this Chrome profile.`);
   const cfg = await res.json();
   if (!Array.isArray(cfg.fieldMap)) throw new Error('Config is missing fieldMap array.');
   return cfg;
@@ -214,16 +309,32 @@ async function loadRemoteConfig(url, { preserveDefaultRows = false } = {}) {
   renderConfigState();
 }
 async function loadState() {
-  const data = await chrome.storage.local.get([STORAGE_KEYS.config, STORAGE_KEYS.configUrl, STORAGE_KEYS.responses, STORAGE_KEYS.defaultRows, STORAGE_KEYS.traceLog]);
+  const data = await chrome.storage.local.get([
+    STORAGE_KEYS.config,
+    STORAGE_KEYS.configUrl,
+    STORAGE_KEYS.responses,
+    STORAGE_KEYS.defaultRows,
+    STORAGE_KEYS.traceLog,
+    STORAGE_KEYS.mode,
+    STORAGE_KEYS.discoveryReport,
+    STORAGE_KEYS.discoveryPrefix
+  ]);
   activeConfig = data[STORAGE_KEYS.config] || window.DEFAULT_ROSE_BPS_CONFIG;
   defaultRows = Array.isArray(data[STORAGE_KEYS.defaultRows]) ? data[STORAGE_KEYS.defaultRows] : getConfigDefaultRows(activeConfig);
   traceLog = Array.isArray(data[STORAGE_KEYS.traceLog]) ? data[STORAGE_KEYS.traceLog] : [];
-  $('configUrl').value = DEFAULT_REMOTE_CONFIG_URL;
+  activeMode = data[STORAGE_KEYS.mode] || 'bps';
+  discoveryReport = data[STORAGE_KEYS.discoveryReport] || null;
+  const configUrl = data[STORAGE_KEYS.configUrl] || DEFAULT_REMOTE_CONFIG_URL;
+  $('configUrl').value = configUrl;
+  $('discoveryPrefix').value = data[STORAGE_KEYS.discoveryPrefix] || '';
   (data[STORAGE_KEYS.responses] || []).forEach((v, i) => { if ($(`resp${i+1}`)) $(`resp${i+1}`).value = v || ''; });
   renderTraceLog();
+  renderDiscoveryReport();
+  renderVisualMappingButtons();
+  renderMode();
   try {
     setStatus('Loading remote config...');
-    await loadRemoteConfig(DEFAULT_REMOTE_CONFIG_URL, { preserveDefaultRows: Array.isArray(data[STORAGE_KEYS.defaultRows]) });
+    await loadRemoteConfig(configUrl, { preserveDefaultRows: Array.isArray(data[STORAGE_KEYS.defaultRows]) });
     setStatus('Remote config loaded');
   } catch (err) {
     renderConfigState();
@@ -268,6 +379,316 @@ function pageScan(config) {
       last: fields.slice(-5).map((el, offset) => describe(el, fields.length - 5 + offset))
     };
   } catch (err) { return { error: err.message }; }
+}
+function pageDiscover(options = {}) {
+  try {
+    const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const slugify = (value) => normalize(value)
+      .toLowerCase()
+      .replace(/['"]/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .slice(0, 64);
+    const visible = (el) => {
+      if (el.type === 'hidden' || el.hidden) return false;
+      const style = window.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    };
+    const labelFor = (el) => {
+      const labels = [];
+      if (el.id) {
+        const explicit = document.querySelector(`label[for="${CSS.escape(el.id)}"]`);
+        if (explicit) labels.push(normalize(explicit.innerText || explicit.textContent));
+      }
+      if (el.labels) [...el.labels].forEach(label => labels.push(normalize(label.innerText || label.textContent)));
+      const wrappingLabel = el.closest('label');
+      if (wrappingLabel) labels.push(normalize(wrappingLabel.innerText || wrappingLabel.textContent));
+      const ariaLabel = el.getAttribute('aria-label');
+      if (ariaLabel) labels.push(normalize(ariaLabel));
+      const labelledBy = el.getAttribute('aria-labelledby');
+      if (labelledBy) {
+        labelledBy.split(/\s+/).forEach(id => {
+          const ref = document.getElementById(id);
+          if (ref) labels.push(normalize(ref.innerText || ref.textContent));
+        });
+      }
+      return labels.find(Boolean) || '';
+    };
+    const nearestHeading = (el) => {
+      const fieldset = el.closest('fieldset');
+      const legend = fieldset?.querySelector('legend');
+      if (legend) return normalize(legend.innerText || legend.textContent);
+      let current = el.parentElement;
+      for (let depth = 0; current && depth < 6; depth++, current = current.parentElement) {
+        const heading = current.querySelector(':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > [role="heading"], :scope > .section-title, :scope > .question-title');
+        if (heading) return normalize(heading.innerText || heading.textContent);
+      }
+      const previousHeadings = [...document.querySelectorAll('h1, h2, h3, h4, [role="heading"], legend')].filter(heading => heading.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
+      const previousHeading = previousHeadings.pop();
+      return normalize(previousHeading?.innerText || previousHeading?.textContent || '');
+    };
+    const nearbyText = (el) => normalize((el.closest('tr, li, fieldset, .question, .form-group, .field, .row, label, div') || el.parentElement || el).innerText || '');
+    const optionText = (el) => {
+      const type = (el.type || '').toLowerCase();
+      if (el.tagName === 'SELECT') return [...el.options].map(option => normalize(option.textContent || option.value)).filter(Boolean).slice(0, 30);
+      if (type === 'checkbox' || type === 'radio') {
+        const groupName = el.name;
+        const group = groupName ? [...document.querySelectorAll(`input[type="${type}"][name="${CSS.escape(groupName)}"]`)] : [el];
+        return [...new Set(group.map(item => labelFor(item) || item.value || item.id || item.name).map(normalize).filter(Boolean))].slice(0, 30);
+      }
+      return [];
+    };
+    const controlSelector = [
+      'textarea',
+      'select',
+      'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])',
+      '[contenteditable="true"]'
+    ].join(',');
+    const controls = [...document.querySelectorAll(controlSelector)].filter(visible);
+    const prefix = slugify(options.pathPrefix || '');
+    const sectionCounts = new Map();
+    const discovered = controls.map((el, index) => {
+      const type = el.tagName === 'TEXTAREA'
+        ? 'textarea'
+        : el.tagName === 'SELECT'
+          ? 'select'
+          : el.getAttribute('contenteditable') === 'true'
+            ? 'contenteditable'
+            : (el.type || 'text').toLowerCase();
+      const section = nearestHeading(el) || 'Unsectioned';
+      sectionCounts.set(section, (sectionCounts.get(section) || 0) + 1);
+      const label = labelFor(el);
+      const contextText = nearbyText(el).slice(0, 260);
+      const fallbackName = el.name || el.id || el.placeholder || label || contextText || `${type}_${index + 1}`;
+      const basePath = [slugify(section), slugify(label || fallbackName)].filter(Boolean).join('.');
+      return {
+        index,
+        fillIndex: index,
+        tag: el.tagName.toLowerCase(),
+        type,
+        section,
+        label,
+        id: el.id || '',
+        name: el.name || '',
+        placeholder: el.placeholder || '',
+        required: Boolean(el.required || el.getAttribute('aria-required') === 'true'),
+        disabled: Boolean(el.disabled),
+        readOnly: Boolean(el.readOnly),
+        valuePreview: type === 'checkbox' || type === 'radio' ? Boolean(el.checked) : String(el.value || '').slice(0, 120),
+        options: optionText(el),
+        suggestedPath: [prefix, basePath || `${type}_${index + 1}`].filter(Boolean).join('.'),
+        selectorHints: {
+          id: el.id ? `#${el.id}` : '',
+          name: el.name ? `[name="${el.name}"]` : '',
+          dataQnFieldId: el.getAttribute('data-qn-field-id') || ''
+        },
+        contextText
+      };
+    });
+    const typeCount = (types) => discovered.filter(control => types.includes(control.type)).length;
+    return {
+      event: 'discover',
+      timestamp: new Date().toISOString(),
+      url: location.href,
+      title: document.title,
+      pathPrefix: options.pathPrefix || '',
+      totalControls: discovered.length,
+      textLikeCount: typeCount(['text', 'email', 'tel', 'number', 'date', 'textarea', 'select', 'contenteditable', 'search', 'url']),
+      checkboxCount: typeCount(['checkbox']),
+      radioCount: typeCount(['radio']),
+      sections: [...sectionCounts.entries()].map(([name, controlCount]) => ({ name, controlCount })),
+      controls: discovered
+    };
+  } catch (err) { return { error: err.message }; }
+}
+function pageVisualMapping(options = {}) {
+  const stateKey = '__roseDiscoveryVisualMapping';
+  const cleanup = () => {
+    const state = window[stateKey];
+    if (!state) return;
+    state.elements.forEach(({ el, outline, boxShadow, scrollMarginTop }) => {
+      el.style.outline = outline;
+      el.style.boxShadow = boxShadow;
+      el.style.scrollMarginTop = scrollMarginTop;
+    });
+    state.listeners.forEach(({ el, enter, leave }) => {
+      el.removeEventListener('mouseenter', enter);
+      el.removeEventListener('mouseleave', leave);
+      el.removeEventListener('focus', enter);
+      el.removeEventListener('blur', leave);
+    });
+    window.removeEventListener('scroll', state.reposition, true);
+    window.removeEventListener('resize', state.reposition);
+    state.root?.remove();
+    window[stateKey] = null;
+  };
+  try {
+    cleanup();
+    if (options.action === 'hide') {
+      return { event: 'visual_mapping', mode: 'off', controls: 0 };
+    }
+    const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const slugify = (value) => normalize(value)
+      .toLowerCase()
+      .replace(/['"]/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .slice(0, 64);
+    const visible = (el) => {
+      if (el.type === 'hidden' || el.hidden) return false;
+      const style = window.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    };
+    const labelFor = (el) => {
+      const labels = [];
+      if (el.id) {
+        const explicit = document.querySelector(`label[for="${CSS.escape(el.id)}"]`);
+        if (explicit) labels.push(normalize(explicit.innerText || explicit.textContent));
+      }
+      if (el.labels) [...el.labels].forEach(label => labels.push(normalize(label.innerText || label.textContent)));
+      const wrappingLabel = el.closest('label');
+      if (wrappingLabel) labels.push(normalize(wrappingLabel.innerText || wrappingLabel.textContent));
+      const ariaLabel = el.getAttribute('aria-label');
+      if (ariaLabel) labels.push(normalize(ariaLabel));
+      return labels.find(Boolean) || '';
+    };
+    const nearestHeading = (el) => {
+      const fieldset = el.closest('fieldset');
+      const legend = fieldset?.querySelector('legend');
+      if (legend) return normalize(legend.innerText || legend.textContent);
+      let current = el.parentElement;
+      for (let depth = 0; current && depth < 6; depth++, current = current.parentElement) {
+        const heading = current.querySelector(':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > [role="heading"], :scope > .section-title, :scope > .question-title');
+        if (heading) return normalize(heading.innerText || heading.textContent);
+      }
+      const previousHeadings = [...document.querySelectorAll('h1, h2, h3, h4, [role="heading"], legend')].filter(heading => heading.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
+      const previousHeading = previousHeadings.pop();
+      return normalize(previousHeading?.innerText || previousHeading?.textContent || '');
+    };
+    const typeFor = (el) => el.tagName === 'TEXTAREA'
+      ? 'textarea'
+      : el.tagName === 'SELECT'
+        ? 'select'
+        : el.getAttribute('contenteditable') === 'true'
+          ? 'contenteditable'
+          : (el.type || 'text').toLowerCase();
+    const controlSelector = [
+      'textarea',
+      'select',
+      'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])',
+      '[contenteditable="true"]'
+    ].join(',');
+    const palette = {
+      checkbox: '#db2777',
+      radio: '#7c3aed',
+      select: '#0891b2',
+      textarea: '#2563eb',
+      contenteditable: '#ea580c',
+      text: '#059669'
+    };
+    const mode = options.mode === 'hover' ? 'hover' : 'labels';
+    const prefix = slugify(options.pathPrefix || '');
+    const controls = [...document.querySelectorAll(controlSelector)].filter(visible).map((el, index) => {
+      const type = typeFor(el);
+      const section = nearestHeading(el) || 'Unsectioned';
+      const label = labelFor(el);
+      const fallbackName = el.name || el.id || el.placeholder || label || `${type}_${index + 1}`;
+      const basePath = [slugify(section), slugify(label || fallbackName)].filter(Boolean).join('.');
+      return {
+        el,
+        index,
+        type,
+        color: palette[type] || palette.text,
+        section,
+        label,
+        suggestedPath: [prefix, basePath || `${type}_${index + 1}`].filter(Boolean).join('.')
+      };
+    });
+    const root = document.createElement('div');
+    root.id = 'rose-discovery-visual-layer';
+    root.setAttribute('data-mode', mode);
+    root.style.cssText = 'position:absolute;inset:0;z-index:2147483647;pointer-events:none;font-family:Inter,system-ui,Arial,sans-serif;';
+    document.body.appendChild(root);
+    const state = { root, elements: [], listeners: [], reposition: () => {} };
+    window[stateKey] = state;
+    const makeLabel = (control, persistent) => {
+      const badge = document.createElement('div');
+      badge.className = 'rose-discovery-map-label';
+      badge.textContent = `#${control.index} ${control.suggestedPath || control.label || control.type}`;
+      badge.style.cssText = [
+        'position:absolute',
+        'max-width:360px',
+        'padding:4px 7px',
+        `background:${control.color}`,
+        'color:#fff',
+        'font:700 12px/1.25 Inter,system-ui,Arial,sans-serif',
+        'border-radius:6px',
+        'box-shadow:0 8px 22px rgba(0,0,0,.22)',
+        'white-space:normal',
+        'overflow-wrap:anywhere',
+        persistent ? 'opacity:.96' : 'opacity:1'
+      ].join(';');
+      root.appendChild(badge);
+      return badge;
+    };
+    const positionLabel = (badge, control) => {
+      const rect = control.el.getBoundingClientRect();
+      badge.style.left = `${Math.max(6, rect.left + window.scrollX)}px`;
+      badge.style.top = `${Math.max(6, rect.top + window.scrollY - badge.offsetHeight - 4)}px`;
+    };
+    const persistentLabels = [];
+    controls.forEach((control) => {
+      state.elements.push({
+        el: control.el,
+        outline: control.el.style.outline,
+        boxShadow: control.el.style.boxShadow,
+        scrollMarginTop: control.el.style.scrollMarginTop
+      });
+      control.el.style.outline = `3px solid ${control.color}`;
+      control.el.style.boxShadow = `0 0 0 3px color-mix(in srgb, ${control.color} 24%, transparent)`;
+      control.el.style.scrollMarginTop = '64px';
+      if (mode === 'labels') {
+        const badge = makeLabel(control, true);
+        persistentLabels.push({ badge, control });
+      } else {
+        let hoverBadge = null;
+        const enter = () => {
+          if (!hoverBadge) hoverBadge = makeLabel(control, false);
+          hoverBadge.hidden = false;
+          positionLabel(hoverBadge, control);
+        };
+        const leave = () => {
+          if (hoverBadge) hoverBadge.hidden = true;
+        };
+        control.el.addEventListener('mouseenter', enter);
+        control.el.addEventListener('mouseleave', leave);
+        control.el.addEventListener('focus', enter);
+        control.el.addEventListener('blur', leave);
+        state.listeners.push({ el: control.el, enter, leave });
+      }
+    });
+    state.reposition = () => {
+      persistentLabels.forEach(({ badge, control }) => positionLabel(badge, control));
+    };
+    window.addEventListener('scroll', state.reposition, true);
+    window.addEventListener('resize', state.reposition);
+    state.reposition();
+    return {
+      event: 'visual_mapping',
+      mode,
+      controls: controls.length,
+      timestamp: new Date().toISOString(),
+      url: location.href,
+      title: document.title
+    };
+  } catch (err) {
+    cleanup();
+    return { error: err.message };
+  }
 }
 function pageFill(config, merged, dryRun) {
   const isBlankLocal = (value) => value === undefined || value === null || value === '';
@@ -864,5 +1285,58 @@ $('clearTraceLog').onclick = async () => {
   await saveTraceLog();
   setStatus('Cleared trace log');
 };
+$('discoverPage').onclick = async () => {
+  try {
+    const pathPrefix = $('discoveryPrefix').value.trim();
+    await chrome.storage.local.set({ [STORAGE_KEYS.discoveryPrefix]: pathPrefix });
+    const result = await runInActiveTab(pageDiscover, [{ pathPrefix }]);
+    if (result?.error) throw new Error(result.error);
+    discoveryReport = result;
+    await chrome.storage.local.set({ [STORAGE_KEYS.discoveryReport]: discoveryReport });
+    renderDiscoveryReport();
+    await appendTrace(result);
+    setStatus(`Discovered ${result.totalControls} controls`);
+  } catch (err) { logTo('discoveryResults', err.message); setStatus('Discovery failed'); }
+};
+async function applyVisualMapping(mode) {
+  try {
+    const pathPrefix = $('discoveryPrefix').value.trim();
+    const action = mode === 'off' ? 'hide' : 'show';
+    const result = await runInActiveTab(pageVisualMapping, [{ action, mode, pathPrefix }]);
+    if (result?.error) throw new Error(result.error);
+    visualMappingMode = result.mode === 'off' ? 'off' : mode;
+    renderVisualMappingButtons();
+    setStatus(visualMappingMode === 'off' ? 'Page labels hidden' : `Page ${visualMappingMode === 'hover' ? 'hover ' : ''}labels shown`);
+  } catch (err) {
+    visualMappingMode = 'off';
+    renderVisualMappingButtons();
+    logTo('discoveryResults', err.message);
+    setStatus('Page labels failed');
+  }
+}
+$('showDiscoveryLabels').onclick = () => applyVisualMapping(visualMappingMode === 'labels' ? 'off' : 'labels');
+$('showDiscoveryHoverLabels').onclick = () => applyVisualMapping(visualMappingMode === 'hover' ? 'off' : 'hover');
+$('hideDiscoveryLabels').onclick = () => applyVisualMapping('off');
+$('copyDiscoveryReport').onclick = async () => {
+  await navigator.clipboard.writeText(formatDiscoveryReport(discoveryReport));
+  setStatus('Copied discovery report');
+};
+$('copyDiscoveryJson').onclick = async () => {
+  await navigator.clipboard.writeText(JSON.stringify(discoveryReport || {}, null, 2));
+  setStatus('Copied discovery JSON');
+};
+$('clearDiscoveryReport').onclick = async () => {
+  discoveryReport = null;
+  await chrome.storage.local.remove([STORAGE_KEYS.discoveryReport]);
+  renderDiscoveryReport();
+  await applyVisualMapping('off');
+  setStatus('Cleared discovery report');
+};
+$('discoveryPrefix').addEventListener('input', async () => {
+  await chrome.storage.local.set({ [STORAGE_KEYS.discoveryPrefix]: $('discoveryPrefix').value });
+});
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => saveMode(btn.dataset.mode).catch(err => setStatus(err.message)));
+});
 [1,2,3,4].forEach(i => $(`resp${i}`).addEventListener('input', saveResponses));
 loadState();

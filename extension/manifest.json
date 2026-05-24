@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Rose ReliaTrax BPS Helper",
-  "version": "0.4.1",
-  "description": "Side panel helper for merging BastionGPT responses, applying Rose defaults, and filling ReliaTrax BPS forms.",
+  "version": "0.5.0",
+  "description": "Side panel helper for Rose ReliaTrax form filling, discovery, and mapping.",
   "permissions": [
     "storage",
     "activeTab",

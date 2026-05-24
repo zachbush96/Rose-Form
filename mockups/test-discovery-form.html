@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Discovery Mapping Test Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    fieldset { margin-bottom: 20px; padding: 16px; }
+    label { display: block; margin: 8px 0; }
+    textarea { width: 420px; height: 70px; }
+  </style>
+</head>
+<body>
+  <h1>Behavioral Health Intake</h1>
+  <form>
+    <fieldset>
+      <legend>Mental Status Exam</legend>
+      <label for="appearance_other">Appearance Other</label>
+      <textarea id="appearance_other" name="appearance_other" placeholder="Unknown - Interview conducted via phone call"></textarea>
+
+      <label>
+        <input type="checkbox" name="attitude" value="cooperative">
+        Cooperative
+      </label>
+      <label>
+        <input type="checkbox" name="attitude" value="guarded">
+        Guarded
+      </label>
+
+      <label for="mood">Mood</label>
+      <select id="mood" name="mood">
+        <option>Euthymic</option>
+        <option>Anxious</option>
+        <option>Depressed</option>
+        <option>Other</option>
+      </select>
+    </fieldset>
+
+    <fieldset>
+      <legend>ASAM Criteria</legend>
+      <label for="dimension_one">Dimension 1 Narrative</label>
+      <textarea id="dimension_one" name="dimension_one"></textarea>
+
+      <label>
+        <input type="radio" name="dimension_one_severity" value="0">
+        None
+      </label>
+      <label>
+        <input type="radio" name="dimension_one_severity" value="1">
+        Mild
+      </label>
+      <label>
+        <input type="radio" name="dimension_one_severity" value="2">
+        Moderate
+      </label>
+    </fieldset>
+  </form>
+</body>
+</html>

@@ -1,0 +1,868 @@
+PART THREE AUTOMATION RULES – CASE MANAGEMENT ASSESSMENT + ASAM CRITERIA
+
+This document explains the automation and prompt logic for Part Three of the behavioral health assessment form.
+
+Part Three includes:
+
+Case Management Assessment severity grid
+
+ASAM Criteria Dimensions 1 through 6
+
+Safety Planning section
+
+ASAM severity logic
+
+Level of care alignment logic that will later feed into Part Four
+
+This section should be generated from the transcript and clinical documentation output, then used to populate the corresponding ReliaTrax form fields.
+
+GENERAL PART THREE RULES
+
+The output must be copy/paste ready.
+
+Use professional clinical language.
+
+Always use the client’s first name.
+
+Write in third person.
+
+Do not use em dashes.
+
+Use full clinical sentences in ASAM narratives.
+
+Use clinical inference when appropriate, but do not fabricate or overstate.
+
+All ratings must match the clinical narrative.
+
+Do not make the client appear more severe or less severe than the transcript supports.
+
+Use the least restrictive clinically appropriate interpretation.
+
+Avoid repetitive language across ASAM dimensions.
+
+Each ASAM dimension should have its own distinct clinical reasoning.
+
+PART A – CASE MANAGEMENT ASSESSMENT GRID
+
+The Case Management Assessment is a checkbox grid with the following severity options:
+
+0 = None
+1 = Mild
+2 = Moderate
+3 = Severe
+
+Categories to score:
+
+Housing
+
+Financial Stressors
+
+Legal
+
+Employment
+
+Education/Vocation
+
+Independent Living
+
+Medical
+
+Social/Natural Supports
+
+Automation logic:
+
+Bastion should determine the severity number for each category.
+
+Zach’s automation should map the severity number to the matching checkbox column.
+
+If Bastion outputs 0, check None.
+
+If Bastion outputs 1, check Mild.
+
+If Bastion outputs 2, check Moderate.
+
+If Bastion outputs 3, check Severe.
+
+Only one checkbox should be selected per category.
+
+CASE MANAGEMENT SCORING GUIDE
+
+Housing
+
+0 None:
+Stable housing with no current housing concerns.
+
+1 Mild:
+Temporary housing, sober living, transitional housing, or minor housing-related stressors without immediate loss of housing.
+
+2 Moderate:
+Unstable housing, risk of losing housing, unsafe housing, significant housing barriers, or housing problems affecting recovery.
+
+3 Severe:
+Homelessness, sleeping outside, shelter living, motel living due to lack of stable housing, or immediate inability to meet housing needs.
+
+Financial Stressors
+
+0 None:
+Financially stable or no reported financial concerns.
+
+1 Mild:
+Mild financial stress that does not significantly impair functioning.
+
+2 Moderate:
+Moderate financial stress, limited income, disability application pending, inability to fully meet needs, or financial stress affecting stability.
+
+3 Severe:
+No income, inability to meet basic needs, no access to food/shelter/medication, or severe financial instability.
+
+Legal
+
+0 None:
+No current legal concerns.
+
+1 Mild:
+Minor legal issue, old warrant, ticket, or minimal legal concern without major functional impact.
+
+2 Moderate:
+Active legal case, probation/parole, court requirements, CPS involvement, or legal stress affecting functioning.
+
+3 Severe:
+Severe legal consequences, incarceration risk, major active charges, legal instability significantly interfering with treatment or safety.
+
+Employment
+
+0 None:
+Stable employment or no employment-related concern.
+
+1 Mild:
+Mild employment stress or underemployment without major impairment.
+
+2 Moderate:
+Unemployed but seeking work, employment instability, disability process, or employment barriers affecting stability.
+
+3 Severe:
+Not working, not seeking work, severe employment barriers, inability to work due to significant impairment, or employment issues severely affecting stability.
+
+Education/Vocation
+
+0 None:
+No education or vocational concerns.
+
+1 Mild:
+Minor educational/vocational concerns or mild barriers.
+
+2 Moderate:
+Moderate vocational barriers, lack of training, difficulty maintaining vocational progress, or dropout history affecting functioning.
+
+3 Severe:
+Severe educational/vocational impairment or inability to engage in education/vocation due to significant barriers.
+
+Independent Living
+
+0 None:
+Independent with activities of daily living and basic self-management.
+
+1 Mild:
+Mild difficulty with organization, follow-through, transportation, scheduling, or daily structure.
+
+2 Moderate:
+Moderate impairment with independent living skills, needing support with daily functioning, appointments, stability, or life skills.
+
+3 Severe:
+Unable to manage independent living needs, severe impairment in daily functioning, or needs intensive support to meet basic needs.
+
+Medical
+
+0 None:
+No medical concerns reported.
+
+1 Mild:
+Mild medical concerns with minimal impact.
+
+2 Moderate:
+Medical conditions requiring care, chronic health concerns, medication needs, pain, surgery, mobility concerns, or moderate functional impact.
+
+3 Severe:
+Severe medical needs, unmanaged serious illness, acute medical risk, inability to access care, or medical issues significantly impairing functioning or safety.
+
+Social/Natural Supports
+
+0 None:
+Strong support system.
+
+1 Mild:
+Some supports available.
+
+2 Moderate:
+Limited support, strained supports, isolation, lack of reliable sober supports, or support deficits affecting recovery.
+
+3 Severe:
+No meaningful support system, unsafe supports, highly isolated, or social environment significantly increases risk.
+
+PART B – ASAM CRITERIA
+
+ASAM Criteria includes six dimensions:
+
+Dimension 1:
+Acute Intoxication and/or Withdrawal Potential
+
+Dimension 2:
+Biomedical Conditions and Complications
+
+Dimension 3:
+Emotional, Behavioral, Cognitive Conditions or Complications
+
+Dimension 4:
+Readiness to Change
+
+Dimension 5:
+Relapse, Continued Use or Continued Problem Potential
+
+Dimension 6:
+Recovery/Living Environment
+
+ASAM SEVERITY SCALE
+
+0 = None
+1 = Mild
+2 = Moderate
+3 = High
+4 = Severe
+
+The severity label must always match the number.
+
+Do not write “moderate” if the score is 1.
+
+Do not write “mild” if the score is 2.
+
+Do not write “high” if the score is 4.
+
+ASAM OUTPUT FORMAT
+
+Each dimension must be formatted exactly like this:
+
+Severity Rating: X (Label)
+Narrative paragraph underneath.
+
+Example:
+
+Severity Rating: 2 (Moderate)
+David reports a history of opioid use with prior detox episodes and current medication-assisted treatment. He denies current acute withdrawal symptoms, though his relapse history and ongoing stressors create moderate risk for recurrence of use. Functional impact is moderate due to ongoing recovery needs, and continued structured treatment is indicated to support stabilization.
+
+Each ASAM dimension must include:
+
+Severity Rating line
+
+Correct number
+
+Correct label
+
+Narrative explanation underneath
+
+Clinical justification
+
+Functional impact
+
+Risk implications
+
+Support for treatment need or level of care
+
+ASAM NARRATIVE STYLE
+
+Each dimension should usually be 2 to 4 sentences.
+
+The narrative should be detailed enough to justify the severity rating.
+
+The narrative should not be generic.
+
+The narrative should not use identical phrasing across all dimensions.
+
+Each narrative should include the client’s first name.
+
+Preferred language includes:
+
+Functional impact is mild/moderate/high because...
+Risk implications are low/moderate/high due to...
+Continued structured support is indicated because...
+Current symptoms appear to...
+Protective factors include...
+Barriers include...
+Clinical needs include...
+
+ASAM DIMENSION 1 RULES
+
+Dimension 1:
+Acute Intoxication and/or Withdrawal Potential
+
+This dimension evaluates current intoxication, recent use, withdrawal risk, cravings, and need for withdrawal management.
+
+Consider:
+
+Use in the last 5 days
+Current intoxication
+Current withdrawal symptoms
+Detox history
+Seizure history
+Delirium tremens history
+MAT/Suboxone/methadone use
+Cravings
+Frequency and recency of use
+Physical withdrawal symptoms
+Risk of acute withdrawal if not monitored
+
+Examples of withdrawal symptoms:
+
+sweating
+anxiety
+depression
+sleeplessness
+dry mouth
+nausea
+hot/cold sweats
+dizziness
+agitation
+muscle aches
+tearing eyes
+runny nose
+excessive yawning
+diarrhea
+constipation
+goose bumps
+rapid heartbeat
+blurry vision
+DTs
+mild fever
+panic attacks
+difficulty concentrating
+confusion
+memory problems
+cravings
+
+Severity guidance:
+
+0 None:
+No current withdrawal risk, no recent use, no intoxication, no cravings, no withdrawal symptoms.
+
+1 Mild:
+Past use history or mild cravings/withdrawal history, but no current acute intoxication or withdrawal risk. Stable on MAT can often be mild if there are no acute symptoms.
+
+2 Moderate:
+Some current symptoms, relapse risk, cravings, recent use, or history suggesting need for monitoring, but not requiring detox.
+
+3 High:
+Significant current use, active withdrawal symptoms, high relapse risk, medical or psychiatric complication risk, or possible need for higher monitoring.
+
+4 Severe:
+Severe withdrawal risk, dangerous withdrawal history, current intoxication with severe impairment, seizure/DT risk, or clear need for medical detox/withdrawal management.
+
+Narrative should explain:
+
+What substance use or withdrawal history is present
+Whether symptoms are current or historical
+Whether detox is needed
+Functional impact
+Risk implications
+
+ASAM DIMENSION 2 RULES
+
+Dimension 2:
+Biomedical Conditions and Complications
+
+This dimension evaluates medical conditions, physical limitations, pain, medication needs, chronic illness, disability, surgery, and how medical issues affect treatment participation.
+
+Consider:
+
+Current medical problems
+Chronic health conditions
+Pain
+Surgery
+Medication needs
+Medication access
+Physical disability
+Mobility issues
+Primary care engagement
+Dental issues
+Hepatitis C
+Cirrhosis
+Pregnancy if applicable
+Neurological issues
+TBI
+Hospitalization
+Medical follow-up needs
+
+Severity guidance:
+
+0 None:
+No medical problems or biomedical concerns.
+
+1 Mild:
+Minor medical issues with limited impact on functioning or treatment.
+
+2 Moderate:
+Medical concerns that require coordination, medication, follow-up, surgery, or create moderate barriers to treatment engagement.
+
+3 High:
+Serious medical concerns that substantially impair functioning, limit treatment participation, or create significant risk without care coordination.
+
+4 Severe:
+Acute or severe medical condition requiring immediate medical care, hospitalization, or a level of care with medical monitoring.
+
+Narrative should explain:
+
+Medical problems
+Current medical stability
+Treatment impact
+Functional impact
+Risk implications
+Need for medical follow-up or coordination
+
+ASAM DIMENSION 3 RULES
+
+Dimension 3:
+Emotional, Behavioral, Cognitive Conditions or Complications
+
+This dimension evaluates mental health symptoms, trauma, behavioral stability, cognitive concerns, psychiatric history, safety risk, and emotional functioning.
+
+Consider:
+
+Depression
+Anxiety
+PTSD
+Trauma history
+Psychosis
+Hallucinations
+Delusions
+Suicidal ideation
+Homicidal ideation
+Self-harm
+Psychiatric hospitalization
+Emotional dysregulation
+Aggression
+Violence risk
+Cognitive impairment
+TBI
+Memory/concentration problems
+Medication adherence
+Current psychiatric care
+Need for mental health treatment
+
+Severity guidance:
+
+0 None:
+No current emotional, behavioral, or cognitive concerns.
+
+1 Mild:
+Mild symptoms or history with minimal current impairment and low risk.
+
+2 Moderate:
+Active symptoms, trauma history, depression/anxiety/PTSD, psychiatric history, or cognitive issues causing moderate functional impact but no acute safety risk.
+
+3 High:
+Significant psychiatric instability, hallucinations, severe mood symptoms, recent SI/HI, behavioral instability, or symptoms that strongly interfere with treatment.
+
+4 Severe:
+Imminent safety risk, active SI/HI with intent/plan, severe psychosis, severe behavioral dysregulation, or need for acute psychiatric stabilization.
+
+Narrative should explain:
+
+Current mental health symptoms
+Psychiatric history
+Safety concerns or denial of safety concerns
+Functional impact
+Risk implications
+Need for mental health support
+
+ASAM DIMENSION 4 RULES
+
+Dimension 4:
+Readiness to Change
+
+This dimension evaluates motivation, engagement, insight, willingness to participate in treatment, ambivalence, and recovery-oriented behavior.
+
+Consider:
+
+Desire for recovery
+Treatment engagement
+Meeting attendance
+Sponsor involvement
+Participation in groups
+Medication compliance
+Willingness to accept help
+Insight into substance use
+Accountability
+Ambivalence
+Resistance
+External vs internal motivation
+Court/legal pressure
+Housing-motivated participation
+Disability/financial motivation
+Recovery goals
+
+Severity guidance:
+
+0 None:
+Highly motivated, actively engaged, good insight, strong recovery participation, minimal ambivalence.
+
+1 Mild:
+Generally motivated and engaged, with mild ambivalence or mild need for support.
+
+2 Moderate:
+Some engagement but motivation may be inconsistent, externally driven, ambivalent, or focused on secondary goals such as housing/disability/legal needs.
+
+3 High:
+Low motivation, poor insight, significant ambivalence, resistance to treatment, or minimal engagement.
+
+4 Severe:
+Refuses treatment, no insight, actively rejects change, or is unable/unwilling to participate despite serious clinical need.
+
+Narrative should explain:
+
+Level of motivation
+Engagement in services
+Recovery behavior
+Insight
+Ambivalence or resistance
+Functional impact
+Risk if motivation decreases
+
+ASAM DIMENSION 5 RULES
+
+Dimension 5:
+Relapse, Continued Use or Continued Problem Potential
+
+This dimension evaluates relapse risk, continued use risk, triggers, cravings, coping skills, relapse history, and ability to maintain recovery without structured support.
+
+Consider:
+
+Relapse history
+Longest sobriety
+Current cravings
+Current use
+Pattern of continued use
+Triggers
+Environmental stressors
+Coping skills
+Recovery supports
+Treatment history
+Prior inpatient/outpatient treatment
+Confidence in sobriety
+Relapse prevention strategies
+Ability to maintain recovery
+Risk-taking behavior
+Unmanaged mental health symptoms
+Unstable housing
+Lack of sober support
+
+Severity guidance:
+
+0 None:
+No relapse risk or sustained stability with strong recovery supports.
+
+1 Mild:
+Some relapse history but currently stable, minimal cravings, and has protective factors.
+
+2 Moderate:
+Moderate relapse risk due to history, stressors, limited support, cravings, or vulnerability to triggers.
+
+3 High:
+High relapse risk due to recent use, repeated relapse, poor coping, limited supports, unstable environment, or unresolved triggers.
+
+4 Severe:
+Imminent relapse risk, continued use, inability to maintain abstinence, severe cravings, or need for highly structured treatment.
+
+Narrative should explain:
+
+Use history
+Relapse history
+Current cravings or denial of cravings
+Triggers/stressors
+Recovery supports
+Functional impact
+Risk implications
+Why continued structure is or is not needed
+
+ASAM DIMENSION 6 RULES
+
+Dimension 6:
+Recovery/Living Environment
+
+This dimension evaluates housing, sober support, environmental safety, access to recovery supports, transportation, family involvement, barriers to care, and whether the environment supports or threatens recovery.
+
+Consider:
+
+Where client is living
+Sober living involvement
+Homelessness
+Motel/shelter
+Safety of environment
+Substance use in home
+Transportation
+Sponsor
+Meeting attendance
+Family support
+Peer support
+Recovery coaching
+Environmental triggers
+Housing instability
+Social isolation
+Legal/environmental stressors
+Treatment barriers
+
+Severity guidance:
+
+0 None:
+Stable, sober, supportive environment with no recovery barriers.
+
+1 Mild:
+Generally stable environment with some mild barriers or support needs.
+
+2 Moderate:
+Unstable housing, homelessness, limited sober supports, motel/shelter living, transportation barriers, or environmental stress affecting recovery.
+
+3 High:
+Unsafe environment, active substance exposure, major environmental barriers, severe housing instability, or living situation significantly threatens recovery.
+
+4 Severe:
+Environment makes recovery impossible or unsafe without immediate intervention, such as active danger, violence, exploitation, or severe exposure to substance use.
+
+Narrative should explain:
+
+Living situation
+Environmental supports
+Environmental risks
+Recovery supports
+Barriers
+Functional impact
+Risk implications
+
+IMPORTANT SOBER LIVING / LEVEL OF CARE RULE
+
+Sober living is NOT a level of care.
+
+Sober living is a housing arrangement.
+
+Sober living can be recommended as a supportive housing environment, but it should not be written as if it is clinical treatment.
+
+Do not confuse sober living with residential treatment.
+
+Residential levels of care, such as ASAM 3.1 or 3.5, refer to structured clinically managed treatment programs where the client resides on-site and participates in intensive daily programming.
+
+Residential treatment typically includes:
+
+24-hour structured support
+daily clinical programming
+groups and individual sessions
+limited ability to work or engage in outside responsibilities
+
+Do not recommend residential level of care unless client demonstrates:
+
+high clinical instability
+inability to function in less restrictive treatment
+need for 24-hour therapeutic support
+significant ASAM severity
+significant safety or stabilization needs
+
+LEVEL OF CARE ALIGNMENT LOGIC
+
+Part Three ASAM ratings should support the later Level of Care recommendation in Part Four.
+
+The Level of Care recommendation must match the overall ASAM severity pattern.
+
+General guidance:
+
+Mostly Mild ratings:
+Usually supports Outpatient Level 1.0.
+
+Multiple Moderate ratings:
+Consider Intensive Outpatient Program, ASAM Level 2.1.
+
+Any High ratings or significant instability:
+Consider higher level of care depending on risk and functioning.
+
+Severe withdrawal risk:
+Consider detox/withdrawal management.
+
+Acute psychiatric safety risk:
+Consider emergency evaluation, crisis stabilization, or higher psychiatric level of care.
+
+Always select the least restrictive clinically appropriate level of care.
+
+Do not overestimate.
+
+Do not underestimate.
+
+Do not recommend higher levels just because client lives in sober living.
+
+Do not recommend residential treatment unless ASAM severity supports it.
+
+SAFETY PLANNING SECTION
+
+The safety planning section has two fields:
+
+Is additional safety planning needed?
+
+Why or why not?
+
+Field 1:
+
+Must be either:
+
+Yes
+
+or
+
+No
+
+No extra wording.
+
+Field 2:
+
+Must explain why yes or no.
+
+Safety Planning should consider:
+
+suicidal ideation
+homicidal ideation
+self-harm
+history of suicide attempt
+history of violence
+current violence risk
+psychosis
+hallucinations
+delusions
+acute intoxication
+withdrawal risk
+seizure/DT risk
+medical instability
+psychiatric instability
+unsafe living environment
+domestic violence risk
+exploitation risk
+current crisis
+protective factors
+support systems
+current engagement in treatment
+
+If safety planning is not needed:
+
+Use a clear explanation that references the lack of acute safety concerns and any protective factors.
+
+Example:
+
+David denies suicidal ideation, homicidal ideation, self-harm, violent behavior, and acute withdrawal symptoms. He is currently engaged in treatment, has stable housing in a sober living environment, and reports supportive recovery resources. There are no current risk factors necessitating additional safety planning at this time.
+
+If safety planning is needed:
+
+Use a clear explanation that identifies the risk and why additional planning is clinically indicated.
+
+Example:
+
+Additional safety planning is recommended due to Crystal’s recent suicidal ideation, limited supports, and unstable housing. She would benefit from a written safety plan, crisis resources, and coordination with treatment supports to reduce immediate risk.
+
+PART THREE OUTPUT EXPECTATION FOR ZACH
+
+The generated Part Three output should contain:
+
+Case Management Assessment scores:
+
+Housing: 0/1/2/3
+Financial Stressors: 0/1/2/3
+Legal: 0/1/2/3
+Employment: 0/1/2/3
+Education/Vocation: 0/1/2/3
+Independent Living: 0/1/2/3
+Medical: 0/1/2/3
+Social/Natural Supports: 0/1/2/3
+
+Then ASAM Criteria:
+
+Dimension 1
+
+Severity Rating: X (Label)
+Narrative
+
+Dimension 2
+
+Severity Rating: X (Label)
+Narrative
+
+Dimension 3
+
+Severity Rating: X (Label)
+Narrative
+
+Dimension 4
+
+Severity Rating: X (Label)
+Narrative
+
+Dimension 5
+
+Severity Rating: X (Label)
+Narrative
+
+Dimension 6
+
+Severity Rating: X (Label)
+Narrative
+
+Then Safety Planning:
+
+Is additional safety planning needed?
+
+Yes/No
+
+Why or why not?
+
+Narrative explanation
+
+AUTOMATION FIELD MAPPING NOTES
+
+Case Management grid:
+Use the numeric score to check the matching checkbox.
+
+ASAM Dimensions:
+Copy the full severity rating line plus narrative into the corresponding dimension text area.
+
+Safety Planning:
+Put Yes or No into the first safety planning field.
+
+Put the explanation into the second safety planning field.
+
+Do not populate the signature section.
+
+Do not alter unrelated fields.
+
+QUALITY CHECKS
+
+Before finalizing output, confirm:
+
+Each Case Management category has one score.
+
+Each score is 0, 1, 2, or 3.
+
+Each ASAM dimension has a severity rating.
+
+Each ASAM rating is 0, 1, 2, 3, or 4.
+
+Each ASAM label matches the number.
+
+Each ASAM narrative explains clinical justification.
+
+Each ASAM narrative includes functional impact.
+
+Each ASAM narrative includes risk implications.
+
+Each ASAM narrative supports treatment need.
+
+Safety planning is answered Yes or No.
+
+Safety planning rationale explains why.
+
+Sober living is not described as a level of care.
+
+Residential treatment is not recommended unless ASAM severity supports it.
+
+Level of care logic remains consistent with ASAM severity.
+
+All language is clinical, clear, and copy/paste ready.

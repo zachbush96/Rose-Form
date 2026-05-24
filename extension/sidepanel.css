@@ -46,6 +46,21 @@ input, textarea {
   font: inherit;
   background: #fff;
 }
+.hidden { display: none !important; }
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.mode-btn {
+  text-align: left;
+  min-height: 42px;
+  line-height: 1.2;
+}
+.mode-btn.active {
+  background: #2563eb;
+  color: #fff;
+}
 textarea {
   height: 105px;
   resize: vertical;
@@ -65,8 +80,13 @@ button {
 button:hover { filter: brightness(.97); }
 button.primary { background: #2563eb; color: white; }
 button.danger { background: #fee2e2; color: #991b1b; }
+button.active-toggle { background: #047857; color: #fff; }
 .row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 .wrap { flex-wrap: wrap; }
+.visual-map-controls {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+}
 .small { color: #6b7280; font-size: 12px; line-height: 1.35; }
 .warning { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; padding: 8px; border-radius: 10px; }
 pre {

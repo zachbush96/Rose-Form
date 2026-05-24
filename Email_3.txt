@@ -1,0 +1,318 @@
+PART 4: DIAGNOSTICS / CLINICAL IMPRESSIONS
+
+This section should be generated from the transcript and should follow the exact structure below.
+
+SECTION 1: SCREENING RESULTS
+
+Output the available screening results exactly as indicated by the transcript or source data.
+
+Include:
+
+Alcohol Screening:
+MAST: [score or n/a]
+
+Drug Abuse Screening:
+DAST-10: [score or n/a]
+
+Depression Screening:
+PHQ-9: [score or n/a]
+
+Anxiety Screening:
+GAD-7: [score or n/a]
+
+If a score is not provided, use “n/a.”
+
+Do not invent scores.
+
+Do not include interpretation text in the screening results section unless specifically requested elsewhere.
+
+SECTION 2: ASSESSMENT SUMMARY
+
+Generate a 4-paragraph clinical assessment summary.
+
+Each paragraph should be clinically written, clear, and specific to the client’s presentation.
+
+Use the client’s first name throughout.
+
+Do not use generic wording.
+
+Do not use bullet points.
+
+Do not include section headers within the Assessment Summary.
+
+Do not use em dashes.
+
+Paragraph 1:
+Summarize the client’s primary substance use history, current recovery status, major presenting concerns, relevant mental health symptoms, medical concerns, housing/recovery environment, and current engagement in services.
+
+Paragraph 2:
+Summarize the client’s ASAM-related clinical profile. Include the most relevant ASAM dimensions driving the recommendation, such as withdrawal risk, biomedical needs, emotional/behavioral needs, readiness to change, relapse potential, and recovery environment. Clearly describe whether severity is low, mild, moderate, or high across the most relevant dimensions.
+
+Paragraph 3:
+Summarize relapse risk, barriers to stability, protective factors, and recovery supports. Include factors such as cravings, triggers, recent use, sober supports, housing stability, transportation, legal involvement, employment, medical issues, mental health symptoms, motivation, insight, and willingness to engage in treatment as applicable.
+
+Paragraph 4:
+State the clinical level-of-care rationale. Explain why the recommended level of care is appropriate based on the client’s ASAM profile and clinical presentation. If outpatient or IOP is recommended, explain why the client does not require detox, residential, inpatient, or 24-hour supervision. If a higher level of care is recommended, explain why outpatient care is not sufficient at this time. If the client does not have a Substance Use Disorder, state that they do not meet criteria for SUD services and require referral to outpatient mental health or other appropriate community resources instead.
+
+SECTION 3: CLINICAL RECOMMENDATIONS
+
+Select only the recommendations that are clinically appropriate based on the transcript.
+
+Available recommendation options:
+
+Group
+Individual
+Mental Health
+Medical
+Case Management
+Peer Coaching
+Coordination with Other Providers
+Other Services
+
+Do not select every option automatically.
+
+Group:
+Select Group when the client has a Substance Use Disorder and would benefit from structured SUD group services, relapse prevention, recovery education, coping skills, sober support development, or IOP/outpatient group programming.
+
+Do not select Group if the client does not have a Substance Use Disorder.
+
+Do not select Group if the client requires detox, inpatient, or residential care first and is not yet appropriate for group services at the current level.
+
+Individual:
+Select Individual when the client would benefit from individual counseling, individual SUD support, relapse prevention planning, emotional processing, coping skills, trauma-informed support, or individualized treatment planning.
+
+Mental Health:
+Select Mental Health when the client reports or demonstrates mental health symptoms, trauma history, depression, anxiety, PTSD symptoms, grief, emotional dysregulation, mood symptoms, psychosis symptoms, suicidal ideation history, psychiatric medication needs, or need for outpatient mental health therapy.
+
+Medical:
+Select Medical when the client reports medical conditions, medication needs, physical health concerns, withdrawal risk, pregnancy, chronic pain, recent hospitalization, need for primary care, need for psychiatric medication evaluation, or any medical concern that may impact treatment.
+
+Case Management:
+Select Case Management when the client needs support with housing, benefits, transportation, employment, legal issues, documentation, medical appointments, community resources, food insecurity, insurance, scheduling, or coordination of practical needs.
+
+Peer Coaching:
+Select Peer Coaching only when the client has a Substance Use Disorder and would benefit from peer recovery support, sober support, accountability, community connection, recovery coaching, or lived-experience support.
+
+Do not select Peer Coaching if the client does not have a Substance Use Disorder.
+
+Do not select Peer Coaching if the client lacks any substance use history or does not meet criteria for SUD services.
+
+Coordination with Other Providers:
+Select Coordination with Other Providers when the client is connected with or needs coordination with sober living staff, probation/parole, primary care, psychiatry, therapy, MAT providers, detox, residential treatment, hospital providers, case managers, peer coaches, or other involved providers.
+
+Other Services:
+Select Other Services when the client needs services that are not fully captured by the other checkbox options.
+
+When Other Services is selected, always include a short list of the specific services in the text field.
+
+Examples of Other Services:
+housing navigation; transportation assistance; grief support; trauma-focused counseling; medication management; MAT evaluation; psychiatric evaluation; employment support; legal support; benefits assistance; medical follow-up; detox referral; residential treatment referral; outpatient mental health referral; community resource linkage.
+
+If Other Services is not clinically indicated, leave it blank.
+
+SECTION 4: DSM V
+
+Only include Substance Use Disorder diagnoses.
+
+Do not include non-SUD diagnoses in this section.
+
+Do not include:
+PTSD
+Depression
+Anxiety
+Bipolar Disorder
+Adjustment Disorder
+Personality disorders
+Medical diagnoses
+Grief
+Housing instability
+Legal problems
+Psychosocial stressors
+
+Only list the Substance Use Disorder diagnosis or diagnoses supported by the transcript.
+
+Use DSM-5 style wording with ICD-10 code when possible.
+
+Examples:
+F10.20 Alcohol Use Disorder, Moderate
+F11.20 Opioid Use Disorder, Severe
+F15.20 Stimulant Use Disorder, Methamphetamine Type, Moderate
+F12.20 Cannabis Use Disorder, Severe
+F14.20 Stimulant Use Disorder, Cocaine Type, Severe
+
+If the client has multiple SUD diagnoses, list each diagnosis on its own line.
+
+Do not list a SUD diagnosis unless the transcript supports it.
+
+Use severity when supported:
+Mild
+Moderate
+Severe
+
+Use remission specifiers when appropriate.
+
+DSM-5 remission rules:
+Less than 3 months without meeting SUD criteria generally does not qualify for remission.
+At least 3 months but less than 12 months without meeting SUD criteria qualifies as Early Remission.
+12 months or longer without meeting SUD criteria qualifies as Sustained Remission.
+Craving alone does not prevent remission status.
+Remission is based on whether DSM-5 criteria are still being met, not abstinence time alone.
+
+If the client has 3–11 months without meeting criteria, write:
+Early Remission
+
+If the client has 12+ months without meeting criteria, write:
+Sustained Remission
+
+If the client continues to meet SUD criteria, do not use remission even if they report a period of abstinence.
+
+Use “In a Controlled Environment” when clinically appropriate, such as when the client is in jail, prison, residential treatment, hospitalization, or a highly monitored setting where access to substances is restricted and remission status may be influenced by the environment.
+
+Examples:
+F11.20 Opioid Use Disorder, Severe, Early Remission
+F15.20 Stimulant Use Disorder, Methamphetamine Type, Moderate, Sustained Remission
+F10.20 Alcohol Use Disorder, Severe, Early Remission, In a Controlled Environment
+
+If the client does not meet criteria for any Substance Use Disorder, write:
+No Substance Use Disorder diagnosis indicated based on available information.
+
+SECTION 5: LEVEL OF CARE RECOMMENDED
+
+The level of care recommendation must be based on ASAM severity and the client’s clinical presentation.
+
+Do not treat sober living as a level of care.
+
+Sober living may be referenced as housing support or recovery environment support, but not as the clinical level of care.
+
+Use the most clinically appropriate level of care, such as:
+Outpatient 1.0
+Intensive Outpatient 2.1
+Detox
+Residential
+Inpatient
+Referral to outpatient mental health services due to no SUD diagnosis
+
+For Outpatient 1.0:
+Recommend Outpatient 1.0 when the client has a Substance Use Disorder but is medically and psychiatrically stable enough for outpatient care, does not require 24-hour monitoring, does not require detox, and can participate in treatment while living in the community.
+
+Include a brief rationale based on ASAM dimensions.
+
+Estimated length of time at this level:
+90 days
+
+Estimated date of discharge:
+Calculate approximately 90 days from the assessment date and output month and year only.
+
+Example:
+Assessment date: May 10, 2026
+Estimated date of discharge: August 2026
+
+For Intensive Outpatient 2.1:
+Recommend Intensive Outpatient 2.1 when the client has more significant relapse risk, emotional/behavioral needs, recovery environment concerns, or functional impairment requiring more structure than standard outpatient, but does not require detox, residential, inpatient, or 24-hour care.
+
+Estimated length of time at this level:
+90 days
+
+Estimated date of discharge:
+Calculate approximately 90 days from the assessment date and output month and year only.
+
+Example:
+Assessment date: May 10, 2026
+Estimated date of discharge: August 2026
+
+For Detox:
+Recommend detox when the client has active substance use, withdrawal risk, recent heavy use, medical risk, inability to stabilize safely without medical monitoring, or other indicators that detox is clinically necessary before outpatient or IOP services.
+
+State that detox is recommended first, followed by reassessment for outpatient or IOP services after stabilization.
+
+Estimated length of time at this level:
+Detox: 7–10 days
+Followed by outpatient or IOP treatment: 90 days
+
+Estimated date of discharge:
+List the estimated detox date range first, then the estimated outpatient or IOP discharge month.
+
+Example:
+Assessment date: May 10, 2026
+
+Estimated date of discharge:
+Detox: May 10–May 17, 2026
+Outpatient or IOP following detox: August 2026
+
+For Residential or Inpatient:
+Recommend residential or inpatient when the client’s ASAM profile indicates the need for 24-hour structure, stabilization, monitoring, or a higher level of care due to severity of relapse risk, emotional/behavioral instability, unsafe recovery environment, medical concerns, inability to maintain safety, or inability to engage safely in outpatient treatment.
+
+Clearly explain why outpatient or IOP is not clinically sufficient at this time.
+
+Estimated length of time at this level:
+Use clinically appropriate timeframe based on the level of care and available information.
+
+If no specific timeframe is provided, state:
+To be determined by admitting provider based on stabilization needs.
+
+Estimated date of discharge:
+To be determined by admitting provider based on stabilization needs.
+
+For No Substance Use Disorder:
+If the client does not have a Substance Use Disorder or lacks a substance use history, do not recommend SUD treatment, peer recovery services, SUD groups, or IOP.
+
+State clearly that the client does not meet criteria for SUD services due to lack of substance use disorder history or criteria.
+
+State that the client should be referred out to appropriate non-SUD services.
+
+Recommended level of care should be:
+Referral to outpatient mental health services and/or appropriate community resources, not SUD treatment.
+
+Include resources clinically indicated by the presentation, such as:
+outpatient mental health therapy
+psychiatry
+primary care
+housing resources
+case management
+transportation support
+grief support
+medical care
+community resource linkage
+
+Also state:
+The client is not appropriate for peer recovery services, SUD groups, IOP, or substance use treatment programming due to lack of Substance Use Disorder history/criteria.
+
+Estimated length of time at this level:
+30 days for referral transition and discharge planning
+
+Estimated date of discharge:
+Calculate approximately 30 days from the assessment date and output month and year only.
+
+SECTION 6: OUTPUT FORMATTING
+
+Use the following exact headings:
+
+Screening Results:
+
+Assessment Summary
+
+Clinical Recommendations
+
+DSM V
+
+Level of Care Recommended
+
+Keep headings on their own line.
+
+Use one blank line between each heading and its content.
+
+Do not use em dashes.
+
+Use clean clinical language.
+
+Use the client’s first name throughout.
+
+Do not overstate severity.
+
+Do not recommend a higher level of care unless clinically supported.
+
+Do not recommend SUD services if the client does not meet criteria for a Substance Use Disorder.
+
+Do not include non-SUD diagnoses in the DSM V section.
+
+Make sure the final output is copy/paste ready for the form.
