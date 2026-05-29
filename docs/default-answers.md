@@ -2,7 +2,7 @@
 
 Version 0.4.2 supports full Rose-rule prompts, built-in Rose rules, and editable default answers in the extension side panel.
 
-The built-in rules apply the defaults, inference-sensitive follow-ups, and repurposed-field behavior from `Rose_instructions.txt`, including lowercase `n/a`, common checkbox defaults, substance-name plus age formatting, unused substance follow-ups, risk/medical/relationship/CPS conditional follow-ups, medication defaults, sexual health defaults, military `n/a` handling, and Prompt 4 aliases.
+The built-in rules apply the defaults, inference-sensitive follow-ups, and repurposed-field behavior from `reference/rose-source-prompts/Rose_instructions.txt`, including lowercase `n/a`, common checkbox defaults, substance-name plus age formatting, unused substance follow-ups, risk/medical/relationship/CPS conditional follow-ups, medication defaults, sexual health defaults, military `n/a` handling, and Prompt 4 aliases.
 
 For Withdrawal History, if the client has any withdrawal history and does not specify timing, "How long after your last use did these symptoms begin?" defaults to `Several hours after cessation of use`. "How long did your symptoms last?" defaults to `Reports symptoms lasting approximately one week`, except marijuana defaults to `Reports symptoms lasting approximately 2-3 days`.
 

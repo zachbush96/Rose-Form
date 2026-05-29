@@ -7,20 +7,59 @@ const STORAGE_KEYS = {
   defaultRows: 'roseBpsDefaultRows',
   traceLog: 'roseBpsTraceLog',
   mode: 'roseBpsActiveMode',
+  workflowConfig: 'roseWorkflowConfig',
+  quicknotesConfig: 'roseQuickNotesConfig',
   discoveryReport: 'roseBpsDiscoveryReport',
-  discoveryPrefix: 'roseBpsDiscoveryPrefix'
+  discoveryPrefix: 'roseBpsDiscoveryPrefix',
+  quicknotesResponse: 'roseQuickNotesResponse',
+  mseResponse: 'roseMseResponse'
 };
 
 const DEFAULT_REMOTE_CONFIG_URL = 'https://raw.githubusercontent.com/zachbush96/Rose_Automation/refs/heads/main/rose-reliatrax-bps-config.json';
+const DEFAULT_WORKFLOW_CONFIG_URL = 'https://raw.githubusercontent.com/zachbush96/Rose_Automation/refs/heads/main/rose-reliatrax-workflows-config.json';
 const REMOTE_CONFIG_TIMEOUT_MS = 10000;
 
 let activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
+let activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG;
+let workflowConfig = window.DEFAULT_ROSE_WORKFLOW_CONFIG || {};
 let defaultRows = [];
 let traceLog = [];
 let activeMode = 'bps';
 let discoveryReport = null;
 let visualMappingMode = 'off';
 const $ = (id) => document.getElementById(id);
+
+const MSE_REQUIRED_ITEMS = [
+  'appearance',
+  'build_stature',
+  'posture',
+  'eye_contact',
+  'activity',
+  'attitude_toward_examiner',
+  'attitude_toward_parent_guardian',
+  'separation_children_adolescent',
+  'mood',
+  'affect',
+  'speech',
+  'thought_process',
+  'perception',
+  'hallucinations',
+  'thought_content',
+  'delusions',
+  'cognition',
+  'intelligence_estimate',
+  'insight',
+  'judgment'
+];
+
+const MSE_SCREENSHOT_TERMS = [
+  'Mental Health Status Exam',
+  'Appearance',
+  'Build Stature',
+  'Mood, Affect, Speech, and Thought Process',
+  'Perception, Hallucinations, Thought Content, and Delusions',
+  'Cognition, Intelligence Estimate, Insight, and Judgement'
+];
 
 function setStatus(msg) { $('status').textContent = msg; }
 function logTo(id, value) { $(id).textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2); }
@@ -76,6 +115,12 @@ function getConfigDefaultRows(config) {
     return config.defaultAnswers.map(row => ({ question: row.question || '', answer: row.answer ?? '' }));
   }
   return flattenDefaultObject(config.autoDefaultAnswers || {});
+}
+function getWorkflowDefaultRows(mode) {
+  const defaults = workflowMode(mode).defaultAnswers;
+  return Array.isArray(defaults)
+    ? defaults.map(row => ({ question: row.question || '', answer: row.answer ?? '' }))
+    : [];
 }
 function defaultRowsToObject(rows) {
   const obj = {};
@@ -183,6 +228,26 @@ function renderDefaultRows() {
     body.appendChild(tr);
   });
 }
+function renderReadOnlyDefaultRows(bodyId, countId, rows) {
+  const body = $(bodyId);
+  const count = $(countId);
+  if (!body || !count) return;
+  body.innerHTML = '';
+  const visibleRows = (rows || []).filter(row => String(row.question || '').trim());
+  count.textContent = `${visibleRows.length} default${visibleRows.length === 1 ? '' : 's'}`;
+  visibleRows.forEach(row => {
+    const tr = document.createElement('tr');
+    const qTd = document.createElement('td');
+    const qCode = document.createElement('code');
+    qCode.textContent = row.question || '';
+    qTd.appendChild(qCode);
+    const aTd = document.createElement('td');
+    aTd.textContent = String(row.answer ?? '');
+    tr.appendChild(qTd);
+    tr.appendChild(aTd);
+    body.appendChild(tr);
+  });
+}
 let defaultSaveTimer = null;
 function debounceSaveDefaults() {
   clearTimeout(defaultSaveTimer);
@@ -191,34 +256,61 @@ function debounceSaveDefaults() {
 function renderTraceLog() {
   logTo('traceLog', traceLog?.length ? traceLog : 'No trace entries yet. Run Scan or Fill to create logs.');
 }
-const MODE_DESCRIPTIONS = {
-  bps: 'Current production workflow for BPS Part 1.',
-  mse: 'Reserved for MSE Part 2. Use Discovery and Mapping to capture the MSE form before building the fill map.',
-  asam: 'Reserved for Case Management and ASAM Part 3. Discovery data will drive the severity grid and ASAM field map.',
-  diagnostics: 'Reserved for Diagnostics Part 4. Discovery data will identify screening, recommendation, DSM V, and level-of-care fields.',
-  treatment: 'Reserved for Treatment Plan. Discovery data will identify the separate plan fields and copy/paste sections.',
-  discovery: 'Scan unknown ReliaTrax or similar forms and export a mapping package for Zach.'
-};
-const PLANNED_MODE_TITLES = {
-  mse: 'MSE Part 2',
-  asam: 'Case Management and ASAM Part 3',
-  diagnostics: 'Diagnostics Part 4',
-  treatment: 'Treatment Plan'
-};
+function workflowMode(mode) {
+  return workflowConfig?.modes?.[mode] || {};
+}
+function modeDescription(mode) {
+  return workflowMode(mode).description || workflowMode('bps').description || 'Mode details unavailable.';
+}
+function modeTitle(mode) {
+  return workflowMode(mode).title || 'Mode setup';
+}
+function modeSourcePrompt(mode) {
+  return workflowMode(mode).sourcePrompt || null;
+}
+function renderPlannedModeSource() {
+  const source = modeSourcePrompt(activeMode);
+  const sourceBox = $('plannedModeSource');
+  if (!sourceBox) return;
+  if (!source) {
+    sourceBox.textContent = '';
+    return;
+  }
+  sourceBox.textContent = `${source.title}\n${source.source}\n\n${source.body}`;
+}
+function renderMsePrompt() {
+  const source = workflowMode('mse').sourcePrompt;
+  if (!$('msePromptPreview')) return;
+  if (!source) {
+    $('msePromptMeta').textContent = 'No MSE source prompt is loaded.';
+    $('msePromptPreview').textContent = '';
+    return;
+  }
+  $('msePromptMeta').textContent = `${source.title} | ${source.source}`;
+  $('msePromptPreview').textContent = source.body || '';
+}
+function renderMseDefaults() {
+  renderReadOnlyDefaultRows('mseDefaultsBody', 'mseDefaultCount', getWorkflowDefaultRows('mse'));
+}
 function renderMode() {
   document.querySelectorAll('.mode-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === activeMode);
   });
-  $('modeDescription').textContent = MODE_DESCRIPTIONS[activeMode] || MODE_DESCRIPTIONS.bps;
+  $('modeDescription').textContent = modeDescription(activeMode);
   document.querySelectorAll('.mode-panel').forEach(panel => {
     const classes = [...panel.classList];
     const visible = classes.includes(`mode-${activeMode}`);
     panel.classList.toggle('hidden', !visible);
   });
   if (['mse', 'asam', 'diagnostics', 'treatment'].includes(activeMode)) {
-    $('plannedModeTitle').textContent = PLANNED_MODE_TITLES[activeMode] || 'Mode setup';
-    $('plannedModeBody').textContent = MODE_DESCRIPTIONS[activeMode];
+    if (activeMode !== 'mse') {
+      $('plannedModeTitle').textContent = modeTitle(activeMode);
+      $('plannedModeBody').textContent = modeDescription(activeMode);
+    }
   }
+  renderMsePrompt();
+  renderMseDefaults();
+  renderPlannedModeSource();
 }
 async function saveMode(mode) {
   activeMode = mode || 'bps';
@@ -227,6 +319,18 @@ async function saveMode(mode) {
 }
 function formatDiscoveryReport(report) {
   if (!report) return 'No discovery scan yet.';
+  const pageText = [
+    report.title,
+    report.url,
+    ...(report.sections || []).map(section => section.name),
+    ...(report.controls || []).slice(0, 25).map(control => control.contextText || control.label || '')
+  ].join(' ');
+  const looksLikeQuickNotes = /QuickNotes|QuickGroupNotes|Group Notes/i.test(pageText);
+  const hasMseScreenshotTerms = MSE_SCREENSHOT_TERMS.some(term => pageText.includes(term));
+  const warnings = [];
+  if (looksLikeQuickNotes && !hasMseScreenshotTerms) {
+    warnings.push('This scan appears to be QuickNotes / Group Notes, not the MSE Part 2 form shown in Rose screenshots. Open the Mental Health Status Exam form/page before using this as an MSE map.');
+  }
   const lines = [
     'ReliaTrax Form Discovery Report',
     '',
@@ -238,9 +342,14 @@ function formatDiscoveryReport(report) {
     `Text inputs/textareas/selects: ${report.textLikeCount}`,
     `Checkboxes: ${report.checkboxCount}`,
     `Radios: ${report.radioCount}`,
-    '',
-    'Sections:'
+    ''
   ];
+  if (warnings.length) {
+    lines.push('Warnings:');
+    warnings.forEach(warning => lines.push(`- ${warning}`));
+    lines.push('');
+  }
+  lines.push('Sections:');
   (report.sections || []).forEach(section => {
     lines.push(`- ${section.name}: ${section.controlCount} control${section.controlCount === 1 ? '' : 's'}`);
   });
@@ -249,6 +358,8 @@ function formatDiscoveryReport(report) {
     const options = (control.options || []).length ? ` | options: ${control.options.join(', ')}` : '';
     const required = control.required ? ' | required' : '';
     lines.push(`${control.index}. [${control.section || 'Unsectioned'}] ${control.label || control.name || control.id || control.type}`);
+    if (control.questionText) lines.push(`   question: ${[control.questionNumber, control.questionText].filter(Boolean).join('. ')}`);
+    if (control.answerText && control.answerText !== control.label) lines.push(`   answer: ${control.answerText}`);
     lines.push(`   type: ${control.type}${required} | suggestedPath: ${control.suggestedPath || ''}${options}`);
     if (control.placeholder) lines.push(`   placeholder: ${control.placeholder}`);
     if (control.name || control.id) lines.push(`   id/name: ${control.id || '(no id)'} / ${control.name || '(no name)'}`);
@@ -270,7 +381,7 @@ async function appendTrace(entry) {
   });
   await saveTraceLog();
 }
-async function fetchRemoteConfig(url) {
+async function fetchRemoteJson(url) {
   let parsedUrl;
   try {
     parsedUrl = new URL(url);
@@ -289,7 +400,10 @@ async function fetchRemoteConfig(url) {
     clearTimeout(timeout);
   }
   if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}. Confirm the GitHub raw config URL exists and is public or accessible in this Chrome profile.`);
-  const cfg = await res.json();
+  return res.json();
+}
+async function fetchRemoteConfig(url) {
+  const cfg = await fetchRemoteJson(url);
   if (!Array.isArray(cfg.fieldMap)) throw new Error('Config is missing fieldMap array.');
   return cfg;
 }
@@ -297,6 +411,7 @@ function renderConfigState() {
   renderPrompts();
   renderQuestionPathOptions();
   renderDefaultRows();
+  renderMode();
 }
 async function loadRemoteConfig(url, { preserveDefaultRows = false } = {}) {
   if (!url) throw new Error('Paste a raw GitHub config URL first.');
@@ -308,6 +423,34 @@ async function loadRemoteConfig(url, { preserveDefaultRows = false } = {}) {
   await chrome.storage.local.set({ [STORAGE_KEYS.config]: cfg, [STORAGE_KEYS.configUrl]: url, [STORAGE_KEYS.defaultRows]: defaultRows });
   renderConfigState();
 }
+async function loadRemoteWorkflowConfig() {
+  const cfg = await fetchRemoteJson(DEFAULT_WORKFLOW_CONFIG_URL);
+  if (!cfg?.modes || typeof cfg.modes !== 'object') throw new Error('Workflow config is missing modes.');
+  workflowConfig = cfg;
+  await chrome.storage.local.set({ [STORAGE_KEYS.workflowConfig]: cfg });
+  renderMode();
+}
+async function loadRemoteQuickNotesConfig() {
+  const url = workflowMode('quicknotes').configUrl;
+  if (!url) return;
+  activeQuickNotesConfig = await fetchRemoteConfig(url);
+  await chrome.storage.local.set({ [STORAGE_KEYS.quicknotesConfig]: activeQuickNotesConfig });
+}
+async function loadRemoteConfigBundle(url, options = {}) {
+  const warnings = [];
+  try {
+    await loadRemoteWorkflowConfig();
+  } catch (err) {
+    warnings.push(`Workflow config: ${err.message}`);
+  }
+  try {
+    await loadRemoteQuickNotesConfig();
+  } catch (err) {
+    warnings.push(`QuickNotes config: ${err.message}`);
+  }
+  await loadRemoteConfig(url, options);
+  return warnings;
+}
 async function loadState() {
   const data = await chrome.storage.local.get([
     STORAGE_KEYS.config,
@@ -316,17 +459,35 @@ async function loadState() {
     STORAGE_KEYS.defaultRows,
     STORAGE_KEYS.traceLog,
     STORAGE_KEYS.mode,
+    STORAGE_KEYS.workflowConfig,
+    STORAGE_KEYS.quicknotesConfig,
     STORAGE_KEYS.discoveryReport,
-    STORAGE_KEYS.discoveryPrefix
+    STORAGE_KEYS.discoveryPrefix,
+    STORAGE_KEYS.quicknotesResponse,
+    STORAGE_KEYS.mseResponse
   ]);
   activeConfig = data[STORAGE_KEYS.config] || window.DEFAULT_ROSE_BPS_CONFIG;
+  workflowConfig = data[STORAGE_KEYS.workflowConfig] || window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig;
+  activeQuickNotesConfig = data[STORAGE_KEYS.quicknotesConfig] || window.DEFAULT_ROSE_QUICKNOTES_CONFIG || activeQuickNotesConfig;
   defaultRows = Array.isArray(data[STORAGE_KEYS.defaultRows]) ? data[STORAGE_KEYS.defaultRows] : getConfigDefaultRows(activeConfig);
   traceLog = Array.isArray(data[STORAGE_KEYS.traceLog]) ? data[STORAGE_KEYS.traceLog] : [];
   activeMode = data[STORAGE_KEYS.mode] || 'bps';
   discoveryReport = data[STORAGE_KEYS.discoveryReport] || null;
-  const configUrl = data[STORAGE_KEYS.configUrl] || DEFAULT_REMOTE_CONFIG_URL;
+  try {
+    await loadRemoteWorkflowConfig();
+  } catch {
+    workflowConfig = window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig;
+  }
+  try {
+    await loadRemoteQuickNotesConfig();
+  } catch {
+    activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG || activeQuickNotesConfig;
+  }
+  const configUrl = data[STORAGE_KEYS.configUrl] || workflowMode('bps').configUrl || DEFAULT_REMOTE_CONFIG_URL;
   $('configUrl').value = configUrl;
   $('discoveryPrefix').value = data[STORAGE_KEYS.discoveryPrefix] || '';
+  if ($('quicknotesResp')) $('quicknotesResp').value = data[STORAGE_KEYS.quicknotesResponse] || '';
+  if ($('mseResp')) $('mseResp').value = data[STORAGE_KEYS.mseResponse] || '';
   (data[STORAGE_KEYS.responses] || []).forEach((v, i) => { if ($(`resp${i+1}`)) $(`resp${i+1}`).value = v || ''; });
   renderTraceLog();
   renderDiscoveryReport();
@@ -356,7 +517,15 @@ async function runInActiveTab(func, args) {
 function pageScan(config) {
   try {
     const selector = config.selector || 'textarea.qn-textarea, input.qn-editable-cb';
-    const fields = [...document.querySelectorAll(selector)];
+    const isVisible = (el) => {
+      if (!config.onlyVisibleControls) return true;
+      if (el.type === 'hidden' || el.hidden) return false;
+      const style = window.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      const rect = el.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    };
+    const fields = [...document.querySelectorAll(selector)].filter(isVisible);
     const describe = (el, i) => ({
       fillIndex: i,
       tag: el.tagName,
@@ -416,6 +585,42 @@ function pageDiscover(options = {}) {
       }
       return labels.find(Boolean) || '';
     };
+    const tableQuestionFor = (el) => {
+      const cell = el.closest('td, th');
+      const row = cell?.closest('tr');
+      if (!cell || !row) return null;
+      let currentRow = row;
+      for (let depth = 0; currentRow && depth < 12; depth++, currentRow = currentRow.previousElementSibling) {
+        const cells = [...currentRow.cells || []];
+        const numberCellIndex = cells.findIndex(item => /^\d+\.?$/.test(normalize(item.innerText || item.textContent)));
+        if (numberCellIndex === -1) continue;
+        const titleCell = cells.slice(numberCellIndex + 1).find(item => {
+          const text = normalize(item.innerText || item.textContent);
+          return text && !item.querySelector('input, textarea, select, [contenteditable="true"]');
+        });
+        const title = normalize(titleCell?.innerText || titleCell?.textContent);
+        if (title) {
+          return {
+            number: normalize(cells[numberCellIndex].innerText || cells[numberCellIndex].textContent).replace(/\.$/, ''),
+            text: title
+          };
+        }
+      }
+      return null;
+    };
+    const tableAnswerTextFor = (el) => {
+      const type = (el.type || '').toLowerCase();
+      if (el.tagName !== 'TEXTAREA' && el.getAttribute('contenteditable') !== 'true' && type !== 'text') return '';
+      const cell = el.closest('td, th');
+      const previousCells = [];
+      for (let current = cell?.previousElementSibling; current; current = current.previousElementSibling) {
+        previousCells.unshift(current);
+      }
+      const previousLabel = previousCells.map(item => normalize(item.innerText || item.textContent)).filter(Boolean).pop();
+      if (!previousLabel) return '';
+      return /other:?$/i.test(previousLabel) ? 'Other text' : previousLabel;
+    };
+    const fieldIdFor = (el) => el.getAttribute('data-qn-field-id') || el.closest('[data-qn-field-id]')?.getAttribute('data-qn-field-id') || '';
     const nearestHeading = (el) => {
       const fieldset = el.closest('fieldset');
       const legend = fieldset?.querySelector('legend');
@@ -460,15 +665,23 @@ function pageDiscover(options = {}) {
       const section = nearestHeading(el) || 'Unsectioned';
       sectionCounts.set(section, (sectionCounts.get(section) || 0) + 1);
       const label = labelFor(el);
-      const contextText = nearbyText(el).slice(0, 260);
+      const tableQuestion = tableQuestionFor(el);
+      const questionText = tableQuestion?.text || '';
+      const answerText = label || tableAnswerTextFor(el) || normalize(el.getAttribute('aria-label') || el.placeholder || el.value || '');
+      const localContext = nearbyText(el);
+      const questionContext = [tableQuestion ? `${tableQuestion.number}. ${tableQuestion.text}` : '', localContext].filter(Boolean).join(' | ');
+      const contextText = (questionContext || localContext).slice(0, 320);
       const fallbackName = el.name || el.id || el.placeholder || label || contextText || `${type}_${index + 1}`;
-      const basePath = [slugify(section), slugify(label || fallbackName)].filter(Boolean).join('.');
+      const basePath = [slugify(questionText || section), slugify(answerText || fallbackName)].filter(Boolean).join('.');
       return {
         index,
         fillIndex: index,
         tag: el.tagName.toLowerCase(),
         type,
         section,
+        questionNumber: tableQuestion?.number || '',
+        questionText,
+        answerText,
         label,
         id: el.id || '',
         name: el.name || '',
@@ -482,7 +695,7 @@ function pageDiscover(options = {}) {
         selectorHints: {
           id: el.id ? `#${el.id}` : '',
           name: el.name ? `[name="${el.name}"]` : '',
-          dataQnFieldId: el.getAttribute('data-qn-field-id') || ''
+          dataQnFieldId: fieldIdFor(el)
         },
         contextText
       };
@@ -556,6 +769,41 @@ function pageVisualMapping(options = {}) {
       if (ariaLabel) labels.push(normalize(ariaLabel));
       return labels.find(Boolean) || '';
     };
+    const tableQuestionFor = (el) => {
+      const cell = el.closest('td, th');
+      const row = cell?.closest('tr');
+      if (!cell || !row) return null;
+      let currentRow = row;
+      for (let depth = 0; currentRow && depth < 12; depth++, currentRow = currentRow.previousElementSibling) {
+        const cells = [...currentRow.cells || []];
+        const numberCellIndex = cells.findIndex(item => /^\d+\.?$/.test(normalize(item.innerText || item.textContent)));
+        if (numberCellIndex === -1) continue;
+        const titleCell = cells.slice(numberCellIndex + 1).find(item => {
+          const text = normalize(item.innerText || item.textContent);
+          return text && !item.querySelector('input, textarea, select, [contenteditable="true"]');
+        });
+        const title = normalize(titleCell?.innerText || titleCell?.textContent);
+        if (title) {
+          return {
+            number: normalize(cells[numberCellIndex].innerText || cells[numberCellIndex].textContent).replace(/\.$/, ''),
+            text: title
+          };
+        }
+      }
+      return null;
+    };
+    const tableAnswerTextFor = (el) => {
+      const type = (el.type || '').toLowerCase();
+      if (el.tagName !== 'TEXTAREA' && el.getAttribute('contenteditable') !== 'true' && type !== 'text') return '';
+      const cell = el.closest('td, th');
+      const previousCells = [];
+      for (let current = cell?.previousElementSibling; current; current = current.previousElementSibling) {
+        previousCells.unshift(current);
+      }
+      const previousLabel = previousCells.map(item => normalize(item.innerText || item.textContent)).filter(Boolean).pop();
+      if (!previousLabel) return '';
+      return /other:?$/i.test(previousLabel) ? 'Other text' : previousLabel;
+    };
     const nearestHeading = (el) => {
       const fieldset = el.closest('fieldset');
       const legend = fieldset?.querySelector('legend');
@@ -596,14 +844,20 @@ function pageVisualMapping(options = {}) {
       const type = typeFor(el);
       const section = nearestHeading(el) || 'Unsectioned';
       const label = labelFor(el);
+      const tableQuestion = tableQuestionFor(el);
+      const questionText = tableQuestion?.text || '';
+      const answerText = label || tableAnswerTextFor(el) || normalize(el.getAttribute('aria-label') || el.placeholder || el.value || '');
       const fallbackName = el.name || el.id || el.placeholder || label || `${type}_${index + 1}`;
-      const basePath = [slugify(section), slugify(label || fallbackName)].filter(Boolean).join('.');
+      const basePath = [slugify(questionText || section), slugify(answerText || fallbackName)].filter(Boolean).join('.');
       return {
         el,
         index,
         type,
         color: palette[type] || palette.text,
         section,
+        questionNumber: tableQuestion?.number || '',
+        questionText,
+        answerText,
         label,
         suggestedPath: [prefix, basePath || `${type}_${index + 1}`].filter(Boolean).join('.')
       };
@@ -618,7 +872,7 @@ function pageVisualMapping(options = {}) {
     const makeLabel = (control, persistent) => {
       const badge = document.createElement('div');
       badge.className = 'rose-discovery-map-label';
-      badge.textContent = `#${control.index} ${control.suggestedPath || control.label || control.type}`;
+      badge.textContent = `#${control.index} ${control.questionText ? `${control.questionText}: ` : ''}${control.suggestedPath || control.label || control.type}`;
       badge.style.cssText = [
         'position:absolute',
         'max-width:360px',
@@ -702,6 +956,7 @@ function pageFill(config, merged, dryRun) {
   };
   const coerce = (value) => {
     if (value === undefined || value === null) return undefined;
+    if (Array.isArray(value)) return value;
     if (typeof value === 'object') return undefined;
     return value;
   };
@@ -721,12 +976,77 @@ function pageFill(config, merged, dryRun) {
     const text = String(value ?? '').toLowerCase();
     return terms.some(term => text.includes(term));
   };
+  const slugToken = (value) => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  const canonicalMseItemKey = (value) => {
+    const key = slugToken(value);
+    if (key === 'judgement') return 'judgment';
+    return key;
+  };
+  const itemKeyAliases = (itemKey) => {
+    const canonical = canonicalMseItemKey(itemKey);
+    return [...new Set([canonical, itemKey, canonical === 'judgment' ? 'judgement' : ''].filter(Boolean))];
+  };
+  const pathSuffixForSelection = (selection) => slugToken(selection);
   const dataShapeWarnings = [];
   const hasUsefulMedicationSet = (obj, basePath) => [1, 2, 3].some(i => hasAnyUsefulPath(obj, [
     `${basePath}.medication_${i}.name`,
     `${basePath}.medication_${i}.dosage_frequency`,
     `${basePath}.medication_${i}.side_effects`
   ]));
+  const mseNormalSelectionsByItem = {
+    build_stature: ['Within Normal Limits'],
+    posture: ['Within Normal Limits'],
+    activity: ['Within Normal Limits'],
+    perception: ['Within normal limits'],
+    hallucinations: ['Denied', 'None evidenced'],
+    thought_content: ['Within normal limits'],
+    delusions: ['None reported'],
+    cognition: ['Within normal limits'],
+    insight: ['Within normal limits'],
+    judgment: ['Within normal limits'],
+    judgement: ['Within normal limits']
+  };
+  const normalizeMseSelectionConflicts = (data) => {
+    const items = data?.mse?.items;
+    if (!items || typeof items !== 'object' || Array.isArray(items)) return;
+    const normalizeSelection = (value) => String(value || '').trim().toLowerCase();
+    for (const [itemKey, normalSelections] of Object.entries(mseNormalSelectionsByItem)) {
+      const item = items[itemKey];
+      if (!item || !Array.isArray(item.selections)) continue;
+      const normalSet = new Set(normalSelections.map(normalizeSelection));
+      const hasAbnormalSelection = item.selections.some(selection => !normalSet.has(normalizeSelection(selection)));
+      if (!hasAbnormalSelection) continue;
+      const before = item.selections.slice();
+      item.selections = item.selections.filter(selection => !normalSet.has(normalizeSelection(selection)));
+      if (item.selections.length !== before.length) {
+        dataShapeWarnings.push(`MSE ${itemKey} included normal/default selection with abnormal or Other selection; removed ${before.filter(selection => normalSet.has(normalizeSelection(selection))).join(', ')} before filling.`);
+      }
+    }
+  };
+  const normalizeMseOtherTextSelections = (data, sourceLabel) => {
+    const items = data?.mse?.items;
+    if (!items || typeof items !== 'object' || Array.isArray(items)) return;
+    const normalizeSelection = (value) => String(value || '').trim().toLowerCase();
+    for (const [itemKey, item] of Object.entries(items)) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+      const otherText = String(item.other_text || item.narrative || '').trim();
+      if (!otherText) continue;
+      if (Array.isArray(item.selections)) {
+        if (!item.selections.some(selection => normalizeSelection(selection) === 'other')) {
+          item.selections.push('Other');
+          dataShapeWarnings.push(`${sourceLabel} ${itemKey} included other_text without Other selected; selected Other before filling.`);
+        }
+      } else if (item.selections && typeof item.selections === 'object') {
+        if (item.selections.Other !== true) {
+          item.selections.Other = true;
+          dataShapeWarnings.push(`${sourceLabel} ${itemKey} included other_text without Other selected; selected Other before filling.`);
+        }
+      } else {
+        item.selections = ['Other'];
+        dataShapeWarnings.push(`${sourceLabel} ${itemKey} included other_text without Other selected; selected Other before filling.`);
+      }
+    }
+  };
   const normalizeMergedData = (data) => {
     const normalized = JSON.parse(JSON.stringify(data || {}));
     const hasTopLevelMedications = hasUsefulMedicationSet(normalized, 'medications');
@@ -737,6 +1057,8 @@ function pageFill(config, merged, dryRun) {
     } else if (hasNestedMedicalMedications && hasTopLevelMedications) {
       dataShapeWarnings.push('Prompt 3 returned both medications.* and medical.medications; using top-level medications.* values.');
     }
+    normalizeMseOtherTextSelections(normalized, 'MSE response');
+    normalizeMseSelectionConflicts(normalized);
     return normalized;
   };
   merged = normalizeMergedData(merged);
@@ -754,6 +1076,7 @@ function pageFill(config, merged, dryRun) {
   const normalizeChoiceToken = (value) => String(value ?? '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
   const valueMatchesChoice = (value, choice) => {
     const normalizedChoice = normalizeChoiceToken(choice);
+    if (Array.isArray(value)) return value.some(item => normalizeChoiceToken(item) === normalizedChoice);
     if (typeof value === 'boolean' && ['yes', 'no'].includes(normalizedChoice)) return normalizedChoice === 'yes' ? value : !value;
     const text = String(value ?? '').trim().toLowerCase();
     if (!text) return undefined;
@@ -775,6 +1098,14 @@ function pageFill(config, merged, dryRun) {
     if (['true', 'yes', 'checked', '1', 'y'].includes(text)) return true;
     if (['false', 'no', 'unchecked', '0', 'n'].includes(text)) return false;
     return Boolean(value);
+  };
+  const isVisible = (el) => {
+    if (!config.onlyVisibleControls) return true;
+    if (el.type === 'hidden' || el.hidden) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === 'none' || style.visibility === 'hidden') return false;
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
   };
   const buildRoseRuleDefaults = (data) => {
     const defaults = {};
@@ -1013,12 +1344,36 @@ function pageFill(config, merged, dryRun) {
     return `${substance}\n\nAge of first use: ${text}`;
   };
   const defaultObj = mergeDefaults(buildRoseRuleDefaults(merged), config.defaultAnswersObject || {});
+  normalizeMseOtherTextSelections(defaultObj, 'MSE default');
+  normalizeMseSelectionConflicts(defaultObj);
   const defaultRowPaths = new Set((config.defaultAnswers || []).map(row => String(row.question || '').trim()).filter(Boolean));
   const mappedPaths = new Set();
   (config.fieldMap || []).forEach(item => (item.paths || []).forEach(path => mappedPaths.add(path)));
   const unusedDefaultRows = [...defaultRowPaths].filter(path => !mappedPaths.has(path));
   const findValue = (paths) => {
     const expandedPaths = [...paths];
+    const addExpandedPath = (path) => {
+      if (path && !expandedPaths.includes(path)) expandedPaths.push(path);
+    };
+    for (const rawPath of paths || []) {
+      const path = String(rawPath || '');
+      const bareOtherText = path.match(/^([^.]+)\.(other_text|narrative)$/);
+      if (bareOtherText) {
+        itemKeyAliases(bareOtherText[1]).forEach(key => addExpandedPath(`mse.items.${key}.${bareOtherText[2]}`));
+      }
+      const prefixedOtherText = path.match(/^mse\.items\.([^.]+)\.(other_text|narrative)$/);
+      if (prefixedOtherText) {
+        itemKeyAliases(prefixedOtherText[1]).forEach(key => addExpandedPath(`${key}.${prefixedOtherText[2]}`));
+      }
+      const bareChoice = path.match(/^([^.]+)\.([^.]+)$/);
+      if (bareChoice && !['other_text', 'narrative'].includes(bareChoice[2])) {
+        itemKeyAliases(bareChoice[1]).forEach(key => addExpandedPath(`mse.items.${key}.selections.${bareChoice[2] === 'other' ? 'Other' : bareChoice[2]}`));
+      }
+      const prefixedChoice = path.match(/^mse\.items\.([^.]+)\.selections\.([^.]+)$/);
+      if (prefixedChoice) {
+        itemKeyAliases(prefixedChoice[1]).forEach(key => addExpandedPath(`${key}.${pathSuffixForSelection(prefixedChoice[2])}`));
+      }
+    }
     if (paths.includes('educational.liked_school_when_younger') && !expandedPaths.includes('vocational.highest_education')) {
       expandedPaths.push('vocational.highest_education');
     }
@@ -1080,6 +1435,157 @@ function pageFill(config, merged, dryRun) {
     details.checkboxSetSucceeded = details.checkedAfterEvents === requestedChecked;
     return details;
   };
+  const setTextLikeValue = (el, value) => {
+    const text = String(value);
+    if (el.tagName === 'SELECT') {
+      const normalized = text.trim().toLowerCase();
+      const option = [...el.options].find(item =>
+        String(item.value || '').trim().toLowerCase() === normalized ||
+        String(item.textContent || '').trim().toLowerCase() === normalized
+      );
+      el.value = option ? option.value : text;
+      return String(el.value);
+    }
+    if (el.getAttribute('contenteditable') === 'true') {
+      el.textContent = text;
+      return String(el.textContent || '');
+    }
+    el.value = text;
+    return String(el.value);
+  };
+  const mseOtherTextItemKey = (path) => {
+    const prefixed = String(path || '').match(/^mse\.items\.([^.]+)\.(other_text|narrative)$/);
+    if (prefixed) return canonicalMseItemKey(prefixed[1]);
+    const bare = String(path || '').match(/^([^.]+)\.(other_text|narrative)$/);
+    return bare ? canonicalMseItemKey(bare[1]) : '';
+  };
+  const isCheckboxLike = (el) => ['checkbox', 'radio'].includes((el?.type || '').toLowerCase());
+  const labelTextForInput = (el) => {
+    const explicitLabel = el.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`) : null;
+    const label = explicitLabel || el.closest('label');
+    return String(label?.innerText || label?.textContent || '').replace(/\s+/g, ' ').trim();
+  };
+  const isOtherCheckbox = (el) => isCheckboxLike(el) && /^other:?$/i.test(labelTextForInput(el).replace(/\s+/g, ' ').trim());
+  const findNearbyOtherCheckbox = (textEl) => {
+    const row = textEl.closest('tr');
+    if (row) {
+      const rowOther = [...row.querySelectorAll('input[type="checkbox"], input[type="radio"]')].find(isOtherCheckbox);
+      if (rowOther) return rowOther;
+      for (let prev = row.previousElementSibling, depth = 0; prev && depth < 3; prev = prev.previousElementSibling, depth++) {
+        const prevOther = [...prev.querySelectorAll('input[type="checkbox"], input[type="radio"]')].find(isOtherCheckbox);
+        if (prevOther) return prevOther;
+        if (/^\d+\.?\s+\S/.test(String(prev.innerText || prev.textContent || '').replace(/\s+/g, ' ').trim())) break;
+      }
+    }
+    const container = textEl.closest('.question, .form-group, fieldset, table') || textEl.parentElement;
+    return [...(container?.querySelectorAll('input[type="checkbox"], input[type="radio"]') || [])].find(isOtherCheckbox) || null;
+  };
+  const findMappedOtherCheckbox = (itemKey, fields) => {
+    if (!itemKey) return null;
+    const pathCandidates = itemKeyAliases(itemKey).flatMap(key => [
+      `mse.items.${key}.selections.Other`,
+      `mse.items.${key}.other`,
+      `${key}.selections.Other`,
+      `${key}.other`
+    ]);
+    const row = (config.fieldMap || []).find(mapItem => (mapItem.paths || []).some(path => pathCandidates.includes(path)));
+    const el = row ? fields[row.fillIndex] : null;
+    return isCheckboxLike(el) ? el : null;
+  };
+  const ensureMseOtherCheckboxForText = ({ textEl, itemKey, fields, result, base, dryRun }) => {
+    if (!itemKey) return null;
+    const checkbox = findMappedOtherCheckbox(itemKey, fields) || findNearbyOtherCheckbox(textEl);
+    if (!checkbox) {
+      const detail = {
+        ...base,
+        action: 'linked_other_checkbox_missing',
+        linkedItem: itemKey,
+        warning: `MSE ${itemKey} other_text was written, but no nearby Other checkbox was found.`
+      };
+      result.warnings.push(detail.warning);
+      result.trace.push(detail);
+      return detail;
+    }
+    const before = Boolean(checkbox.checked);
+    let checkboxDetails = {
+      requestedChecked: true,
+      checkedBefore: before,
+      checkedAfterEvents: before,
+      checkboxWriteStrategy: dryRun ? 'dry_run_linked_other' : 'linked_other',
+      checkboxSetSucceeded: true,
+      disabled: Boolean(checkbox.disabled),
+      readOnly: Boolean(checkbox.readOnly)
+    };
+    if (!dryRun) checkboxDetails = setCheckboxState(checkbox, true);
+    const finalValue = dryRun ? true : checkboxDetails.checkedAfterEvents;
+    if (!before || !finalValue) {
+      result.checkboxWritten++;
+      if (finalValue) result.checkboxTrueWritten++;
+      else result.checkboxFalseWritten++;
+      if (!checkboxDetails.checkboxSetSucceeded) result.checkboxWriteFailures++;
+    }
+    const detail = {
+      ...describeElement(checkbox, fields.indexOf(checkbox)),
+      linkedFromFillIndex: base.fillIndex,
+      linkedItem: itemKey,
+      action: dryRun ? 'dry_run_linked_other_checkbox_write' : 'linked_other_checkbox_write',
+      valueWritten: true,
+      finalValue,
+      ...checkboxDetails
+    };
+    result.trace.push(detail);
+    return detail;
+  };
+  const clearMseNormalCheckboxesForOtherText = ({ itemKey, fields, result, base, dryRun }) => {
+    const normalSelections = mseNormalSelectionsByItem[canonicalMseItemKey(itemKey)] || mseNormalSelectionsByItem[itemKey] || [];
+    const cleared = new Set();
+    for (const selection of normalSelections) {
+      const pathCandidates = itemKeyAliases(itemKey).flatMap(key => [
+        `mse.items.${key}.selections.${selection}`,
+        `mse.items.${key}.${pathSuffixForSelection(selection)}`,
+        `${key}.selections.${selection}`,
+        `${key}.${pathSuffixForSelection(selection)}`
+      ]);
+      const row = (config.fieldMap || []).find(mapItem => (mapItem.paths || []).some(path => pathCandidates.includes(path)));
+      const checkbox = row ? fields[row.fillIndex] : null;
+      if (isCheckboxLike(checkbox) && Boolean(checkbox.checked)) cleared.add(checkbox);
+    }
+    if (!cleared.size) {
+      const expectedLabels = new Set(normalSelections.map(selection => slugToken(selection)));
+      for (const candidate of fields) {
+        if (!isCheckboxLike(candidate) || !Boolean(candidate.checked)) continue;
+        const described = describeElement(candidate, fields.indexOf(candidate));
+        if (canonicalMseItemKey(described.questionText || '') !== canonicalMseItemKey(itemKey)) continue;
+        if (expectedLabels.has(slugToken(described.label || described.answerText || labelTextForInput(candidate)))) cleared.add(candidate);
+      }
+    }
+    for (const checkbox of cleared) {
+      let checkboxDetails = {
+        requestedChecked: false,
+        checkedBefore: true,
+        checkedAfterEvents: true,
+        checkboxWriteStrategy: dryRun ? 'dry_run_linked_normal_clear' : 'linked_normal_clear',
+        checkboxSetSucceeded: true,
+        disabled: Boolean(checkbox.disabled),
+        readOnly: Boolean(checkbox.readOnly)
+      };
+      if (!dryRun) checkboxDetails = setCheckboxState(checkbox, false);
+      const finalValue = dryRun ? false : checkboxDetails.checkedAfterEvents;
+      result.checkboxWritten++;
+      if (finalValue) result.checkboxTrueWritten++;
+      else result.checkboxFalseWritten++;
+      if (!checkboxDetails.checkboxSetSucceeded) result.checkboxWriteFailures++;
+      result.trace.push({
+        ...describeElement(checkbox, fields.indexOf(checkbox)),
+        linkedFromFillIndex: base.fillIndex,
+        linkedItem: itemKey,
+        action: dryRun ? 'dry_run_linked_normal_checkbox_clear' : 'linked_normal_checkbox_clear',
+        valueWritten: false,
+        finalValue,
+        ...checkboxDetails
+      });
+    }
+  };
   const describeElement = (el, fillIndex) => ({
     fillIndex,
     tag: el.tagName,
@@ -1097,7 +1603,7 @@ function pageFill(config, merged, dryRun) {
   });
   try {
     const selector = config.selector || 'textarea.qn-textarea, input.qn-editable-cb';
-    const fields = [...document.querySelectorAll(selector)];
+    const fields = [...document.querySelectorAll(selector)].filter(isVisible);
     const result = {
       event: 'fill',
       timestamp: new Date().toISOString(),
@@ -1149,17 +1655,16 @@ function pageFill(config, merged, dryRun) {
       let finalValue;
       let checkboxDetails;
       if (!dryRun) {
-        if ((el.type || '').toLowerCase() === 'checkbox') {
+        if ((el.type || '').toLowerCase() === 'checkbox' || (el.type || '').toLowerCase() === 'radio') {
           checkboxDetails = setCheckboxState(el, checkboxState(valueToWrite));
           finalValue = checkboxDetails.checkedAfterEvents;
         } else {
-          el.value = String(valueToWrite);
-          finalValue = String(el.value);
+          finalValue = setTextLikeValue(el, valueToWrite);
           fire(el);
         }
       } else {
-        finalValue = (el.type || '').toLowerCase() === 'checkbox' ? checkboxState(valueToWrite) : String(valueToWrite);
-        if ((el.type || '').toLowerCase() === 'checkbox') {
+        finalValue = ['checkbox', 'radio'].includes((el.type || '').toLowerCase()) ? checkboxState(valueToWrite) : String(valueToWrite);
+        if (['checkbox', 'radio'].includes((el.type || '').toLowerCase())) {
           checkboxDetails = {
             requestedChecked: finalValue,
             checkedBefore: Boolean(el.checked),
@@ -1171,10 +1676,17 @@ function pageFill(config, merged, dryRun) {
           };
         }
       }
+      const linkedMseOtherItem = !isCheckboxLike(el)
+        ? (item.paths || []).map(mseOtherTextItemKey).find(Boolean)
+        : '';
+      if (linkedMseOtherItem && String(valueToWrite ?? '').trim()) {
+        ensureMseOtherCheckboxForText({ textEl: el, itemKey: linkedMseOtherItem, fields, result, base, dryRun });
+        clearMseNormalCheckboxesForOtherText({ itemKey: linkedMseOtherItem, fields, result, base, dryRun });
+      }
       result.written++;
       if (foundValue.source === 'Rose default answer') result.defaultWritten++;
       if (foundValue.source === 'BastionGPT response') result.responseWritten++;
-      if ((el.type || '').toLowerCase() === 'checkbox') {
+      if (['checkbox', 'radio'].includes((el.type || '').toLowerCase())) {
         result.checkboxWritten++;
         if (finalValue) result.checkboxTrueWritten++;
         else result.checkboxFalseWritten++;
@@ -1193,18 +1705,116 @@ function buildRuntimeConfig() {
     defaultAnswersObject: defaultRowsToObject(rows)
   };
 }
+function buildQuickNotesRuntimeConfig() {
+  return {
+    ...activeQuickNotesConfig,
+    defaultAnswersObject: {}
+  };
+}
+function buildMseRuntimeConfig() {
+  const mode = workflowMode('mse');
+  const rows = getWorkflowDefaultRows('mse');
+  return {
+    selector: mode.selector || 'textarea, select, input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), [contenteditable="true"]',
+    onlyVisibleControls: mode.onlyVisibleControls ?? true,
+    expectedFieldCount: mode.expectedFieldCount,
+    fieldMap: mode.fieldMap || [],
+    defaultAnswers: rows,
+    defaultAnswersObject: defaultRowsToObject(rows)
+  };
+}
+function validateQuickNotesResponse() {
+  const raw = $('quicknotesResp')?.value.trim() || '';
+  if (!raw) return {};
+  return JSON.parse(raw);
+}
+async function saveQuickNotesResponse() {
+  await chrome.storage.local.set({ [STORAGE_KEYS.quicknotesResponse]: $('quicknotesResp')?.value || '' });
+}
+function validateMseResponse() {
+  const response = $('mseResp')?.value.trim() || '';
+  if (!response) throw new Error('Paste the MSE Part 2 response first.');
+  const summary = {
+    characterCount: response.length,
+    lineCount: response.split(/\r?\n/).filter(line => line.trim()).length,
+    hasRequiredMseLanguage: /appearance|attitude|mood|affect|speech|thought|cognition|insight|judg(e)?ment/i.test(response),
+    expectedItems: MSE_REQUIRED_ITEMS.length
+  };
+  if (!response.startsWith('{')) {
+    return {
+      ...summary,
+      warnings: ['MSE response is saved as free text. The current prompt expects JSON so Rose can verify each screenshot row separately.']
+    };
+  }
+  const parsed = JSON.parse(response);
+  const items = parsed?.mse?.items || parsed?.items || parsed?.mse || {};
+  const missingItems = MSE_REQUIRED_ITEMS.filter(item => !items[item]);
+  const otherWithoutNarrative = Object.entries(items)
+    .filter(([, value]) => {
+      const selections = Array.isArray(value?.selections) ? value.selections : [];
+      return selections.some(selection => String(selection).toLowerCase() === 'other') && !String(value?.other_text || value?.narrative || '').trim();
+    })
+    .map(([key]) => key);
+  const normalSelectionsByItem = {
+    build_stature: ['Within Normal Limits'],
+    posture: ['Within Normal Limits'],
+    activity: ['Within Normal Limits'],
+    perception: ['Within normal limits'],
+    hallucinations: ['Denied', 'None evidenced'],
+    thought_content: ['Within normal limits'],
+    delusions: ['None reported'],
+    cognition: ['Within normal limits'],
+    insight: ['Within normal limits'],
+    judgment: ['Within normal limits']
+  };
+  const normalizeSelection = (value) => String(value || '').trim().toLowerCase();
+  const selectionConflicts = Object.entries(normalSelectionsByItem)
+    .filter(([key, normalSelections]) => {
+      const selections = Array.isArray(items[key]?.selections) ? items[key].selections : [];
+      if (!selections.length) return false;
+      const normalSet = new Set(normalSelections.map(normalizeSelection));
+      return selections.some(selection => normalSet.has(normalizeSelection(selection))) &&
+        selections.some(selection => !normalSet.has(normalizeSelection(selection)));
+    })
+    .map(([key]) => key);
+  return {
+    ...summary,
+    parsedJson: true,
+    topLevelKeys: Object.keys(parsed),
+    presentItems: MSE_REQUIRED_ITEMS.length - missingItems.length,
+    missingItems,
+    otherWithoutNarrative,
+    selectionConflicts,
+    warnings: [
+      ...(missingItems.length ? [`Missing MSE items: ${missingItems.join(', ')}`] : []),
+      ...(otherWithoutNarrative.length ? [`Other selected without narrative: ${otherWithoutNarrative.join(', ')}`] : []),
+      ...(selectionConflicts.length ? [`Normal/default selections conflict with abnormal or Other selections: ${selectionConflicts.join(', ')}. Fill will remove the normal/default selections before writing.`] : [])
+    ]
+  };
+}
+async function saveMseResponse() {
+  await chrome.storage.local.set({ [STORAGE_KEYS.mseResponse]: $('mseResp')?.value || '' });
+}
 
 $('loadRemote').onclick = async () => {
   try {
     const url = $('configUrl').value.trim();
-    await loadRemoteConfig(url);
-    setStatus('Remote config loaded');
+    const warnings = await loadRemoteConfigBundle(url);
+    if (warnings.length) logTo('validation', { warnings });
+    setStatus(warnings.length ? 'Remote config loaded with warnings' : 'Remote configs loaded');
   } catch (err) { setStatus('Config error'); logTo('validation', err.message); }
 };
 $('useBundled').onclick = async () => {
   activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
+  workflowConfig = window.DEFAULT_ROSE_WORKFLOW_CONFIG || {};
+  activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG || {};
   defaultRows = getConfigDefaultRows(activeConfig);
-  await chrome.storage.local.set({ [STORAGE_KEYS.config]: activeConfig, [STORAGE_KEYS.defaultRows]: defaultRows });
+  await chrome.storage.local.set({
+    [STORAGE_KEYS.config]: activeConfig,
+    [STORAGE_KEYS.workflowConfig]: workflowConfig,
+    [STORAGE_KEYS.quicknotesConfig]: activeQuickNotesConfig,
+    [STORAGE_KEYS.defaultRows]: defaultRows
+  });
   renderConfigState();
   setStatus('Bundled config loaded');
 };
@@ -1276,6 +1886,161 @@ $('fillPage').onclick = async () => {
     setStatus(result?.warnings?.length ? 'Filled with warnings' : 'Fill complete');
   } catch (err) { logTo('fillResults', err.message); setStatus('Fill failed'); }
 };
+$('copyQuickNotesPrompt').onclick = async () => {
+  const prompt = activeQuickNotesConfig?.prompts?.[0]?.body || '';
+  await navigator.clipboard.writeText(prompt);
+  setStatus('Copied QuickNotes prompt');
+};
+$('copyQuickNotesFieldMap').onclick = async () => {
+  const config = activeQuickNotesConfig || {};
+  const rows = (config.fieldMap || []).map(item => ({
+    fillIndex: item.fillIndex,
+    paths: item.paths,
+    type: item.type,
+    contextText: item.contextText,
+    selectorHints: item.selectorHints
+  }));
+  await navigator.clipboard.writeText(JSON.stringify(rows, null, 2));
+  setStatus('Copied QuickNotes field map');
+};
+$('validateQuickNotes').onclick = async () => {
+  try {
+    const merged = validateQuickNotesResponse();
+    await saveQuickNotesResponse();
+    logTo('quicknotesResults', { ok: true, topLevelKeys: Object.keys(merged), controlsMapped: activeQuickNotesConfig?.fieldMap?.length || 0, merged });
+    setStatus('QuickNotes JSON is valid');
+  } catch (err) { logTo('quicknotesResults', err.message); setStatus('QuickNotes validation failed'); }
+};
+$('scanQuickNotesPage').onclick = async () => {
+  try {
+    const result = await runInActiveTab(pageScan, [buildQuickNotesRuntimeConfig()]);
+    logTo('quicknotesResults', result);
+    await appendTrace(result);
+    setStatus('QuickNotes scan complete');
+  } catch (err) { logTo('quicknotesResults', err.message); setStatus('QuickNotes scan failed'); }
+};
+$('fillQuickNotesPage').onclick = async () => {
+  try {
+    const merged = validateQuickNotesResponse();
+    await saveQuickNotesResponse();
+    const result = await runInActiveTab(pageFill, [buildQuickNotesRuntimeConfig(), merged, $('quicknotesDryRun').checked]);
+    const summary = {
+      event: result.event,
+      timestamp: result.timestamp,
+      found: result.found,
+      expected: result.expected,
+      dryRun: result.dryRun,
+      written: result.written,
+      responseWritten: result.responseWritten,
+      defaultWritten: result.defaultWritten,
+      checkboxWritten: result.checkboxWritten,
+      checkboxTrueWritten: result.checkboxTrueWritten,
+      checkboxFalseWritten: result.checkboxFalseWritten,
+      checkboxWriteFailures: result.checkboxWriteFailures,
+      skipped: result.skipped,
+      missingCount: result.missing?.length || 0,
+      warnings: result.warnings
+    };
+    logTo('quicknotesResults', summary);
+    await appendTrace(result);
+    setStatus(result?.warnings?.length ? 'QuickNotes filled with warnings' : 'QuickNotes fill complete');
+  } catch (err) { logTo('quicknotesResults', err.message); setStatus('QuickNotes fill failed'); }
+};
+$('copyMsePrompt').onclick = async () => {
+  const source = workflowMode('mse').sourcePrompt;
+  if (!source?.body) {
+    setStatus('No MSE prompt loaded');
+    return;
+  }
+  await navigator.clipboard.writeText(source.body);
+  setStatus('Copied MSE prompt');
+};
+$('copyMsePromptNotes').onclick = async () => {
+  const source = workflowMode('mse').sourcePrompt;
+  if (!source?.body) {
+    setStatus('No MSE prompt loaded');
+    return;
+  }
+  await navigator.clipboard.writeText(`${source.title}\n${source.source}\n\n${source.body}`);
+  setStatus('Copied MSE prompt notes');
+};
+$('validateMseResponse').onclick = async () => {
+  try {
+    const summary = validateMseResponse();
+    await saveMseResponse();
+    logTo('mseValidation', { ok: true, ...summary });
+    setStatus('MSE response saved');
+  } catch (err) { logTo('mseValidation', err.message); setStatus('MSE validation failed'); }
+};
+$('copyMseResponse').onclick = async () => {
+  try {
+    validateMseResponse();
+    await saveMseResponse();
+    await navigator.clipboard.writeText($('mseResp').value);
+    setStatus('Copied MSE response');
+  } catch (err) { logTo('mseValidation', err.message); setStatus('MSE copy failed'); }
+};
+$('clearMseResponse').onclick = async () => {
+  $('mseResp').value = '';
+  await chrome.storage.local.remove([STORAGE_KEYS.mseResponse]);
+  logTo('mseValidation', 'MSE response cleared.');
+  setStatus('Cleared MSE response');
+};
+$('scanMsePage').onclick = async () => {
+  try {
+    const result = await runInActiveTab(pageScan, [buildMseRuntimeConfig()]);
+    logTo('mseFillResults', result);
+    await appendTrace({ ...result, mode: 'mse' });
+    setStatus('MSE scan complete');
+  } catch (err) { logTo('mseFillResults', err.message); setStatus('MSE scan failed'); }
+};
+$('fillMsePage').onclick = async () => {
+  try {
+    const rawResponse = $('mseResp').value.trim();
+    let parsed = {};
+    if (rawResponse) {
+      validateMseResponse();
+      parsed = JSON.parse(rawResponse);
+    }
+    await saveMseResponse();
+    const config = buildMseRuntimeConfig();
+    if (!config.fieldMap?.length) {
+      const result = {
+        event: 'fill',
+        mode: 'mse',
+        dryRun: $('mseDryRun').checked,
+        written: 0,
+        warnings: ['MSE Part 2 field map is not loaded yet. Use Discovery and Mapping to capture the form before enabling live fill.']
+      };
+      logTo('mseFillResults', result);
+      await appendTrace(result);
+      setStatus('MSE field map needed');
+      return;
+    }
+    const result = await runInActiveTab(pageFill, [config, parsed, $('mseDryRun').checked]);
+    logTo('mseFillResults', result);
+    await appendTrace({ ...result, mode: 'mse' });
+    setStatus(result?.warnings?.length ? 'MSE filled with warnings' : 'MSE fill complete');
+  } catch (err) { logTo('mseFillResults', err.message); setStatus('MSE fill failed'); }
+};
+$('copyModeSourcePrompt').onclick = async () => {
+  const source = modeSourcePrompt(activeMode);
+  if (!source) {
+    setStatus('No source prompt for this mode');
+    return;
+  }
+  await navigator.clipboard.writeText(source.body || '');
+  setStatus(`Copied ${source.title}`);
+};
+$('copyModeSourceNotes').onclick = async () => {
+  const source = modeSourcePrompt(activeMode);
+  if (!source) {
+    setStatus('No source notes for this mode');
+    return;
+  }
+  await navigator.clipboard.writeText(`${source.title}\n${source.source}\n\n${source.body || ''}`);
+  setStatus(`Copied ${source.title} notes`);
+};
 $('copyTraceLog').onclick = async () => {
   await navigator.clipboard.writeText(JSON.stringify(traceLog || [], null, 2));
   setStatus('Copied trace log');
@@ -1339,4 +2104,6 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => saveMode(btn.dataset.mode).catch(err => setStatus(err.message)));
 });
 [1,2,3,4].forEach(i => $(`resp${i}`).addEventListener('input', saveResponses));
+$('quicknotesResp')?.addEventListener('input', saveQuickNotesResponse);
+$('mseResp')?.addEventListener('input', saveMseResponse);
 loadState();

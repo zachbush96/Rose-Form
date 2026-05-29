@@ -44,12 +44,16 @@ async function runVisualMapping(mode, pathPrefix) {
 }
 
 const localResult = await runDiscovery(pathToFileURL(mockFormPath).href, 'mse');
-if (localResult.totalControls !== 8) failures.push(`local discovery expected 8 controls, found ${localResult.totalControls}`);
+if (localResult.totalControls !== 12) failures.push(`local discovery expected 12 controls, found ${localResult.totalControls}`);
 if (!localResult.sections.some(section => section.name === 'Mental Status Exam' && section.controlCount === 4)) failures.push('local MSE section was not grouped correctly');
 if (!localResult.sections.some(section => section.name === 'ASAM Criteria' && section.controlCount === 4)) failures.push('local ASAM section was not grouped correctly');
+if (!localResult.sections.some(section => section.name === 'QuickNotes: Mental Health Status Exam Part 2' && section.controlCount === 4)) failures.push('local Part 2 table section was not grouped correctly');
 if (!localResult.controls.some(control => control.label === 'Appearance Other' && control.suggestedPath === 'mse.mental_status_exam.appearance_other')) failures.push('local textarea label/path was not discovered');
 if (!localResult.controls.some(control => control.type === 'select' && control.options.includes('Euthymic'))) failures.push('local select options were not captured');
 if (!localResult.controls.some(control => control.type === 'radio' && control.options.includes('Moderate'))) failures.push('local radio group options were not captured');
+if (!localResult.controls.some(control => control.selectorHints.dataQnFieldId === '10371' && control.questionNumber === '1' && control.questionText === 'Perception' && control.answerText === 'Within normal limits' && control.suggestedPath === 'mse.perception.within_normal_limits')) failures.push('local Part 2 table checkbox did not include question context');
+if (!localResult.controls.some(control => control.selectorHints.dataQnFieldId === '10376' && control.questionText === 'Perception' && control.suggestedPath === 'mse.perception.other')) failures.push('local Part 2 continuation row did not inherit the question context');
+if (!localResult.controls.some(control => control.selectorHints.dataQnFieldId === '10377' && control.questionText === 'Perception' && control.answerText === 'Other text' && control.suggestedPath === 'mse.perception.other_text')) failures.push('local Part 2 wrapped textarea did not inherit the question and wrapper field id');
 const labelsResult = await runVisualMapping('labels', 'mse');
 const labelCount = await page.locator('.rose-discovery-map-label').count();
 if (labelsResult.controls !== localResult.totalControls) failures.push(`visual labels expected ${localResult.totalControls} controls, found ${labelsResult.controls}`);

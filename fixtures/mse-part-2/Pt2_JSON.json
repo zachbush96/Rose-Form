@@ -1,0 +1,4838 @@
+{
+  "checkboxCount": 167,
+  "controls": [
+    {
+      "contextText": "client search: ˅",
+      "disabled": false,
+      "fillIndex": 0,
+      "id": "",
+      "index": 0,
+      "label": "",
+      "name": "clientSearch",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "Unsectioned",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": "[name=\"clientSearch\"]"
+      },
+      "suggestedPath": "unsectioned.clientsearch",
+      "tag": "input",
+      "type": "text",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Rosalee Harris change Date: Notes for the full week will be loaded.",
+      "disabled": false,
+      "fillIndex": 1,
+      "id": "date",
+      "index": 1,
+      "label": "",
+      "name": "date",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "#date",
+        "name": "[name=\"date\"]"
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.date",
+      "tag": "input",
+      "type": "text",
+      "valuePreview": "5/26/2026"
+    },
+    {
+      "contextText": "Session Notes Contract Intake",
+      "disabled": false,
+      "fillIndex": 2,
+      "id": "DocCategoryID",
+      "index": 2,
+      "label": "",
+      "name": "DocCategoryID",
+      "options": [
+        "Session Notes",
+        "Contract",
+        "Intake"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "#DocCategoryID",
+        "name": "[name=\"DocCategoryID\"]"
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.doccategoryid",
+      "tag": "select",
+      "type": "select",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Casual Dress",
+      "disabled": false,
+      "fillIndex": 3,
+      "id": "cb-10264",
+      "index": 3,
+      "label": "Casual Dress",
+      "name": "",
+      "options": [
+        "Casual Dress"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10264",
+        "id": "#cb-10264",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.casual_dress",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Normal Grooming",
+      "disabled": false,
+      "fillIndex": 4,
+      "id": "cb-10265",
+      "index": 4,
+      "label": "Normal Grooming",
+      "name": "",
+      "options": [
+        "Normal Grooming"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10265",
+        "id": "#cb-10265",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.normal_grooming",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Hygiene",
+      "disabled": false,
+      "fillIndex": 5,
+      "id": "cb-10266",
+      "index": 5,
+      "label": "Hygiene",
+      "name": "",
+      "options": [
+        "Hygiene"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10266",
+        "id": "#cb-10266",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.hygiene",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Appears Stated Age",
+      "disabled": false,
+      "fillIndex": 6,
+      "id": "cb-10267",
+      "index": 6,
+      "label": "Appears Stated Age",
+      "name": "",
+      "options": [
+        "Appears Stated Age"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10267",
+        "id": "#cb-10267",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.appears_stated_age",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Poor Hygiene",
+      "disabled": false,
+      "fillIndex": 7,
+      "id": "cb-10268",
+      "index": 7,
+      "label": "Poor Hygiene",
+      "name": "",
+      "options": [
+        "Poor Hygiene"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10268",
+        "id": "#cb-10268",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.poor_hygiene",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Appropriate for",
+      "disabled": false,
+      "fillIndex": 8,
+      "id": "cb-10269",
+      "index": 8,
+      "label": "Appropriate for",
+      "name": "",
+      "options": [
+        "Appropriate for"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10269",
+        "id": "#cb-10269",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.appropriate_for",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Appears Older Than",
+      "disabled": false,
+      "fillIndex": 9,
+      "id": "cb-10270",
+      "index": 9,
+      "label": "Appears Older Than",
+      "name": "",
+      "options": [
+        "Appears Older Than"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10270",
+        "id": "#cb-10270",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.appears_older_than",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Appears Younger",
+      "disabled": false,
+      "fillIndex": 10,
+      "id": "cb-10271",
+      "index": 10,
+      "label": "Appears Younger",
+      "name": "",
+      "options": [
+        "Appears Younger"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10271",
+        "id": "#cb-10271",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.appears_younger",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Unbathed",
+      "disabled": false,
+      "fillIndex": 11,
+      "id": "cb-10272",
+      "index": 11,
+      "label": "Unbathed",
+      "name": "",
+      "options": [
+        "Unbathed"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10272",
+        "id": "#cb-10272",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.unbathed",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 12,
+      "id": "cb-10273",
+      "index": 12,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10273",
+        "id": "#cb-10273",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": true
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 13,
+      "id": "",
+      "index": 13,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": "Unknown- Interview conducted via phone call"
+    },
+    {
+      "contextText": "Within Normal Limits",
+      "disabled": false,
+      "fillIndex": 14,
+      "id": "cb-10275",
+      "index": 14,
+      "label": "Within Normal Limits",
+      "name": "",
+      "options": [
+        "Within Normal Limits"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10275",
+        "id": "#cb-10275",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.within_normal_limits",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Thin",
+      "disabled": false,
+      "fillIndex": 15,
+      "id": "cb-10276",
+      "index": 15,
+      "label": "Thin",
+      "name": "",
+      "options": [
+        "Thin"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10276",
+        "id": "#cb-10276",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.thin",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Overweight",
+      "disabled": false,
+      "fillIndex": 16,
+      "id": "cb-10277",
+      "index": 16,
+      "label": "Overweight",
+      "name": "",
+      "options": [
+        "Overweight"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10277",
+        "id": "#cb-10277",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.overweight",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Short",
+      "disabled": false,
+      "fillIndex": 17,
+      "id": "cb-10278",
+      "index": 17,
+      "label": "Short",
+      "name": "",
+      "options": [
+        "Short"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10278",
+        "id": "#cb-10278",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.short",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Tall",
+      "disabled": false,
+      "fillIndex": 18,
+      "id": "cb-10279",
+      "index": 18,
+      "label": "Tall",
+      "name": "",
+      "options": [
+        "Tall"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10279",
+        "id": "#cb-10279",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.tall",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 19,
+      "id": "cb-10280",
+      "index": 19,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10280",
+        "id": "#cb-10280",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": true
+    },
+    {
+      "contextText": "Tall Other:",
+      "disabled": false,
+      "fillIndex": 20,
+      "id": "",
+      "index": 20,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.tall_other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": "Unknown- Interview conducted via phone call"
+    },
+    {
+      "contextText": "Within Normal Limits",
+      "disabled": false,
+      "fillIndex": 21,
+      "id": "cb-10282",
+      "index": 21,
+      "label": "Within Normal Limits",
+      "name": "",
+      "options": [
+        "Within Normal Limits"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10282",
+        "id": "#cb-10282",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.within_normal_limits",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Slumped",
+      "disabled": false,
+      "fillIndex": 22,
+      "id": "cb-10283",
+      "index": 22,
+      "label": "Slumped",
+      "name": "",
+      "options": [
+        "Slumped"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10283",
+        "id": "#cb-10283",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.slumped",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Rigid",
+      "disabled": false,
+      "fillIndex": 23,
+      "id": "cb-10284",
+      "index": 23,
+      "label": "Rigid",
+      "name": "",
+      "options": [
+        "Rigid"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10284",
+        "id": "#cb-10284",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.rigid",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Tense",
+      "disabled": false,
+      "fillIndex": 24,
+      "id": "cb-10285",
+      "index": 24,
+      "label": "Tense",
+      "name": "",
+      "options": [
+        "Tense"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10285",
+        "id": "#cb-10285",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.tense",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Atypical",
+      "disabled": false,
+      "fillIndex": 25,
+      "id": "cb-10286",
+      "index": 25,
+      "label": "Atypical",
+      "name": "",
+      "options": [
+        "Atypical"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10286",
+        "id": "#cb-10286",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.atypical",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 26,
+      "id": "cb-10287",
+      "index": 26,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10287",
+        "id": "#cb-10287",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": true
+    },
+    {
+      "contextText": "Atypical Other:",
+      "disabled": false,
+      "fillIndex": 27,
+      "id": "",
+      "index": 27,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.atypical_other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": "Unknown- Interview conducted via phone call"
+    },
+    {
+      "contextText": "Average",
+      "disabled": false,
+      "fillIndex": 28,
+      "id": "cb-10289",
+      "index": 28,
+      "label": "Average",
+      "name": "",
+      "options": [
+        "Average"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10289",
+        "id": "#cb-10289",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.average",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Avoidant",
+      "disabled": false,
+      "fillIndex": 29,
+      "id": "cb-10290",
+      "index": 29,
+      "label": "Avoidant",
+      "name": "",
+      "options": [
+        "Avoidant"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10290",
+        "id": "#cb-10290",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.avoidant",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Intense",
+      "disabled": false,
+      "fillIndex": 30,
+      "id": "cb-10291",
+      "index": 30,
+      "label": "Intense",
+      "name": "",
+      "options": [
+        "Intense"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10291",
+        "id": "#cb-10291",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.intense",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Intermittent",
+      "disabled": false,
+      "fillIndex": 31,
+      "id": "cb-10292",
+      "index": 31,
+      "label": "Intermittent",
+      "name": "",
+      "options": [
+        "Intermittent"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10292",
+        "id": "#cb-10292",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.intermittent",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 32,
+      "id": "cb-10293",
+      "index": 32,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10293",
+        "id": "#cb-10293",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": true
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 33,
+      "id": "",
+      "index": 33,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": "Unknown- Interview conducted via phone call"
+    },
+    {
+      "contextText": "Within Normal Limits",
+      "disabled": false,
+      "fillIndex": 34,
+      "id": "cb-10295",
+      "index": 34,
+      "label": "Within Normal Limits",
+      "name": "",
+      "options": [
+        "Within Normal Limits"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10295",
+        "id": "#cb-10295",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.within_normal_limits",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Accelerated",
+      "disabled": false,
+      "fillIndex": 35,
+      "id": "cb-10296",
+      "index": 35,
+      "label": "Accelerated",
+      "name": "",
+      "options": [
+        "Accelerated"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10296",
+        "id": "#cb-10296",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.accelerated",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Slowed",
+      "disabled": false,
+      "fillIndex": 36,
+      "id": "cb-10297",
+      "index": 36,
+      "label": "Slowed",
+      "name": "",
+      "options": [
+        "Slowed"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10297",
+        "id": "#cb-10297",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.slowed",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Stereotyped/Peculiar",
+      "disabled": false,
+      "fillIndex": 37,
+      "id": "cb-10298",
+      "index": 37,
+      "label": "Stereotyped/Peculiar",
+      "name": "",
+      "options": [
+        "Stereotyped/Peculiar"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10298",
+        "id": "#cb-10298",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.stereotyped_peculiar",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Impulsive",
+      "disabled": false,
+      "fillIndex": 38,
+      "id": "cb-10299",
+      "index": 38,
+      "label": "Impulsive",
+      "name": "",
+      "options": [
+        "Impulsive"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10299",
+        "id": "#cb-10299",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.impulsive",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Agitated",
+      "disabled": false,
+      "fillIndex": 39,
+      "id": "cb-10300",
+      "index": 39,
+      "label": "Agitated",
+      "name": "",
+      "options": [
+        "Agitated"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10300",
+        "id": "#cb-10300",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.agitated",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 40,
+      "id": "cb-10301",
+      "index": 40,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10301",
+        "id": "#cb-10301",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": true
+    },
+    {
+      "contextText": "Impulsive Agitated Other:",
+      "disabled": false,
+      "fillIndex": 41,
+      "id": "",
+      "index": 41,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.impulsive_agitated_other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": "Unknown- Interview conducted via phone call"
+    },
+    {
+      "contextText": "Cooperative",
+      "disabled": false,
+      "fillIndex": 42,
+      "id": "cb-10303",
+      "index": 42,
+      "label": "Cooperative",
+      "name": "",
+      "options": [
+        "Cooperative"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10303",
+        "id": "#cb-10303",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.cooperative",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Hostile",
+      "disabled": false,
+      "fillIndex": 43,
+      "id": "cb-10304",
+      "index": 43,
+      "label": "Hostile",
+      "name": "",
+      "options": [
+        "Hostile"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10304",
+        "id": "#cb-10304",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.hostile",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Defensive",
+      "disabled": false,
+      "fillIndex": 44,
+      "id": "cb-10305",
+      "index": 44,
+      "label": "Defensive",
+      "name": "",
+      "options": [
+        "Defensive"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10305",
+        "id": "#cb-10305",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.defensive",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Evasive",
+      "disabled": false,
+      "fillIndex": 45,
+      "id": "cb-10306",
+      "index": 45,
+      "label": "Evasive",
+      "name": "",
+      "options": [
+        "Evasive"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10306",
+        "id": "#cb-10306",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.evasive",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Anxious",
+      "disabled": false,
+      "fillIndex": 46,
+      "id": "cb-10307",
+      "index": 46,
+      "label": "Anxious",
+      "name": "",
+      "options": [
+        "Anxious"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10307",
+        "id": "#cb-10307",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.anxious",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Seductive",
+      "disabled": false,
+      "fillIndex": 47,
+      "id": "cb-10308",
+      "index": 47,
+      "label": "Seductive",
+      "name": "",
+      "options": [
+        "Seductive"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10308",
+        "id": "#cb-10308",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.seductive",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Mistrustful",
+      "disabled": false,
+      "fillIndex": 48,
+      "id": "cb-10309",
+      "index": 48,
+      "label": "Mistrustful",
+      "name": "",
+      "options": [
+        "Mistrustful"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10309",
+        "id": "#cb-10309",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.mistrustful",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Demanding",
+      "disabled": false,
+      "fillIndex": 49,
+      "id": "cb-10310",
+      "index": 49,
+      "label": "Demanding",
+      "name": "",
+      "options": [
+        "Demanding"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10310",
+        "id": "#cb-10310",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.demanding",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Manipulative",
+      "disabled": false,
+      "fillIndex": 50,
+      "id": "cb-10311",
+      "index": 50,
+      "label": "Manipulative",
+      "name": "",
+      "options": [
+        "Manipulative"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10311",
+        "id": "#cb-10311",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.manipulative",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Ingrating",
+      "disabled": false,
+      "fillIndex": 51,
+      "id": "cb-10312",
+      "index": 51,
+      "label": "Ingrating",
+      "name": "",
+      "options": [
+        "Ingrating"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10312",
+        "id": "#cb-10312",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.ingrating",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Confused",
+      "disabled": false,
+      "fillIndex": 52,
+      "id": "cb-10313",
+      "index": 52,
+      "label": "Confused",
+      "name": "",
+      "options": [
+        "Confused"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10313",
+        "id": "#cb-10313",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.confused",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 53,
+      "id": "cb-10314",
+      "index": 53,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10314",
+        "id": "#cb-10314",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 54,
+      "id": "",
+      "index": 54,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Not Applicable",
+      "disabled": false,
+      "fillIndex": 55,
+      "id": "cb-10316",
+      "index": 55,
+      "label": "Not Applicable",
+      "name": "",
+      "options": [
+        "Not Applicable"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10316",
+        "id": "#cb-10316",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.not_applicable",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Positive Interaction",
+      "disabled": false,
+      "fillIndex": 56,
+      "id": "cb-10317",
+      "index": 56,
+      "label": "Positive Interaction",
+      "name": "",
+      "options": [
+        "Positive Interaction"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10317",
+        "id": "#cb-10317",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.positive_interaction",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Ignores Parents",
+      "disabled": false,
+      "fillIndex": 57,
+      "id": "cb-10318",
+      "index": 57,
+      "label": "Ignores Parents",
+      "name": "",
+      "options": [
+        "Ignores Parents"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10318",
+        "id": "#cb-10318",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.ignores_parents",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Disrespectful",
+      "disabled": false,
+      "fillIndex": 58,
+      "id": "cb-10319",
+      "index": 58,
+      "label": "Disrespectful",
+      "name": "",
+      "options": [
+        "Disrespectful"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10319",
+        "id": "#cb-10319",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.disrespectful",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Demanding",
+      "disabled": false,
+      "fillIndex": 59,
+      "id": "cb-10320",
+      "index": 59,
+      "label": "Demanding",
+      "name": "",
+      "options": [
+        "Demanding"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10320",
+        "id": "#cb-10320",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.demanding",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Immature",
+      "disabled": false,
+      "fillIndex": 60,
+      "id": "cb-10321",
+      "index": 60,
+      "label": "Immature",
+      "name": "",
+      "options": [
+        "Immature"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10321",
+        "id": "#cb-10321",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.immature",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Lack of spontinaneity",
+      "disabled": false,
+      "fillIndex": 61,
+      "id": "cb-10322",
+      "index": 61,
+      "label": "Lack of spontinaneity",
+      "name": "",
+      "options": [
+        "Lack of spontinaneity"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10322",
+        "id": "#cb-10322",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.lack_of_spontinaneity",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 62,
+      "id": "cb-10323",
+      "index": 62,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10323",
+        "id": "#cb-10323",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 63,
+      "id": "",
+      "index": 63,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Not Applicable",
+      "disabled": false,
+      "fillIndex": 64,
+      "id": "cb-10325",
+      "index": 64,
+      "label": "Not Applicable",
+      "name": "",
+      "options": [
+        "Not Applicable"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10325",
+        "id": "#cb-10325",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.not_applicable",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Unremarkable/ age",
+      "disabled": false,
+      "fillIndex": 65,
+      "id": "cb-10326",
+      "index": 65,
+      "label": "Unremarkable/ age",
+      "name": "",
+      "options": [
+        "Unremarkable/ age"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10326",
+        "id": "#cb-10326",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.unremarkable_age",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Clingy to parent/ but",
+      "disabled": false,
+      "fillIndex": 66,
+      "id": "cb-10327",
+      "index": 66,
+      "label": "Clingy to parent/ but",
+      "name": "",
+      "options": [
+        "Clingy to parent/ but"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10327",
+        "id": "#cb-10327",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.clingy_to_parent_but",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Disinhibited/ Does",
+      "disabled": false,
+      "fillIndex": 67,
+      "id": "cb-10328",
+      "index": 67,
+      "label": "Disinhibited/ Does",
+      "name": "",
+      "options": [
+        "Disinhibited/ Does"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10328",
+        "id": "#cb-10328",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.disinhibited_does",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Cannot separate",
+      "disabled": false,
+      "fillIndex": 68,
+      "id": "cb-10329",
+      "index": 68,
+      "label": "Cannot separate",
+      "name": "",
+      "options": [
+        "Cannot separate"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10329",
+        "id": "#cb-10329",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.cannot_separate",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 69,
+      "id": "cb-10330",
+      "index": 69,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10330",
+        "id": "#cb-10330",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 70,
+      "id": "",
+      "index": 70,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Euthymic",
+      "disabled": false,
+      "fillIndex": 71,
+      "id": "cb-10332",
+      "index": 71,
+      "label": "Euthymic",
+      "name": "",
+      "options": [
+        "Euthymic"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10332",
+        "id": "#cb-10332",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.euthymic",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Depressed",
+      "disabled": false,
+      "fillIndex": 72,
+      "id": "cb-10333",
+      "index": 72,
+      "label": "Depressed",
+      "name": "",
+      "options": [
+        "Depressed"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10333",
+        "id": "#cb-10333",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.depressed",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Anxious",
+      "disabled": false,
+      "fillIndex": 73,
+      "id": "cb-10334",
+      "index": 73,
+      "label": "Anxious",
+      "name": "",
+      "options": [
+        "Anxious"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10334",
+        "id": "#cb-10334",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.anxious",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Angry",
+      "disabled": false,
+      "fillIndex": 74,
+      "id": "cb-10335",
+      "index": 74,
+      "label": "Angry",
+      "name": "",
+      "options": [
+        "Angry"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10335",
+        "id": "#cb-10335",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.angry",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Euphoric",
+      "disabled": false,
+      "fillIndex": 75,
+      "id": "cb-10336",
+      "index": 75,
+      "label": "Euphoric",
+      "name": "",
+      "options": [
+        "Euphoric"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10336",
+        "id": "#cb-10336",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.euphoric",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Irritable",
+      "disabled": false,
+      "fillIndex": 76,
+      "id": "cb-10337",
+      "index": 76,
+      "label": "Irritable",
+      "name": "",
+      "options": [
+        "Irritable"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10337",
+        "id": "#cb-10337",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.irritable",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Silly",
+      "disabled": false,
+      "fillIndex": 77,
+      "id": "cb-10338",
+      "index": 77,
+      "label": "Silly",
+      "name": "",
+      "options": [
+        "Silly"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10338",
+        "id": "#cb-10338",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.silly",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Apathetic",
+      "disabled": false,
+      "fillIndex": 78,
+      "id": "cb-10339",
+      "index": 78,
+      "label": "Apathetic",
+      "name": "",
+      "options": [
+        "Apathetic"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10339",
+        "id": "#cb-10339",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.apathetic",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 79,
+      "id": "cb-10340",
+      "index": 79,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10340",
+        "id": "#cb-10340",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 80,
+      "id": "",
+      "index": 80,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Full",
+      "disabled": false,
+      "fillIndex": 81,
+      "id": "cb-10342",
+      "index": 81,
+      "label": "Full",
+      "name": "",
+      "options": [
+        "Full"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10342",
+        "id": "#cb-10342",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.full",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Constricted",
+      "disabled": false,
+      "fillIndex": 82,
+      "id": "cb-10343",
+      "index": 82,
+      "label": "Constricted",
+      "name": "",
+      "options": [
+        "Constricted"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10343",
+        "id": "#cb-10343",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.constricted",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Flat",
+      "disabled": false,
+      "fillIndex": 83,
+      "id": "cb-10344",
+      "index": 83,
+      "label": "Flat",
+      "name": "",
+      "options": [
+        "Flat"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10344",
+        "id": "#cb-10344",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.flat",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Inappropriate",
+      "disabled": false,
+      "fillIndex": 84,
+      "id": "cb-10345",
+      "index": 84,
+      "label": "Inappropriate",
+      "name": "",
+      "options": [
+        "Inappropriate"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10345",
+        "id": "#cb-10345",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.inappropriate",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Labile",
+      "disabled": false,
+      "fillIndex": 85,
+      "id": "cb-10346",
+      "index": 85,
+      "label": "Labile",
+      "name": "",
+      "options": [
+        "Labile"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10346",
+        "id": "#cb-10346",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.labile",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 86,
+      "id": "cb-10347",
+      "index": 86,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10347",
+        "id": "#cb-10347",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Labile Other:",
+      "disabled": false,
+      "fillIndex": 87,
+      "id": "",
+      "index": 87,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.labile_other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Clear",
+      "disabled": false,
+      "fillIndex": 88,
+      "id": "cb-10349",
+      "index": 88,
+      "label": "Clear",
+      "name": "",
+      "options": [
+        "Clear"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10349",
+        "id": "#cb-10349",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.clear",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Slurred",
+      "disabled": false,
+      "fillIndex": 89,
+      "id": "cb-10350",
+      "index": 89,
+      "label": "Slurred",
+      "name": "",
+      "options": [
+        "Slurred"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10350",
+        "id": "#cb-10350",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.slurred",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Rapid",
+      "disabled": false,
+      "fillIndex": 90,
+      "id": "cb-10351",
+      "index": 90,
+      "label": "Rapid",
+      "name": "",
+      "options": [
+        "Rapid"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10351",
+        "id": "#cb-10351",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.rapid",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Pressured",
+      "disabled": false,
+      "fillIndex": 91,
+      "id": "cb-10352",
+      "index": 91,
+      "label": "Pressured",
+      "name": "",
+      "options": [
+        "Pressured"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10352",
+        "id": "#cb-10352",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.pressured",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Over productive",
+      "disabled": false,
+      "fillIndex": 92,
+      "id": "cb-10353",
+      "index": 92,
+      "label": "Over productive",
+      "name": "",
+      "options": [
+        "Over productive"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10353",
+        "id": "#cb-10353",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.over_productive",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Under productive",
+      "disabled": false,
+      "fillIndex": 93,
+      "id": "cb-10354",
+      "index": 93,
+      "label": "Under productive",
+      "name": "",
+      "options": [
+        "Under productive"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10354",
+        "id": "#cb-10354",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.under_productive",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Echoic",
+      "disabled": false,
+      "fillIndex": 94,
+      "id": "cb-10355",
+      "index": 94,
+      "label": "Echoic",
+      "name": "",
+      "options": [
+        "Echoic"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10355",
+        "id": "#cb-10355",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.echoic",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 95,
+      "id": "cb-10356",
+      "index": 95,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10356",
+        "id": "#cb-10356",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 96,
+      "id": "",
+      "index": 96,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Logical",
+      "disabled": false,
+      "fillIndex": 97,
+      "id": "cb-10358",
+      "index": 97,
+      "label": "Logical",
+      "name": "",
+      "options": [
+        "Logical"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10358",
+        "id": "#cb-10358",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.logical",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Circumstantial",
+      "disabled": false,
+      "fillIndex": 98,
+      "id": "cb-10359",
+      "index": 98,
+      "label": "Circumstantial",
+      "name": "",
+      "options": [
+        "Circumstantial"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10359",
+        "id": "#cb-10359",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.circumstantial",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Tangential",
+      "disabled": false,
+      "fillIndex": 99,
+      "id": "cb-10360",
+      "index": 99,
+      "label": "Tangential",
+      "name": "",
+      "options": [
+        "Tangential"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10360",
+        "id": "#cb-10360",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.tangential",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Loose",
+      "disabled": false,
+      "fillIndex": 100,
+      "id": "cb-10361",
+      "index": 100,
+      "label": "Loose",
+      "name": "",
+      "options": [
+        "Loose"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10361",
+        "id": "#cb-10361",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.loose",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Racing",
+      "disabled": false,
+      "fillIndex": 101,
+      "id": "cb-10362",
+      "index": 101,
+      "label": "Racing",
+      "name": "",
+      "options": [
+        "Racing"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10362",
+        "id": "#cb-10362",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.racing",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Incoherent",
+      "disabled": false,
+      "fillIndex": 102,
+      "id": "cb-10363",
+      "index": 102,
+      "label": "Incoherent",
+      "name": "",
+      "options": [
+        "Incoherent"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10363",
+        "id": "#cb-10363",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.incoherent",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Concrete",
+      "disabled": false,
+      "fillIndex": 103,
+      "id": "cb-10364",
+      "index": 103,
+      "label": "Concrete",
+      "name": "",
+      "options": [
+        "Concrete"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10364",
+        "id": "#cb-10364",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.concrete",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Blocked",
+      "disabled": false,
+      "fillIndex": 104,
+      "id": "cb-10365",
+      "index": 104,
+      "label": "Blocked",
+      "name": "",
+      "options": [
+        "Blocked"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10365",
+        "id": "#cb-10365",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.blocked",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Flight of Ideas",
+      "disabled": false,
+      "fillIndex": 105,
+      "id": "cb-10366",
+      "index": 105,
+      "label": "Flight of Ideas",
+      "name": "",
+      "options": [
+        "Flight of Ideas"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10366",
+        "id": "#cb-10366",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.flight_of_ideas",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Poverty of content",
+      "disabled": false,
+      "fillIndex": 106,
+      "id": "cb-10367",
+      "index": 106,
+      "label": "Poverty of content",
+      "name": "",
+      "options": [
+        "Poverty of content"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10367",
+        "id": "#cb-10367",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.poverty_of_content",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Slowed Thinking",
+      "disabled": false,
+      "fillIndex": 107,
+      "id": "cb-10368",
+      "index": 107,
+      "label": "Slowed Thinking",
+      "name": "",
+      "options": [
+        "Slowed Thinking"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10368",
+        "id": "#cb-10368",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.slowed_thinking",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 108,
+      "id": "cb-10369",
+      "index": 108,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10369",
+        "id": "#cb-10369",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 109,
+      "id": "",
+      "index": 109,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Within normal limits",
+      "disabled": false,
+      "fillIndex": 110,
+      "id": "cb-10371",
+      "index": 110,
+      "label": "Within normal limits",
+      "name": "",
+      "options": [
+        "Within normal limits"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10371",
+        "id": "#cb-10371",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.within_normal_limits",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Illusions",
+      "disabled": false,
+      "fillIndex": 111,
+      "id": "cb-10372",
+      "index": 111,
+      "label": "Illusions",
+      "name": "",
+      "options": [
+        "Illusions"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10372",
+        "id": "#cb-10372",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.illusions",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Depersonalizations",
+      "disabled": false,
+      "fillIndex": 112,
+      "id": "cb-10373",
+      "index": 112,
+      "label": "Depersonalizations",
+      "name": "",
+      "options": [
+        "Depersonalizations"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10373",
+        "id": "#cb-10373",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.depersonalizations",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Derealization",
+      "disabled": false,
+      "fillIndex": 113,
+      "id": "cb-10374",
+      "index": 113,
+      "label": "Derealization",
+      "name": "",
+      "options": [
+        "Derealization"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10374",
+        "id": "#cb-10374",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.derealization",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Reexperiencing",
+      "disabled": false,
+      "fillIndex": 114,
+      "id": "cb-10375",
+      "index": 114,
+      "label": "Reexperiencing",
+      "name": "",
+      "options": [
+        "Reexperiencing"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10375",
+        "id": "#cb-10375",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.reexperiencing",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 115,
+      "id": "cb-10376",
+      "index": 115,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10376",
+        "id": "#cb-10376",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Reexperiencing Other:",
+      "disabled": false,
+      "fillIndex": 116,
+      "id": "",
+      "index": 116,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.reexperiencing_other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Denied",
+      "disabled": false,
+      "fillIndex": 117,
+      "id": "cb-10378",
+      "index": 117,
+      "label": "Denied",
+      "name": "",
+      "options": [
+        "Denied"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10378",
+        "id": "#cb-10378",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.denied",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "None evidenced",
+      "disabled": false,
+      "fillIndex": 118,
+      "id": "cb-10379",
+      "index": 118,
+      "label": "None evidenced",
+      "name": "",
+      "options": [
+        "None evidenced"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10379",
+        "id": "#cb-10379",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.none_evidenced",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Auditory",
+      "disabled": false,
+      "fillIndex": 119,
+      "id": "cb-10380",
+      "index": 119,
+      "label": "Auditory",
+      "name": "",
+      "options": [
+        "Auditory"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10380",
+        "id": "#cb-10380",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.auditory",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Command",
+      "disabled": false,
+      "fillIndex": 120,
+      "id": "cb-10381",
+      "index": 120,
+      "label": "Command",
+      "name": "",
+      "options": [
+        "Command"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10381",
+        "id": "#cb-10381",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.command",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Visual",
+      "disabled": false,
+      "fillIndex": 121,
+      "id": "cb-10382",
+      "index": 121,
+      "label": "Visual",
+      "name": "",
+      "options": [
+        "Visual"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10382",
+        "id": "#cb-10382",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.visual",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Olfactory",
+      "disabled": false,
+      "fillIndex": 122,
+      "id": "cb-10383",
+      "index": 122,
+      "label": "Olfactory",
+      "name": "",
+      "options": [
+        "Olfactory"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10383",
+        "id": "#cb-10383",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.olfactory",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Tactile",
+      "disabled": false,
+      "fillIndex": 123,
+      "id": "cb-10384",
+      "index": 123,
+      "label": "Tactile",
+      "name": "",
+      "options": [
+        "Tactile"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10384",
+        "id": "#cb-10384",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.tactile",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Gustatory",
+      "disabled": false,
+      "fillIndex": 124,
+      "id": "cb-10385",
+      "index": 124,
+      "label": "Gustatory",
+      "name": "",
+      "options": [
+        "Gustatory"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10385",
+        "id": "#cb-10385",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.gustatory",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 125,
+      "id": "cb-10386",
+      "index": 125,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10386",
+        "id": "#cb-10386",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 126,
+      "id": "",
+      "index": 126,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Within normal limits",
+      "disabled": false,
+      "fillIndex": 127,
+      "id": "cb-10388",
+      "index": 127,
+      "label": "Within normal limits",
+      "name": "",
+      "options": [
+        "Within normal limits"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10388",
+        "id": "#cb-10388",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.within_normal_limits",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Preoccupations/",
+      "disabled": false,
+      "fillIndex": 128,
+      "id": "cb-10389",
+      "index": 128,
+      "label": "Preoccupations/",
+      "name": "",
+      "options": [
+        "Preoccupations/"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10389",
+        "id": "#cb-10389",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.preoccupations",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Obessional",
+      "disabled": false,
+      "fillIndex": 129,
+      "id": "cb-10390",
+      "index": 129,
+      "label": "Obessional",
+      "name": "",
+      "options": [
+        "Obessional"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10390",
+        "id": "#cb-10390",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.obessional",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Depressive",
+      "disabled": false,
+      "fillIndex": 130,
+      "id": "cb-10391",
+      "index": 130,
+      "label": "Depressive",
+      "name": "",
+      "options": [
+        "Depressive"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10391",
+        "id": "#cb-10391",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.depressive",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Paranoid",
+      "disabled": false,
+      "fillIndex": 131,
+      "id": "cb-10392",
+      "index": 131,
+      "label": "Paranoid",
+      "name": "",
+      "options": [
+        "Paranoid"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10392",
+        "id": "#cb-10392",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.paranoid",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Self-depratory",
+      "disabled": false,
+      "fillIndex": 132,
+      "id": "cb-10393",
+      "index": 132,
+      "label": "Self-depratory",
+      "name": "",
+      "options": [
+        "Self-depratory"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10393",
+        "id": "#cb-10393",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.self_depratory",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Grandiose",
+      "disabled": false,
+      "fillIndex": 133,
+      "id": "cb-10394",
+      "index": 133,
+      "label": "Grandiose",
+      "name": "",
+      "options": [
+        "Grandiose"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10394",
+        "id": "#cb-10394",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.grandiose",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Phobic",
+      "disabled": false,
+      "fillIndex": 134,
+      "id": "cb-10395",
+      "index": 134,
+      "label": "Phobic",
+      "name": "",
+      "options": [
+        "Phobic"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10395",
+        "id": "#cb-10395",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.phobic",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 135,
+      "id": "cb-10396",
+      "index": 135,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10396",
+        "id": "#cb-10396",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Phobic Other:",
+      "disabled": false,
+      "fillIndex": 136,
+      "id": "",
+      "index": 136,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.phobic_other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "None reported",
+      "disabled": false,
+      "fillIndex": 137,
+      "id": "cb-10398",
+      "index": 137,
+      "label": "None reported",
+      "name": "",
+      "options": [
+        "None reported"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10398",
+        "id": "#cb-10398",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.none_reported",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Control",
+      "disabled": false,
+      "fillIndex": 138,
+      "id": "cb-10399",
+      "index": 138,
+      "label": "Control",
+      "name": "",
+      "options": [
+        "Control"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10399",
+        "id": "#cb-10399",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.control",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Thought withdrawl",
+      "disabled": false,
+      "fillIndex": 139,
+      "id": "cb-10400",
+      "index": 139,
+      "label": "Thought withdrawl",
+      "name": "",
+      "options": [
+        "Thought withdrawl"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10400",
+        "id": "#cb-10400",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.thought_withdrawl",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Thought insertion",
+      "disabled": false,
+      "fillIndex": 140,
+      "id": "cb-10401",
+      "index": 140,
+      "label": "Thought insertion",
+      "name": "",
+      "options": [
+        "Thought insertion"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10401",
+        "id": "#cb-10401",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.thought_insertion",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Thought",
+      "disabled": false,
+      "fillIndex": 141,
+      "id": "cb-10402",
+      "index": 141,
+      "label": "Thought",
+      "name": "",
+      "options": [
+        "Thought"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10402",
+        "id": "#cb-10402",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.thought",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Persecution",
+      "disabled": false,
+      "fillIndex": 142,
+      "id": "cb-10403",
+      "index": 142,
+      "label": "Persecution",
+      "name": "",
+      "options": [
+        "Persecution"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10403",
+        "id": "#cb-10403",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.persecution",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Reference",
+      "disabled": false,
+      "fillIndex": 143,
+      "id": "cb-10404",
+      "index": 143,
+      "label": "Reference",
+      "name": "",
+      "options": [
+        "Reference"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10404",
+        "id": "#cb-10404",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.reference",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Grandeur",
+      "disabled": false,
+      "fillIndex": 144,
+      "id": "cb-10405",
+      "index": 144,
+      "label": "Grandeur",
+      "name": "",
+      "options": [
+        "Grandeur"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10405",
+        "id": "#cb-10405",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.grandeur",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Somatic",
+      "disabled": false,
+      "fillIndex": 145,
+      "id": "cb-10406",
+      "index": 145,
+      "label": "Somatic",
+      "name": "",
+      "options": [
+        "Somatic"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10406",
+        "id": "#cb-10406",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.somatic",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Erotic",
+      "disabled": false,
+      "fillIndex": 146,
+      "id": "cb-10407",
+      "index": 146,
+      "label": "Erotic",
+      "name": "",
+      "options": [
+        "Erotic"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10407",
+        "id": "#cb-10407",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.erotic",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Religious",
+      "disabled": false,
+      "fillIndex": 147,
+      "id": "cb-10408",
+      "index": 147,
+      "label": "Religious",
+      "name": "",
+      "options": [
+        "Religious"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10408",
+        "id": "#cb-10408",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.religious",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 148,
+      "id": "cb-10409",
+      "index": 148,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10409",
+        "id": "#cb-10409",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 149,
+      "id": "",
+      "index": 149,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Within normal limits",
+      "disabled": false,
+      "fillIndex": 150,
+      "id": "cb-10411",
+      "index": 150,
+      "label": "Within normal limits",
+      "name": "",
+      "options": [
+        "Within normal limits"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10411",
+        "id": "#cb-10411",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.within_normal_limits",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Impairment of:",
+      "disabled": false,
+      "fillIndex": 151,
+      "id": "cb-10412",
+      "index": 151,
+      "label": "Impairment of:",
+      "name": "",
+      "options": [
+        "Impairment of:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10412",
+        "id": "#cb-10412",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.impairment_of",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Attention/",
+      "disabled": false,
+      "fillIndex": 152,
+      "id": "cb-10413",
+      "index": 152,
+      "label": "Attention/",
+      "name": "",
+      "options": [
+        "Attention/"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10413",
+        "id": "#cb-10413",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.attention",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Ability to abstract",
+      "disabled": false,
+      "fillIndex": 153,
+      "id": "cb-10414",
+      "index": 153,
+      "label": "Ability to abstract",
+      "name": "",
+      "options": [
+        "Ability to abstract"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10414",
+        "id": "#cb-10414",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.ability_to_abstract",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Fund of knowledge",
+      "disabled": false,
+      "fillIndex": 154,
+      "id": "cb-10415",
+      "index": 154,
+      "label": "Fund of knowledge",
+      "name": "",
+      "options": [
+        "Fund of knowledge"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10415",
+        "id": "#cb-10415",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.fund_of_knowledge",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Visospatial ability",
+      "disabled": false,
+      "fillIndex": 155,
+      "id": "cb-10416",
+      "index": 155,
+      "label": "Visospatial ability",
+      "name": "",
+      "options": [
+        "Visospatial ability"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10416",
+        "id": "#cb-10416",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.visospatial_ability",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Reading & writing",
+      "disabled": false,
+      "fillIndex": 156,
+      "id": "cb-10417",
+      "index": 156,
+      "label": "Reading & writing",
+      "name": "",
+      "options": [
+        "Reading & writing"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10417",
+        "id": "#cb-10417",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.reading_writing",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Calculation ability",
+      "disabled": false,
+      "fillIndex": 157,
+      "id": "cb-10418",
+      "index": 157,
+      "label": "Calculation ability",
+      "name": "",
+      "options": [
+        "Calculation ability"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10418",
+        "id": "#cb-10418",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.calculation_ability",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Orientation:",
+      "disabled": false,
+      "fillIndex": 158,
+      "id": "cb-10419",
+      "index": 158,
+      "label": "Orientation:",
+      "name": "",
+      "options": [
+        "Orientation:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10419",
+        "id": "#cb-10419",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.orientation",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Person",
+      "disabled": false,
+      "fillIndex": 159,
+      "id": "cb-10420",
+      "index": 159,
+      "label": "Person",
+      "name": "",
+      "options": [
+        "Person"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10420",
+        "id": "#cb-10420",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.person",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Place",
+      "disabled": false,
+      "fillIndex": 160,
+      "id": "cb-10421",
+      "index": 160,
+      "label": "Place",
+      "name": "",
+      "options": [
+        "Place"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10421",
+        "id": "#cb-10421",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.place",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Time",
+      "disabled": false,
+      "fillIndex": 161,
+      "id": "cb-10422",
+      "index": 161,
+      "label": "Time",
+      "name": "",
+      "options": [
+        "Time"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10422",
+        "id": "#cb-10422",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.time",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Situation",
+      "disabled": false,
+      "fillIndex": 162,
+      "id": "cb-10423",
+      "index": 162,
+      "label": "Situation",
+      "name": "",
+      "options": [
+        "Situation"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10423",
+        "id": "#cb-10423",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.situation",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Memory:",
+      "disabled": false,
+      "fillIndex": 163,
+      "id": "cb-10424",
+      "index": 163,
+      "label": "Memory:",
+      "name": "",
+      "options": [
+        "Memory:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10424",
+        "id": "#cb-10424",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.memory",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Short term",
+      "disabled": false,
+      "fillIndex": 164,
+      "id": "cb-10425",
+      "index": 164,
+      "label": "Short term",
+      "name": "",
+      "options": [
+        "Short term"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10425",
+        "id": "#cb-10425",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.short_term",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Long term",
+      "disabled": false,
+      "fillIndex": 165,
+      "id": "cb-10426",
+      "index": 165,
+      "label": "Long term",
+      "name": "",
+      "options": [
+        "Long term"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10426",
+        "id": "#cb-10426",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.long_term",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Erratic/ inconsistent",
+      "disabled": false,
+      "fillIndex": 166,
+      "id": "cb-10427",
+      "index": 166,
+      "label": "Erratic/ inconsistent",
+      "name": "",
+      "options": [
+        "Erratic/ inconsistent"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10427",
+        "id": "#cb-10427",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.erratic_inconsistent",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other",
+      "disabled": false,
+      "fillIndex": 167,
+      "id": "cb-10428",
+      "index": 167,
+      "label": "Other",
+      "name": "",
+      "options": [
+        "Other"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10428",
+        "id": "#cb-10428",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other",
+      "disabled": false,
+      "fillIndex": 168,
+      "id": "",
+      "index": 168,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Average",
+      "disabled": false,
+      "fillIndex": 169,
+      "id": "cb-10430",
+      "index": 169,
+      "label": "Average",
+      "name": "",
+      "options": [
+        "Average"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10430",
+        "id": "#cb-10430",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.average",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Above average",
+      "disabled": false,
+      "fillIndex": 170,
+      "id": "cb-10431",
+      "index": 170,
+      "label": "Above average",
+      "name": "",
+      "options": [
+        "Above average"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10431",
+        "id": "#cb-10431",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.above_average",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Borderline",
+      "disabled": false,
+      "fillIndex": 171,
+      "id": "cb-10432",
+      "index": 171,
+      "label": "Borderline",
+      "name": "",
+      "options": [
+        "Borderline"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10432",
+        "id": "#cb-10432",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.borderline",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Mental retardation",
+      "disabled": false,
+      "fillIndex": 172,
+      "id": "cb-10433",
+      "index": 172,
+      "label": "Mental retardation",
+      "name": "",
+      "options": [
+        "Mental retardation"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10433",
+        "id": "#cb-10433",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.mental_retardation",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 173,
+      "id": "cb-10434",
+      "index": 173,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10434",
+        "id": "#cb-10434",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 174,
+      "id": "",
+      "index": 174,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Within normal limits",
+      "disabled": false,
+      "fillIndex": 175,
+      "id": "cb-10436",
+      "index": 175,
+      "label": "Within normal limits",
+      "name": "",
+      "options": [
+        "Within normal limits"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10436",
+        "id": "#cb-10436",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.within_normal_limits",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "minimal insight",
+      "disabled": false,
+      "fillIndex": 176,
+      "id": "cb-10437",
+      "index": 176,
+      "label": "minimal insight",
+      "name": "",
+      "options": [
+        "minimal insight"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10437",
+        "id": "#cb-10437",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.minimal_insight",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Partial insight",
+      "disabled": false,
+      "fillIndex": 177,
+      "id": "cb-10438",
+      "index": 177,
+      "label": "Partial insight",
+      "name": "",
+      "options": [
+        "Partial insight"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10438",
+        "id": "#cb-10438",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.partial_insight",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Mostly balames",
+      "disabled": false,
+      "fillIndex": 178,
+      "id": "cb-10439",
+      "index": 178,
+      "label": "Mostly balames",
+      "name": "",
+      "options": [
+        "Mostly balames"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10439",
+        "id": "#cb-10439",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.mostly_balames",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Difficulty acknowledging presence of",
+      "disabled": false,
+      "fillIndex": 179,
+      "id": "cb-10440",
+      "index": 179,
+      "label": "Difficulty acknowledging presence of",
+      "name": "",
+      "options": [
+        "Difficulty acknowledging presence of"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10440",
+        "id": "#cb-10440",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.difficulty_acknowledging_presence_of",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Difficulty acknowledging presence of",
+      "disabled": false,
+      "fillIndex": 180,
+      "id": "cb-10441",
+      "index": 180,
+      "label": "Difficulty acknowledging presence of",
+      "name": "",
+      "options": [
+        "Difficulty acknowledging presence of"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10441",
+        "id": "#cb-10441",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.difficulty_acknowledging_presence_of",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 181,
+      "id": "cb-10442",
+      "index": 181,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10442",
+        "id": "#cb-10442",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 182,
+      "id": "",
+      "index": 182,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "Within normal limits",
+      "disabled": false,
+      "fillIndex": 183,
+      "id": "cb-10444",
+      "index": 183,
+      "label": "Within normal limits",
+      "name": "",
+      "options": [
+        "Within normal limits"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10444",
+        "id": "#cb-10444",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.within_normal_limits",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Impaired ability to make reasonable decisions",
+      "disabled": false,
+      "fillIndex": 184,
+      "id": "cb-10445",
+      "index": 184,
+      "label": "Impaired ability to make reasonable decisions",
+      "name": "",
+      "options": [
+        "Impaired ability to make reasonable decisions"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10445",
+        "id": "#cb-10445",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.impaired_ability_to_make_reasonable_decisions",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Mild",
+      "disabled": false,
+      "fillIndex": 185,
+      "id": "cb-10446",
+      "index": 185,
+      "label": "Mild",
+      "name": "",
+      "options": [
+        "Mild"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10446",
+        "id": "#cb-10446",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.mild",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Moderate",
+      "disabled": false,
+      "fillIndex": 186,
+      "id": "cb-10447",
+      "index": 186,
+      "label": "Moderate",
+      "name": "",
+      "options": [
+        "Moderate"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10447",
+        "id": "#cb-10447",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.moderate",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Severe",
+      "disabled": false,
+      "fillIndex": 187,
+      "id": "cb-10448",
+      "index": 187,
+      "label": "Severe",
+      "name": "",
+      "options": [
+        "Severe"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10448",
+        "id": "#cb-10448",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.severe",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 188,
+      "id": "cb-10449",
+      "index": 188,
+      "label": "Other:",
+      "name": "",
+      "options": [
+        "Other:"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "10449",
+        "id": "#cb-10449",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "input",
+      "type": "checkbox",
+      "valuePreview": false
+    },
+    {
+      "contextText": "Other:",
+      "disabled": false,
+      "fillIndex": 189,
+      "id": "",
+      "index": 189,
+      "label": "",
+      "name": "",
+      "options": [],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "",
+        "name": ""
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.other",
+      "tag": "textarea",
+      "type": "textarea",
+      "valuePreview": ""
+    },
+    {
+      "contextText": "All Session Note Treatment Plan",
+      "disabled": false,
+      "fillIndex": 190,
+      "id": "pnpRadioCatAll",
+      "index": 190,
+      "label": "All",
+      "name": "categoryIDs",
+      "options": [
+        "All",
+        "Session Note",
+        "Treatment Plan"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "#pnpRadioCatAll",
+        "name": "[name=\"categoryIDs\"]"
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.all",
+      "tag": "input",
+      "type": "radio",
+      "valuePreview": true
+    },
+    {
+      "contextText": "All Session Note Treatment Plan",
+      "disabled": false,
+      "fillIndex": 191,
+      "id": "pnpRadioCat0",
+      "index": 191,
+      "label": "Session Note",
+      "name": "categoryIDs",
+      "options": [
+        "All",
+        "Session Note",
+        "Treatment Plan"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "#pnpRadioCat0",
+        "name": "[name=\"categoryIDs\"]"
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.session_note",
+      "tag": "input",
+      "type": "radio",
+      "valuePreview": false
+    },
+    {
+      "contextText": "All Session Note Treatment Plan",
+      "disabled": false,
+      "fillIndex": 192,
+      "id": "pnpRadioCat1",
+      "index": 192,
+      "label": "Treatment Plan",
+      "name": "categoryIDs",
+      "options": [
+        "All",
+        "Session Note",
+        "Treatment Plan"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "#pnpRadioCat1",
+        "name": "[name=\"categoryIDs\"]"
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.treatment_plan",
+      "tag": "input",
+      "type": "radio",
+      "valuePreview": false
+    },
+    {
+      "contextText": "General Note",
+      "disabled": false,
+      "fillIndex": 193,
+      "id": "pnpRadioOtherGeneralNote",
+      "index": 193,
+      "label": "General Note",
+      "name": "radioOther",
+      "options": [
+        "General Note"
+      ],
+      "placeholder": "",
+      "readOnly": false,
+      "required": false,
+      "section": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026",
+      "selectorHints": {
+        "dataQnFieldId": "",
+        "id": "#pnpRadioOtherGeneralNote",
+        "name": "[name=\"radioOther\"]"
+      },
+      "suggestedPath": "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.general_note",
+      "tag": "input",
+      "type": "radio",
+      "valuePreview": false
+    }
+  ],
+  "event": "discover",
+  "pathPrefix": "",
+  "radioCount": 4,
+  "sections": [
+    {
+      "controlCount": 1,
+      "name": "Unsectioned"
+    },
+    {
+      "controlCount": 193,
+      "name": "QuickNotes: Session Notes for \"Rosalee Harris\" for the week of 5/24/2026"
+    }
+  ],
+  "textLikeCount": 23,
+  "timestamp": "2026-05-27T13:29:41.864Z",
+  "title": "Group Notes",
+  "totalControls": 194,
+  "url": "https://denrecovery.reliatrax.net/Notes.aspx/QuickGroupNotes/12?date=5%2F26%2F2026&mode=User#notes/2-58206"
+}
+

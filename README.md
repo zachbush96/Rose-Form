@@ -7,12 +7,29 @@ Functional MV3 Chrome extension prototype for Rose's ReliaTrax BPS workflow and 
 ```text
 extension/                       Load this as an unpacked Chrome extension
 github-data/                     Upload this folder's JSON/text files to GitHub
+github-data/rose-reliatrax-workflows-config.json
+                                 Mode descriptions, source prompts, and per-mode remote URLs
+github-data/rose-quicknotes-config.json
+                                 QuickNotes prompt and 272-control fill map
+github-data/rose-quicknotes-discovery-2026-05-25.json
+                                 Rose's latest Group Notes discovery JSON from Gmail
 mockups/test-reliatrax-bps.html  Local 264-field test form
+fixtures/bps/                    Captured BPS ReliaTrax page used by automated tests
+fixtures/mse-part-2/             MSE Part 2 form snapshots, exported JSON, and question body HTML
+fixtures/quicknotes/             QuickNotes discovery reports, including TXT files with report content
+fixtures/responses/              Sample structured JSON responses used by validators
+reference/rose-source-prompts/   Rose-provided source prompt emails and automation instructions
+reference/clinical-examples/     Golden examples and captured clinical response/debug payloads
+notes/YYYY-MM-DD/                Dated project notes and implementation reminders
 docs/field-map.md                Human-readable field map summary
 docs/default-answers.md          Default answer setup notes
 docs/troubleshooting.md          Trace log and debugging notes
+docs/rose-latest-email-alignment-2026-05-26.md
+                                 Rose's newest Gmail prompt sources and project alignment notes
 scripts/                         Original bookmarklet artifact
 ```
+
+Loose evidence files are grouped by what they contain, not by extension. For example, `fixtures/quicknotes/P2_JSON.txt` is a discovery report even though it is a TXT file, and `reference/clinical-examples/Medications&MH.txt` contains JSON-like trace payloads used for debugging medication and mental-health fill behavior.
 
 ## Install
 
@@ -24,9 +41,9 @@ scripts/                         Original bookmarklet artifact
 
 ## GitHub config
 
-Upload `github-data/rose-reliatrax-bps-config.json` to a GitHub repo. Use the Raw URL in the extension under Remote config.
+Upload the JSON files in `github-data/` to the GitHub repo used by the raw URLs. Use the BPS Raw URL in the extension under Remote config.
 
-The extension fetches config, prompts, default answers, and field mapping as data. It does not execute remote JavaScript.
+The extension fetches config, prompts, default answers, workflow mode metadata, and field mapping as data. `Load remote config` refreshes the BPS config URL, the workflow config for Part 2 / Part 3 / Part 4 / Treatment Plan prompts and mapping status, and the QuickNotes mapping config. It does not execute remote JavaScript.
 
 ## Rose rules and default answers
 
@@ -54,7 +71,7 @@ For checkbox fields, set the mapped checkbox leaf path to `true` or `false`, for
 
 1. Open `mockups/test-reliatrax-bps.html` in Chrome.
 2. Open the extension side panel.
-3. Paste JSON into the four response boxes or use `github-data/sample-empty-combined-response.json` as a reference.
+3. Paste JSON into the four response boxes or use `github-data/sample-empty-combined-response.json` or `fixtures/responses/example_JSON.json` as a reference.
 4. Review or edit Rose default answers.
 5. Click Validate and merge.
 6. Click Scan active page and confirm it finds 264 fields.
@@ -70,16 +87,36 @@ node scripts/validate-saved-form.mjs
 
 ### Discovery and Mapping
 
-The side panel now has six modes:
+The side panel now has seven modes:
 
 - BPS Part 1
 - MSE Part 2
 - Case Management and ASAM Part 3
 - Diagnostics Part 4
 - Treatment Plan
+- QuickNotes / Group Notes
 - Discovery and Mapping
 
-Only BPS Part 1 and Discovery and Mapping are active fill workflows today. The other modes are placeholders for the next mapped sections.
+Active fill workflows today are BPS Part 1, MSE Part 2, and QuickNotes / Group Notes. Discovery and Mapping is active for scan/export work. MSE Part 2 has its own screenshot-aligned JSON prompt, response validation, scan, and mapped fill behavior for the visible MSE rows from Appearance through Judgment. Case Management and ASAM Part 3, Diagnostics Part 4, and Treatment Plan carry Rose's latest emailed source prompts as copyable references until their field maps are built.
+
+Rose's latest Gmail prompt-source alignment is summarized in `docs/rose-latest-email-alignment-2026-05-26.md`. The pending-mode source prompts, mapping status, and future `fieldMap` arrays live in `github-data/rose-reliatrax-workflows-config.json`; `extension/workflow-config.js` is the bundled fallback copy for offline extension use. The side panel reads those config objects and exposes source prompts with copy buttons. MSE Part 2 uses `Copy prompt` and a saved JSON response box so Rose can run the prompt and verify every visible MSE row from Appearance through Judgment beside the eventual fill controls.
+
+QuickNotes / Group Notes is now active for Rose's 2026-05-25 emailed discovery map. It uses `github-data/rose-quicknotes-config.json` as the GitHub-hosted config source, with `extension/quicknotes-config.js` as the bundled fallback, and expects 272 visible controls on the ReliaTrax Group Notes page.
+
+Use the QuickNotes mode by pasting one JSON object into the QuickNotes response box. The JSON can use either the friendly suggested paths from the field map or stable index paths such as:
+
+```json
+{
+  "quicknotes": {
+    "controls": {
+      "3": "Self-referral",
+      "267": true
+    }
+  }
+}
+```
+
+For checkboxes and radio buttons, use `true` for the option to select.
 
 Use Discovery and Mapping on an unknown ReliaTrax page before building a new section map:
 

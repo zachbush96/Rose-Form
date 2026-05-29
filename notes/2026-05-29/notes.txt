@@ -3,14 +3,14 @@ For example "How many days in the last 30 did you use", we should use the "What 
 
 
 Rose to send a "Golden Example" of how text within text box's should read. For example, "Bobby describes..." or "Bobby stated..."
-Examples of this are in the file "Golden Text Examples.txt" Look at the Subjective Lauguage rules within the "Original_Prompt.txt" file for more details on how to write these narrative fields. We should use the same language in the "Golden Text Examples.txt" file for the narrative fields in the "Original_Prompt.txt" file. For example, for the field
+Examples of this are in the file "reference/clinical-examples/Golden Text Examples.txt" Look at the Subjective Lauguage rules within the "reference/rose-source-prompts/Original_Prompt.txt" file for more details on how to write these narrative fields. We should use the same language in the "reference/clinical-examples/Golden Text Examples.txt" file for the narrative fields in the "reference/rose-source-prompts/Original_Prompt.txt" file. For example, for the field
 
 
 "Recent Patern of Use and how long ahas it been occurrring" , use the prompt template from the "Original_Pormpt.txt" file. 
 
 When it comes to "Age of First use" we should look for explict ages, but if none were given 
 
-Read the "Original_Pormpt.txt" , and update our prompt-1 - prompt-4 , highling how to infer data when a client does not give an explicit answer. Update all 4 of our current prompts to allign with the "Original_Prompt.txt" instructions. 
+Read the "Original_Pormpt.txt" , and update our prompt-1 - prompt-4 , highling how to infer data when a client does not give an explicit answer. Update all 4 of our current prompts to allign with the "reference/rose-source-prompts/Original_Prompt.txt" instructions. 
 
 
 Rephrase the "Last 30 days of use" to include "Estimated X days in the last 30" based on the date of last use and the date of assessment.
@@ -21,7 +21,7 @@ Rephrase the "Last 30 days of use" to include "Estimated X days in the last 30" 
 [.] If they specifiy a longest period of sobriety, we should include that in the "How long were you sober" field. For example, "Bobby reports his longest period of sobriety was approximately 6 months." If they do not specify a longest period of sobriety, report their current period of sobriety.
 
 
-[.] There's a section asking about having children, if they dont have children, we should report "Bobby reports he does not have children.", Use the information outlined within the "Original_Prompt.txt" to write if they do have children.
+[.] There's a section asking about having children, if they dont have children, we should report "Bobby reports he does not have children.", Use the information outlined within the "reference/rose-source-prompts/Original_Prompt.txt" to write if they do have children.
 
 [.] For the "How long did symptoms last" field, make sure were writing in a way that reflects the clients perspective. For example, "Bobby reports his symptoms lasted for approximately one week." If they do not specify how long their symptoms lasted, we can write "Bobby reports he is unsure how long his symptoms lasted." or "Bobby did not provide information on how long his symptoms lasted." depending on the context of the information provided.
 

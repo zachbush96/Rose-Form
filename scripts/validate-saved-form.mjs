@@ -7,8 +7,8 @@ import { chromium } from 'playwright';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const configPath = path.join(repoRoot, 'extension', 'default-config.js');
 const sidepanelPath = path.join(repoRoot, 'extension', 'sidepanel.js');
-const savedFormPath = path.join(repoRoot, 'saved form.html');
-const exampleJsonPath = path.join(repoRoot, 'example_JSON.json');
+const savedFormPath = path.join(repoRoot, 'fixtures', 'bps', 'saved form.html');
+const exampleJsonPath = path.join(repoRoot, 'fixtures', 'responses', 'example_JSON.json');
 
 const context = { window: {} };
 vm.runInNewContext(fs.readFileSync(configPath, 'utf8'), context);

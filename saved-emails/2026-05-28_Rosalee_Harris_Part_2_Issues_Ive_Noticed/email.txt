@@ -1,0 +1,36 @@
+From: Rosalee Harris <rosaleeharriscounseling@gmail.com>
+To: "Zachbush96@gmail.com" <Zachbush96@gmail.com>
+Subject: Part 2 Issues I've Noticed
+Date: 2026-05-28 18:59:24 -0500
+Gmail message ID: 19e71077e55cb78b
+Gmail URL: https://mail.google.com/mail/#all/19e71077e55cb78b
+
+Attachments:
+- Larry Perception.png
+- Insight and Judgement - Other box not schecked.png
+
+Body:
+
+Hi Zach,
+
+I noticed two issues on the Mental Health Status form and attached screenshots for reference:
+
+-
+For Larry, under Thought Process, the form selected Logical, but it also selected Other and included narrative text stating that Larry demonstrates circumstantial and paranoid thinking. If the narrative indicates circumstantial/paranoid thinking, Logical should not be selected.
+
+-
+For John, under Insight and Judgment, the form selected Within normal limits, but there was also text entered in the Other field. If anything is written in the Other field for Insight or Judgment, the form should select Other, not Within normal limits.
+
+Thanks!
+
+Rosalee
+
+--
+
+Rosalee Harris, MS, LPC
+
+Psychotherapist | Owner, Rocky Mountain Clinical Counseling
+
+[RMCC Website](https://www.rockymountainclinicalcounseling.com/) | [Schedule a Session](https://rockymountainclinicalcounseling.as.me/schedule/a8c955ae) | [Schedule via Headway](https://care.headway.co/providers/rosalee-harris?utm_source=pem&utm_medium=direct_link&utm_campaign=166845)
+
+Phone: 720-515-8278

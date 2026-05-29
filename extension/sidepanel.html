@@ -22,6 +22,7 @@
       <button class="mode-btn" data-mode="asam">Case Management and ASAM Part 3</button>
       <button class="mode-btn" data-mode="diagnostics">Diagnostics Part 4</button>
       <button class="mode-btn" data-mode="treatment">Treatment Plan</button>
+      <button class="mode-btn" data-mode="quicknotes">QuickNotes / Group Notes</button>
       <button class="mode-btn" data-mode="discovery">Discovery and Mapping</button>
     </div>
     <p class="small" id="modeDescription">Current production workflow for BPS Part 1.</p>
@@ -31,6 +32,38 @@
     <h2>Prompts</h2>
     <div class="row wrap" id="promptButtons"></div>
   </section>
+
+  <section class="card mode-panel mode-mse hidden">
+    <h2>MSE Part 2 prompt</h2>
+    <p class="small" id="msePromptMeta"></p>
+    <div class="row wrap">
+      <button id="copyMsePrompt">Copy prompt</button>
+      <button id="copyMsePromptNotes">Copy prompt with notes</button>
+    </div>
+    <pre id="msePromptPreview"></pre>
+  </section>
+
+  <details class="card collapsible mode-panel mode-mse hidden">
+    <summary>
+      <span class="summary-title-row">
+        <span>MSE default answers</span>
+        <span class="pill" id="mseDefaultCount">0 defaults</span>
+      </span>
+      <span class="small">pulled from the workflow config</span>
+    </summary>
+    <p class="small">These defaults come from the loaded GitHub workflow config and are passed into MSE fill. Transcript-supported findings override defaults.</p>
+    <div class="table-wrap">
+      <table class="defaults-table">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Answer</th>
+          </tr>
+        </thead>
+        <tbody id="mseDefaultsBody"></tbody>
+      </table>
+    </div>
+  </details>
 
   <details class="card collapsible mode-panel mode-bps">
     <summary>
@@ -76,6 +109,18 @@
     <pre id="validation"></pre>
   </section>
 
+  <section class="card mode-panel mode-mse hidden">
+    <h2>MSE Part 2 response</h2>
+    <p class="small">Paste the BastionGPT MSE JSON response here. This autosaves locally and validates every screenshot row.</p>
+    <textarea id="mseResp" placeholder="MSE Part 2 JSON response"></textarea>
+    <div class="row wrap">
+      <button id="validateMseResponse">Validate response</button>
+      <button id="copyMseResponse">Copy response</button>
+      <button id="clearMseResponse" class="danger">Clear saved response</button>
+    </div>
+    <pre id="mseValidation"></pre>
+  </section>
+
   <section class="card mode-panel mode-bps">
     <h2>Fill ReliaTrax</h2>
     <div class="row wrap">
@@ -85,6 +130,17 @@
     <label class="check"><input type="checkbox" id="dryRun"> Dry run, do not write</label>
     <p class="small">Default behavior: BastionGPT values win. Rose rules and default answers fill mapped questions that are blank or missing.</p>
     <pre id="fillResults"></pre>
+  </section>
+
+  <section class="card mode-panel mode-mse hidden">
+    <h2>Fill ReliaTrax</h2>
+    <div class="row wrap">
+      <button id="scanMsePage">Scan active page</button>
+      <button id="fillMsePage" class="primary">Fill active page</button>
+    </div>
+    <label class="check"><input type="checkbox" id="mseDryRun"> Dry run, do not write</label>
+    <p class="small">MSE Part 2 fills the mapped controls from Appearance through Judgment using the pasted JSON response plus default answers.</p>
+    <pre id="mseFillResults"></pre>
   </section>
 
   <section class="card mode-panel mode-discovery hidden">
@@ -106,9 +162,31 @@
     <pre id="discoveryResults">No discovery scan yet.</pre>
   </section>
 
-  <section class="card mode-panel mode-mse mode-asam mode-diagnostics mode-treatment hidden">
+  <section class="card mode-panel mode-quicknotes hidden">
+    <h2>QuickNotes / Group Notes</h2>
+    <p class="small">Uses Rose's 2026-05-25 Group Notes discovery map. Paste one JSON response using either suggested paths or stable <code>quicknotes.controls.0</code> style paths.</p>
+    <div class="row wrap">
+      <button id="copyQuickNotesPrompt">Copy QuickNotes prompt</button>
+      <button id="copyQuickNotesFieldMap">Copy field map</button>
+    </div>
+    <textarea id="quicknotesResp" placeholder="QuickNotes JSON"></textarea>
+    <div class="row wrap">
+      <button id="validateQuickNotes">Validate QuickNotes JSON</button>
+      <button id="scanQuickNotesPage">Scan active page</button>
+      <button id="fillQuickNotesPage" class="primary">Fill active page</button>
+    </div>
+    <label class="check"><input type="checkbox" id="quicknotesDryRun"> Dry run, do not write</label>
+    <pre id="quicknotesResults"></pre>
+  </section>
+
+  <section class="card mode-panel mode-asam mode-diagnostics mode-treatment hidden">
     <h2 id="plannedModeTitle">Mode setup</h2>
     <p class="small" id="plannedModeBody">This mode is reserved for the next mapped section. Use Discovery and Mapping first to capture the form controls and labels needed to build a reliable field map.</p>
+    <div class="row wrap">
+      <button id="copyModeSourcePrompt">Copy source prompt</button>
+      <button id="copyModeSourceNotes">Copy source notes</button>
+    </div>
+    <pre id="plannedModeSource"></pre>
   </section>
 
   <details class="card collapsible troubleshooting" id="troubleshootingPane">
@@ -132,10 +210,13 @@
       <button id="loadRemote">Load remote config</button>
       <button id="useBundled">Use bundled config</button>
     </div>
+    <p class="small">Loads the BPS config, workflow prompts, workflow mapping metadata, and QuickNotes mapping from GitHub.</p>
     <p class="small" id="configMeta"></p>
   </section>
 
   <script src="default-config.js"></script>
+  <script src="workflow-config.js"></script>
+  <script src="quicknotes-config.js"></script>
   <script src="sidepanel.js"></script>
 </body>
 </html>
