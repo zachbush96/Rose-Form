@@ -1961,8 +1961,8 @@
   },
   "releaseNotes": [
     "v0.1.5 prevents MSE normal/default checkboxes from being combined with Other or abnormal selections, including hallucinations None evidenced with Auditory/Command/Other.",
-    "v0.1.4 maps MSE Part 2 from fixtures/mse-part-2/MSE_Full_Form.JSON and enables Fill active page for Appearance through Judgment.",
-    "v0.1.3 adds structured MSE Part 2 default answers from reference/rose-source-prompts/Email_1.txt and exposes them to the MSE fill runtime.",
+    "v0.1.4 maps MSE Part 2 from MSE_Full_Form.JSON and enables Fill active page for Appearance through Judgment.",
+    "v0.1.3 adds structured MSE Part 2 default answers from Email_1.txt and exposes them to the MSE fill runtime.",
     "v0.1.2 marks every non-BPS workflow mode with remote-owned mapping status and fieldMap storage, so the side panel can refresh prompts and mapping metadata from GitHub.",
     "v0.1.1 expands MSE Part 2 into screenshot-aligned JSON output covering Appearance through Judgment.",
     "v0.1.0 keeps workflow-mode labels, source prompts, and per-mode remote config URLs outside sidepanel.js."

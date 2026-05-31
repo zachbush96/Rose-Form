@@ -1,0 +1,216 @@
+Hey ZB,
+
+Ty again for working on this with me! I went through the first major section of the BPS form and identified several prompt, logic, and mapping updates. I’ll attach screenshots for each item as examples.
+
+I also wanted to note that this feedback is specific to Part 1 of the form. Part 2, aka the Mental Health Status Exam, has been working wonderfully and the automation there has been fantastic. Really happy with how that portion is functioning.
+
+Below is a breakdown of the requested Part 1 updates.
+
+Unknown by Client
+Screenshot: "Unknown by client"
+
+Issue:
+When a client reports having a primary care physician but does not know or cannot provide clinic or physician information, the form currently populates "Information not provided."
+
+Requested Change:
+Please update the default language so this reflects unknown information rather than omission.
+
+Preferred wording:
+• "Unknown by client" (preferred)
+OR
+• "Client reports they do not know this information."
+
+Expected outcome:
+If a client confirms they have a PCP but cannot identify clinic or provider details, the field should populate "Unknown by client" instead of "Information not provided."
+
+Client to Name
+Screenshot: "Client to Name"
+
+Issue:
+Some narrative sections are populating with the generic word "Client" instead of the client’s actual name.
+
+Requested Change:
+Please update prompt logic / variable replacement so narrative fields use the client’s first name instead of "Client."
+
+Examples:
+
+Current:
+• "Client reports an estimated 15 to 30 lifetime arrests."
+
+Updated:
+• "[Client Name] reports an estimated 15 to 30 lifetime arrests."
+
+Expected outcome:
+Narrative sections consistently use the client’s name.
+
+Mental Health Treatment Info Not Provided
+Screenshot: "Mental health treatment info not provided"
+
+Issue:
+If a client reports they are not working with a psychiatrist or therapist, the provider-information field currently says "Information not provided."
+
+Requested Change:
+If they are not working with providers, the follow-up field should default to:
+
+• "n/a"
+
+Expected outcome:
+Question is treated as not applicable rather than unanswered.
+
+Default Meds with Other Substances
+Screenshot: "Default meds with other substances"
+
+Issue:
+The question "Have you ever mixed this medication with alcohol or other drugs?" is left blank unless specifically answered.
+
+Requested Change:
+If the client reports taking a medication and does not report mixing, default should be:
+
+• No
+
+Logic:
+• Medication reported + no mixing reported = No
+• Explicit client report overrides default
+
+Expected outcome:
+Medication entries default to No unless otherwise stated.
+
+Mental Health Unknown to N/A
+Screenshot: "Mental Health Unknown to N-A"
+
+This one has multiple fixes.
+
+A. No History Checkbox
+
+Issue:
+The "Check if NO history of Mental Health" box is not auto-selecting.
+
+Requested Change:
+If no diagnosis history is reported, automatically check this box.
+
+B. First Narrative Box
+
+Issue:
+The first diagnosis field has sometimes been populating "n/a."
+
+Requested Change:
+If no diagnosis history exists, populate:
+
+• "[Client Name] reports no history of mental health diagnosis."
+
+instead of n/a.
+
+C. Diagnosis Follow-Up Fields
+
+Issue:
+Fields such as "Who were you diagnosed by?" are populating "Unknown."
+
+Requested Change:
+If there is no diagnosis history, diagnosis-related follow-up questions should populate:
+
+• n/a
+
+instead of Unknown.
+
+Expected outcome:
+No diagnosis history results in correct checkbox behavior, narrative wording, and n/a follow-up fields.
+
+Substance 3 Mapping Messing Up
+Screenshot: "Substance 3 Mapping Messing Up"
+
+Issue:
+Substance 3 appears to have a separate age field, which causes all later responses to map incorrectly.
+
+Requested Change:
+Please review and correct mapping specifically for Substance Choice 3.
+
+Because of the additional age field, responses need to be shifted down so they align with the proper questions.
+
+Expected outcome:
+Substance 3 fields map correctly.
+
+STDs
+Screenshot: "STDs"
+
+Issue:
+If a client reports having been tested for STDs / Hepatitis C / HIV, the follow-up resources question remains blank.
+
+Requested Change:
+
+Logic:
+• Tested = Yes → auto-select No for resources question
+• Tested = No → follow client response
+
+Expected outcome:
+If tested, the resources question defaults to No.
+
+Dentist Default
+Screenshot: "Dentist default"
+
+Issue:
+The "When do you plan to see a dentist next?" field is defaulting to n/a.
+
+Requested Change:
+
+If NO dental problems:
+Populate:
+• "[Client Name] reports no dental problems or plans to see a dentist at this time."
+
+If dental problems are reported AND appointment timing is provided:
+Use client’s stated plan.
+
+If dental problems are reported BUT no dental plan is provided:
+Populate:
+• "[Client Name] reports [dental concern] and is not set up to see a dentist at this time."
+
+Expected outcome:
+Dental section generates meaningful default narratives instead of n/a.
+
+Spiritual
+Screenshot: "Spiritual"
+
+Issue:
+When religion is not mentioned or no affiliation is reported, the form currently says "Information not provided."
+
+Requested Change:
+
+Default should be:
+• No
+
+The follow-up "If yes..." field is already behaving correctly as:
+• n/a
+
+Expected outcome:
+Religion defaults to No when not endorsed.
+
+Tobacco Default
+Screenshot: "Tobacco Default"
+
+Issue:
+When tobacco/vape use is endorsed, the "How much do you use and how often?" field currently says "Information not provided."
+
+Requested Change:
+
+If tobacco/vape use = Yes but type not specified:
+Populate:
+• "[Client Name] reports cigarette and vaping use."
+
+If vaping specified:
+• "[Client Name] reports vaping."
+
+If cigarettes specified:
+• "[Client Name] reports cigarette use."
+
+If amount/frequency provided, include that information.
+
+Expected outcome:
+This field generates a narrative statement instead of "Information not provided."
+
+Thanks again for helping with this and for all the work you’ve put into the automation. I’m attaching screenshots with each example for reference.
+
+Again, just to reiterate, these updates are specific to Part 1. The Mental Health Status Exam / Part 2 automation has been working really well, and I’ve been very happy with how that section is performing.
+
+Pleas lmk if anything needs clarification.
+
+Best,
+Rosalee
