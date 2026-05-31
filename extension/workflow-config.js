@@ -6,7 +6,7 @@ window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
     "bps": {
       "title": "BPS Part 1",
       "description": "Current production workflow for BPS Part 1.",
-      "configUrl": "https://raw.githubusercontent.com/zachbush96/Rose_Automation/refs/heads/main/rose-reliatrax-bps-config.json"
+      "configUrl": "https://raw.githubusercontent.com/zachbush96/Rose-Form/refs/heads/main/github-data/rose-reliatrax-bps-config.json"
     },
     "mse": {
       "title": "MSE Part 2",
@@ -1952,7 +1952,7 @@ window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
       "title": "QuickNotes / Group Notes",
       "description": "Fill Rose QuickNotes / Group Notes from the 2026-05-25 discovery map.",
       "mappingStatus": "mapped",
-      "configUrl": "https://raw.githubusercontent.com/zachbush96/Rose_Automation/refs/heads/main/rose-quicknotes-config.json"
+      "configUrl": "https://raw.githubusercontent.com/zachbush96/Rose-Form/refs/heads/main/github-data/rose-quicknotes-config.json"
     },
     "discovery": {
       "title": "Discovery and Mapping",

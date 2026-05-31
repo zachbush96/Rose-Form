@@ -1,7 +1,7 @@
 {
   "project": "Rose ReliaTrax BPS Automation",
-  "version": "0.4.4",
-  "updated": "2026-05-19",
+  "version": "0.4.5",
+  "updated": "2026-05-31",
   "selector": "textarea.qn-textarea, input.qn-editable-cb",
   "expectedFieldCount": 264,
   "defaultsOverwriteExisting": true,
@@ -249,67 +249,67 @@
     },
     {
       "paths": [
-        "substance_use.substance_3.age_first_use"
+        "substance_use.substance_3.substance"
       ],
       "fillIndex": 35
     },
     {
       "paths": [
-        "substance_use.substance_3.amount_used"
+        "substance_use.substance_3.age_first_use"
       ],
       "fillIndex": 36
     },
     {
       "paths": [
-        "substance_use.substance_3.frequency_used"
+        "substance_use.substance_3.amount_used"
       ],
       "fillIndex": 37
     },
     {
       "paths": [
-        "substance_use.substance_3.tolerance"
+        "substance_use.substance_3.frequency_used"
       ],
       "fillIndex": 38
     },
     {
       "paths": [
-        "substance_use.substance_3.method"
+        "substance_use.substance_3.tolerance"
       ],
       "fillIndex": 39
     },
     {
       "paths": [
-        "substance_use.substance_3.last_use_date"
+        "substance_use.substance_3.method"
       ],
       "fillIndex": 40
     },
     {
       "paths": [
-        "substance_use.substance_3.days_used_last_30"
+        "substance_use.substance_3.last_use_date"
       ],
       "fillIndex": 41
     },
     {
       "paths": [
-        "substance_use.substance_3.recent_pattern"
+        "substance_use.substance_3.days_used_last_30"
       ],
       "fillIndex": 42
     },
     {
       "paths": [
-        "substance_use.substance_3.behavioral_changes"
+        "substance_use.substance_3.recent_pattern"
       ],
       "fillIndex": 43
     },
     {
       "paths": [
-        "substance_use.substance_3.consequences"
+        "substance_use.substance_3.behavioral_changes"
       ],
       "fillIndex": 44
     },
     {
       "paths": [
-        "substance_use.substance_3.extra_notes"
+        "substance_use.substance_3.consequences"
       ],
       "fillIndex": 45
     },
@@ -1883,6 +1883,7 @@
     "v0.4.1 tightens Prompt 1 substance-use formatting: age_first_use must be a single Substance: age value, days_used_last_30 uses Estimated X days in the last 30 when calculated, and sober_duration prioritizes the longest reported sobriety period over current sobriety.",
     "v0.4.2 tightens medication handling: Prompt 3 prioritizes substance-use and mental-health medications, excludes vitamins/supplements, and empty medication slots now write n/a text while leaving all medication checkboxes unchecked.",
     "v0.4.3 updates conditional n/a prompt defaults for PCP clinic/doctor fields when no primary care doctor is reported, and for substance_2/substance_3 age_first_use when those substances are not reported.",
-    "v0.4.4 adds a prompt-wide substance terminology rule requiring formal medical terminology for drugs and normalization of slang names such as meth, crystal meth, fent, and Percs."
+    "v0.4.4 adds a prompt-wide substance terminology rule requiring formal medical terminology for drugs and normalization of slang names such as meth, crystal meth, fent, and Percs.",
+    "v0.4.5 enforces Part 1 runtime defaults for PCP unknowns, client-name narratives, mental-health n/a follow-ups, medication mixing, STD resources, dentist/spiritual/tobacco defaults, and the corrected Substance 3 field mapping."
   ]
 }

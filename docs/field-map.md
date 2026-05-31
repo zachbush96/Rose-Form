@@ -39,17 +39,17 @@ Total mapped fields: 264
 | 32 | `substance_use.substance_2.tried_to_quit.yes` | `substance_use.substance_2.tried_to_quit_yes` |
 | 33 | `substance_use.substance_2.tried_to_quit.no` | `substance_use.substance_2.tried_to_quit_no` |
 | 34 | `substance_use.substance_2.sober_duration` |  |
-| 35 | `substance_use.substance_3.age_first_use` |  |
-| 36 | `substance_use.substance_3.amount_used` |  |
-| 37 | `substance_use.substance_3.frequency_used` |  |
-| 38 | `substance_use.substance_3.tolerance` |  |
-| 39 | `substance_use.substance_3.method` |  |
-| 40 | `substance_use.substance_3.last_use_date` |  |
-| 41 | `substance_use.substance_3.days_used_last_30` |  |
-| 42 | `substance_use.substance_3.recent_pattern` |  |
-| 43 | `substance_use.substance_3.behavioral_changes` |  |
-| 44 | `substance_use.substance_3.consequences` |  |
-| 45 | `substance_use.substance_3.extra_notes` |  |
+| 35 | `substance_use.substance_3.substance` |  |
+| 36 | `substance_use.substance_3.age_first_use` |  |
+| 37 | `substance_use.substance_3.amount_used` |  |
+| 38 | `substance_use.substance_3.frequency_used` |  |
+| 39 | `substance_use.substance_3.tolerance` |  |
+| 40 | `substance_use.substance_3.method` |  |
+| 41 | `substance_use.substance_3.last_use_date` |  |
+| 42 | `substance_use.substance_3.days_used_last_30` |  |
+| 43 | `substance_use.substance_3.recent_pattern` |  |
+| 44 | `substance_use.substance_3.behavioral_changes` |  |
+| 45 | `substance_use.substance_3.consequences` |  |
 | 46 | `substance_use.substance_3.sees_use_as_problem.yes` | `substance_use.substance_3.problem_yes` |
 | 47 | `substance_use.substance_3.sees_use_as_problem.no` | `substance_use.substance_3.problem_no` |
 | 48 | `substance_use.substance_3.tried_to_quit.yes` | `substance_use.substance_3.tried_to_quit_yes` |

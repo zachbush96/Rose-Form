@@ -145,9 +145,14 @@
 
   <section class="card mode-panel mode-discovery hidden">
     <h2>Discovery and Mapping</h2>
-    <p class="small">Scan the active page to inventory form controls, nearby labels, section headings, options, and suggested JSON paths. Copy the report when Rose needs to email unknown page details for mapping.</p>
+    <p class="small">Scan the active page to inventory controls, hidden/collapsed sections, page source, section toggles, labels, options, and suggested JSON paths. Copy the report when Rose needs to email unknown page details for mapping.</p>
     <label for="discoveryPrefix">Suggested path prefix</label>
     <input id="discoveryPrefix" placeholder="mse, asam, diagnostics, treatment_plan">
+    <div class="discovery-options">
+      <label class="check"><input id="discoverHiddenControls" type="checkbox" checked> Include hidden/collapsed DOM controls</label>
+      <label class="check"><input id="discoverPageSource" type="checkbox" checked> Include page HTML/source snapshot</label>
+      <label class="check"><input id="discoverClickSections" type="checkbox" checked> Click through likely tabs/sections</label>
+    </div>
     <div class="row wrap">
       <button id="discoverPage" class="primary">Discover active page</button>
       <button id="copyDiscoveryReport">Copy email report</button>

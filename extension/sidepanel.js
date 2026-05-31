@@ -15,8 +15,12 @@ const STORAGE_KEYS = {
   mseResponse: 'roseMseResponse'
 };
 
-const DEFAULT_REMOTE_CONFIG_URL = 'https://raw.githubusercontent.com/zachbush96/Rose_Automation/refs/heads/main/rose-reliatrax-bps-config.json';
-const DEFAULT_WORKFLOW_CONFIG_URL = 'https://raw.githubusercontent.com/zachbush96/Rose_Automation/refs/heads/main/rose-reliatrax-workflows-config.json';
+const CONFIG_REPO_PATH = 'zachbush96/Rose-Form';
+const LEGACY_CONFIG_REPO_PATH = 'zachbush96/Rose_Automation';
+const CONFIG_REPO_DATA_DIR = 'github-data';
+const CONFIG_FILE_RE = /(rose-reliatrax-bps-config\.json|rose-reliatrax-workflows-config\.json|rose-quicknotes-config\.json)$/;
+const DEFAULT_REMOTE_CONFIG_URL = `https://raw.githubusercontent.com/${CONFIG_REPO_PATH}/refs/heads/main/${CONFIG_REPO_DATA_DIR}/rose-reliatrax-bps-config.json`;
+const DEFAULT_WORKFLOW_CONFIG_URL = `https://raw.githubusercontent.com/${CONFIG_REPO_PATH}/refs/heads/main/${CONFIG_REPO_DATA_DIR}/rose-reliatrax-workflows-config.json`;
 const REMOTE_CONFIG_TIMEOUT_MS = 10000;
 
 let activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
@@ -259,6 +263,19 @@ function renderTraceLog() {
 function workflowMode(mode) {
   return workflowConfig?.modes?.[mode] || {};
 }
+function migrateLegacyConfigUrl(url) {
+  if (typeof url !== 'string') return url;
+  const migrated = url.replaceAll(LEGACY_CONFIG_REPO_PATH, CONFIG_REPO_PATH);
+  if (!CONFIG_FILE_RE.test(migrated) || migrated.includes(`/${CONFIG_REPO_DATA_DIR}/`)) return migrated;
+  return migrated.replace(CONFIG_FILE_RE, `${CONFIG_REPO_DATA_DIR}/$1`);
+}
+function normalizeWorkflowConfigUrls(config) {
+  if (!config?.modes || typeof config.modes !== 'object') return config;
+  Object.values(config.modes).forEach(mode => {
+    if (mode?.configUrl) mode.configUrl = migrateLegacyConfigUrl(mode.configUrl);
+  });
+  return config;
+}
 function modeDescription(mode) {
   return workflowMode(mode).description || workflowMode('bps').description || 'Mode details unavailable.';
 }
@@ -339,6 +356,8 @@ function formatDiscoveryReport(report) {
     `Scanned: ${report.timestamp || ''}`,
     `Suggested path prefix: ${report.pathPrefix || '(none)'}`,
     `Controls found: ${report.totalControls}`,
+    `Visible controls: ${report.visibleControlCount ?? report.totalControls}`,
+    `Hidden/collapsed controls: ${report.hiddenControlCount ?? 0}`,
     `Text inputs/textareas/selects: ${report.textLikeCount}`,
     `Checkboxes: ${report.checkboxCount}`,
     `Radios: ${report.radioCount}`,
@@ -353,16 +372,41 @@ function formatDiscoveryReport(report) {
   (report.sections || []).forEach(section => {
     lines.push(`- ${section.name}: ${section.controlCount} control${section.controlCount === 1 ? '' : 's'}`);
   });
+  if (report.pageSource) {
+    lines.push('', 'Page source snapshot:');
+    lines.push(`- HTML characters captured: ${Math.min(report.pageSource.htmlLength || 0, report.captureOptions?.maxHtmlChars || report.pageSource.htmlLength || 0)} of ${report.pageSource.htmlLength || 0}${report.pageSource.truncated ? ' (truncated)' : ''}`);
+    lines.push(`- Forms: ${(report.pageSource.forms || []).length}`);
+    lines.push(`- Stylesheets/style blocks: ${(report.pageSource.stylesheets || []).length}`);
+    lines.push(`- Scripts: ${(report.pageSource.scripts || []).length}`);
+    lines.push(`- Iframes: ${(report.pageSource.iframes || []).length}`);
+  }
+  if ((report.interactiveElements || []).length) {
+    lines.push('', 'Likely section/tab controls:');
+    (report.interactiveElements || []).slice(0, 30).forEach(item => {
+      lines.push(`- ${item.index}. ${item.text || item.id || item.role || item.tag} | role: ${item.role || '(none)'} | target: ${item.ariaControls || item.href || '(none)'} | visible: ${item.visible}`);
+    });
+  }
+  if ((report.expansionSnapshots || []).length) {
+    lines.push('', 'Section click snapshots:');
+    (report.expansionSnapshots || []).forEach(snapshot => {
+      lines.push(`- ${snapshot.index}. ${snapshot.text || snapshot.id || snapshot.role || snapshot.tag}: ${snapshot.clicked ? 'clicked' : 'not clicked'} | visible controls after: ${snapshot.afterVisibleControls ?? 'n/a'}`);
+      (snapshot.visibleControls || []).slice(0, 8).forEach(control => {
+        lines.push(`   - #${control.index} ${control.suggestedPath || control.label || control.type}`);
+      });
+    });
+  }
   lines.push('', 'Controls:');
   (report.controls || []).forEach(control => {
     const options = (control.options || []).length ? ` | options: ${control.options.join(', ')}` : '';
     const required = control.required ? ' | required' : '';
-    lines.push(`${control.index}. [${control.section || 'Unsectioned'}] ${control.label || control.name || control.id || control.type}`);
+    const visibility = control.seenHidden || control.visibility?.visible === false ? ' | hidden/collapsed' : '';
+    lines.push(`${control.index}. [${control.section || 'Unsectioned'}] ${control.label || control.name || control.id || control.type}${visibility}`);
     if (control.questionText) lines.push(`   question: ${[control.questionNumber, control.questionText].filter(Boolean).join('. ')}`);
     if (control.answerText && control.answerText !== control.label) lines.push(`   answer: ${control.answerText}`);
     lines.push(`   type: ${control.type}${required} | suggestedPath: ${control.suggestedPath || ''}${options}`);
     if (control.placeholder) lines.push(`   placeholder: ${control.placeholder}`);
     if (control.name || control.id) lines.push(`   id/name: ${control.id || '(no id)'} / ${control.name || '(no name)'}`);
+    if (control.domPath) lines.push(`   dom: ${control.domPath}`);
     if (control.contextText && control.contextText !== control.label) lines.push(`   context: ${control.contextText}`);
   });
   return lines.join('\n');
@@ -414,24 +458,25 @@ function renderConfigState() {
   renderMode();
 }
 async function loadRemoteConfig(url, { preserveDefaultRows = false } = {}) {
-  if (!url) throw new Error('Paste a raw GitHub config URL first.');
-  const cfg = await fetchRemoteConfig(url);
+  const normalizedUrl = migrateLegacyConfigUrl(url);
+  if (!normalizedUrl) throw new Error('Paste a raw GitHub config URL first.');
+  const cfg = await fetchRemoteConfig(normalizedUrl);
   activeConfig = cfg;
   if (!preserveDefaultRows) {
     defaultRows = getConfigDefaultRows(cfg);
   }
-  await chrome.storage.local.set({ [STORAGE_KEYS.config]: cfg, [STORAGE_KEYS.configUrl]: url, [STORAGE_KEYS.defaultRows]: defaultRows });
+  await chrome.storage.local.set({ [STORAGE_KEYS.config]: cfg, [STORAGE_KEYS.configUrl]: normalizedUrl, [STORAGE_KEYS.defaultRows]: defaultRows });
   renderConfigState();
 }
 async function loadRemoteWorkflowConfig() {
-  const cfg = await fetchRemoteJson(DEFAULT_WORKFLOW_CONFIG_URL);
+  const cfg = normalizeWorkflowConfigUrls(await fetchRemoteJson(DEFAULT_WORKFLOW_CONFIG_URL));
   if (!cfg?.modes || typeof cfg.modes !== 'object') throw new Error('Workflow config is missing modes.');
   workflowConfig = cfg;
   await chrome.storage.local.set({ [STORAGE_KEYS.workflowConfig]: cfg });
   renderMode();
 }
 async function loadRemoteQuickNotesConfig() {
-  const url = workflowMode('quicknotes').configUrl;
+  const url = migrateLegacyConfigUrl(workflowMode('quicknotes').configUrl);
   if (!url) return;
   activeQuickNotesConfig = await fetchRemoteConfig(url);
   await chrome.storage.local.set({ [STORAGE_KEYS.quicknotesConfig]: activeQuickNotesConfig });
@@ -467,7 +512,7 @@ async function loadState() {
     STORAGE_KEYS.mseResponse
   ]);
   activeConfig = data[STORAGE_KEYS.config] || window.DEFAULT_ROSE_BPS_CONFIG;
-  workflowConfig = data[STORAGE_KEYS.workflowConfig] || window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig;
+  workflowConfig = normalizeWorkflowConfigUrls(data[STORAGE_KEYS.workflowConfig] || window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig);
   activeQuickNotesConfig = data[STORAGE_KEYS.quicknotesConfig] || window.DEFAULT_ROSE_QUICKNOTES_CONFIG || activeQuickNotesConfig;
   defaultRows = Array.isArray(data[STORAGE_KEYS.defaultRows]) ? data[STORAGE_KEYS.defaultRows] : getConfigDefaultRows(activeConfig);
   traceLog = Array.isArray(data[STORAGE_KEYS.traceLog]) ? data[STORAGE_KEYS.traceLog] : [];
@@ -476,14 +521,18 @@ async function loadState() {
   try {
     await loadRemoteWorkflowConfig();
   } catch {
-    workflowConfig = window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig;
+    workflowConfig = normalizeWorkflowConfigUrls(window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig);
   }
   try {
     await loadRemoteQuickNotesConfig();
   } catch {
     activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG || activeQuickNotesConfig;
   }
-  const configUrl = data[STORAGE_KEYS.configUrl] || workflowMode('bps').configUrl || DEFAULT_REMOTE_CONFIG_URL;
+  const storedConfigUrl = data[STORAGE_KEYS.configUrl];
+  const configUrl = migrateLegacyConfigUrl(storedConfigUrl || workflowMode('bps').configUrl || DEFAULT_REMOTE_CONFIG_URL);
+  if (storedConfigUrl && configUrl !== storedConfigUrl) {
+    await chrome.storage.local.set({ [STORAGE_KEYS.configUrl]: configUrl });
+  }
   $('configUrl').value = configUrl;
   $('discoveryPrefix').value = data[STORAGE_KEYS.discoveryPrefix] || '';
   if ($('quicknotesResp')) $('quicknotesResp').value = data[STORAGE_KEYS.quicknotesResponse] || '';
@@ -549,8 +598,13 @@ function pageScan(config) {
     };
   } catch (err) { return { error: err.message }; }
 }
-function pageDiscover(options = {}) {
+async function pageDiscover(options = {}) {
   try {
+    const includeHiddenControls = Boolean(options.includeHiddenControls);
+    const capturePageSource = Boolean(options.capturePageSource);
+    const expandInteractiveSections = Boolean(options.expandInteractiveSections);
+    const maxHtmlChars = Number(options.maxHtmlChars || 5000000);
+    const maxSectionClicks = Number(options.maxSectionClicks || 12);
     const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
     const slugify = (value) => normalize(value)
       .toLowerCase()
@@ -565,6 +619,57 @@ function pageDiscover(options = {}) {
       const rect = el.getBoundingClientRect();
       return rect.width > 0 && rect.height > 0;
     };
+    const visibilityInfo = (el) => {
+      const style = window.getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      return {
+        visible: visible(el),
+        hiddenAttribute: Boolean(el.hidden),
+        display: style.display,
+        visibility: style.visibility,
+        opacity: style.opacity,
+        width: Math.round(rect.width),
+        height: Math.round(rect.height)
+      };
+    };
+    const domPathFor = (el) => {
+      const parts = [];
+      let current = el;
+      while (current && current.nodeType === Node.ELEMENT_NODE && parts.length < 8) {
+        let part = current.tagName.toLowerCase();
+        if (current.id) {
+          part += `#${current.id}`;
+          parts.unshift(part);
+          break;
+        }
+        const className = String(current.className || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).join('.');
+        if (className) part += `.${className}`;
+        const parent = current.parentElement;
+        if (parent) {
+          const sameTag = [...parent.children].filter(child => child.tagName === current.tagName);
+          if (sameTag.length > 1) part += `:nth-of-type(${sameTag.indexOf(current) + 1})`;
+        }
+        parts.unshift(part);
+        current = parent;
+      }
+      return parts.join(' > ');
+    };
+    const attributesFor = (el) => {
+      const important = [
+        'id', 'name', 'class', 'type', 'value', 'placeholder', 'role', 'aria-label', 'aria-labelledby',
+        'aria-controls', 'aria-expanded', 'data-qn-field-id', 'data-toggle', 'data-bs-toggle', 'href'
+      ];
+      const attrs = {};
+      important.forEach(name => {
+        const value = el.getAttribute(name);
+        if (value !== null && value !== '') attrs[name] = value;
+      });
+      [...el.attributes].forEach(attr => {
+        if (attr.name.startsWith('data-') && attrs[attr.name] === undefined) attrs[attr.name] = attr.value;
+      });
+      return attrs;
+    };
+    const htmlSnippetFor = (el) => normalize(el.outerHTML).slice(0, 1200);
     const labelFor = (el) => {
       const labels = [];
       if (el.id) {
@@ -651,10 +756,10 @@ function pageDiscover(options = {}) {
       'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])',
       '[contenteditable="true"]'
     ].join(',');
-    const controls = [...document.querySelectorAll(controlSelector)].filter(visible);
     const prefix = slugify(options.pathPrefix || '');
-    const sectionCounts = new Map();
-    const discovered = controls.map((el, index) => {
+    const discovered = [];
+    const seenControls = new Map();
+    const describeControl = (el, indexHint) => {
       const type = el.tagName === 'TEXTAREA'
         ? 'textarea'
         : el.tagName === 'SELECT'
@@ -663,7 +768,6 @@ function pageDiscover(options = {}) {
             ? 'contenteditable'
             : (el.type || 'text').toLowerCase();
       const section = nearestHeading(el) || 'Unsectioned';
-      sectionCounts.set(section, (sectionCounts.get(section) || 0) + 1);
       const label = labelFor(el);
       const tableQuestion = tableQuestionFor(el);
       const questionText = tableQuestion?.text || '';
@@ -671,11 +775,11 @@ function pageDiscover(options = {}) {
       const localContext = nearbyText(el);
       const questionContext = [tableQuestion ? `${tableQuestion.number}. ${tableQuestion.text}` : '', localContext].filter(Boolean).join(' | ');
       const contextText = (questionContext || localContext).slice(0, 320);
-      const fallbackName = el.name || el.id || el.placeholder || label || contextText || `${type}_${index + 1}`;
+      const fallbackName = el.name || el.id || el.placeholder || label || contextText || `${type}_${indexHint + 1}`;
       const basePath = [slugify(questionText || section), slugify(answerText || fallbackName)].filter(Boolean).join('.');
       return {
-        index,
-        fillIndex: index,
+        index: indexHint,
+        fillIndex: indexHint,
         tag: el.tagName.toLowerCase(),
         type,
         section,
@@ -691,15 +795,168 @@ function pageDiscover(options = {}) {
         readOnly: Boolean(el.readOnly),
         valuePreview: type === 'checkbox' || type === 'radio' ? Boolean(el.checked) : String(el.value || '').slice(0, 120),
         options: optionText(el),
-        suggestedPath: [prefix, basePath || `${type}_${index + 1}`].filter(Boolean).join('.'),
+        suggestedPath: [prefix, basePath || `${type}_${indexHint + 1}`].filter(Boolean).join('.'),
         selectorHints: {
           id: el.id ? `#${el.id}` : '',
           name: el.name ? `[name="${el.name}"]` : '',
           dataQnFieldId: fieldIdFor(el)
         },
+        visibility: visibilityInfo(el),
+        domPath: domPathFor(el),
+        attributes: attributesFor(el),
+        htmlSnippet: htmlSnippetFor(el),
+        capturedIn: [],
+        seenHidden: false,
         contextText
       };
+    };
+    const controlKeyFor = (control) => [
+      control.selectorHints.dataQnFieldId,
+      control.id,
+      control.name,
+      control.domPath,
+      control.type,
+      control.label,
+      control.questionText,
+      control.answerText
+    ].filter(Boolean).join('|');
+    const collectControls = (captureName) => {
+      const controls = [...document.querySelectorAll(controlSelector)]
+        .filter(el => includeHiddenControls || visible(el));
+      const current = controls.map((el, index) => {
+        const control = describeControl(el, index);
+        const key = controlKeyFor(control);
+        const existing = seenControls.get(key);
+        if (existing) {
+          existing.capturedIn.push(captureName);
+          existing.seenHidden = existing.seenHidden || !control.visibility.visible;
+          existing.visibility = control.visibility;
+          return existing;
+        }
+        control.index = discovered.length;
+        control.fillIndex = discovered.length;
+        control.capturedIn.push(captureName);
+        control.seenHidden = !control.visibility.visible;
+        discovered.push(control);
+        seenControls.set(key, control);
+        return control;
+      });
+      return current;
+    };
+    const controlSummary = (controls) => controls
+      .filter(control => control.visibility.visible)
+      .slice(0, 40)
+      .map(control => ({
+        index: control.index,
+        type: control.type,
+        section: control.section,
+        label: control.label,
+        questionText: control.questionText,
+        answerText: control.answerText,
+        suggestedPath: control.suggestedPath
+      }));
+    const safeClickCandidate = (el) => {
+      if (!visible(el)) return false;
+      const tag = el.tagName.toLowerCase();
+      const type = (el.type || '').toLowerCase();
+      const href = el.getAttribute('href') || '';
+      const role = el.getAttribute('role') || '';
+      const toggle = el.getAttribute('data-toggle') || el.getAttribute('data-bs-toggle') || '';
+      const hasPanelTarget = Boolean(el.getAttribute('aria-controls') || /^#[-\w:.]+$/.test(href));
+      const text = normalize(el.innerText || el.textContent);
+      const looksLikeSectionNav = /section|part|criteria|diagnostic|treatment|assessment|exam|asam|mse|notes|intake|plan|tab/i.test(text);
+      if (tag === 'button' && !['submit', 'reset'].includes(type) && (hasPanelTarget || toggle || role || looksLikeSectionNav)) return true;
+      if (role === 'tab' || (role === 'button' && (hasPanelTarget || toggle || looksLikeSectionNav))) return true;
+      if (/collapse|tab|pill|accordion/i.test(toggle)) return true;
+      return tag === 'a' && hasPanelTarget;
+    };
+    const describeInteractive = (el, index) => ({
+      index,
+      tag: el.tagName.toLowerCase(),
+      text: normalize(el.innerText || el.textContent).slice(0, 160),
+      id: el.id || '',
+      role: el.getAttribute('role') || '',
+      href: el.getAttribute('href') || '',
+      ariaControls: el.getAttribute('aria-controls') || '',
+      ariaExpanded: el.getAttribute('aria-expanded') || '',
+      dataToggle: el.getAttribute('data-toggle') || el.getAttribute('data-bs-toggle') || '',
+      visible: visible(el),
+      domPath: domPathFor(el)
     });
+    const interactiveElements = [...document.querySelectorAll('button, [role="tab"], [role="button"], [aria-controls], [data-toggle], [data-bs-toggle], a[href^="#"]')]
+      .map(describeInteractive);
+    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    collectControls('initial');
+    const expansionSnapshots = [];
+    if (expandInteractiveSections) {
+      const candidates = [...document.querySelectorAll('button, [role="tab"], [role="button"], [aria-controls], [data-toggle], [data-bs-toggle], a[href^="#"]')]
+        .filter(safeClickCandidate)
+        .slice(0, maxSectionClicks);
+      for (const [index, candidate] of candidates.entries()) {
+        const beforeVisible = discovered.filter(control => control.visibility.visible).length;
+        const summary = describeInteractive(candidate, index);
+        try {
+          candidate.click();
+          await wait(180);
+          const afterControls = collectControls(`section_click_${index + 1}`);
+          expansionSnapshots.push({
+            ...summary,
+            clicked: true,
+            beforeVisibleControls: beforeVisible,
+            afterVisibleControls: afterControls.filter(control => control.visibility.visible).length,
+            visibleControls: controlSummary(afterControls)
+          });
+        } catch (err) {
+          expansionSnapshots.push({ ...summary, clicked: false, error: err.message });
+        }
+      }
+    }
+    const sectionCounts = new Map();
+    discovered.forEach(control => {
+      sectionCounts.set(control.section, (sectionCounts.get(control.section) || 0) + 1);
+    });
+    const pageHtml = capturePageSource ? `<!doctype html>\n${document.documentElement.outerHTML}` : '';
+    const pageText = capturePageSource ? normalize(document.body?.innerText || '').slice(0, 200000) : '';
+    const pageSource = capturePageSource ? {
+      doctype: document.doctype ? `<!DOCTYPE ${document.doctype.name}>` : '',
+      htmlLength: pageHtml.length,
+      truncated: pageHtml.length > maxHtmlChars,
+      html: pageHtml.slice(0, maxHtmlChars),
+      textLength: normalize(document.body?.innerText || '').length,
+      text: pageText,
+      forms: [...document.forms].map((form, index) => ({
+        index,
+        id: form.id || '',
+        name: form.getAttribute('name') || '',
+        action: form.getAttribute('action') || '',
+        method: form.getAttribute('method') || '',
+        controlCount: form.querySelectorAll(controlSelector).length,
+        domPath: domPathFor(form)
+      })),
+      stylesheets: [...document.querySelectorAll('link[rel~="stylesheet"], style')].slice(0, 80).map((el, index) => ({
+        index,
+        tag: el.tagName.toLowerCase(),
+        href: el.href || '',
+        id: el.id || '',
+        textLength: el.tagName === 'STYLE' ? String(el.textContent || '').length : 0
+      })),
+      scripts: [...document.scripts].slice(0, 80).map((script, index) => ({
+        index,
+        src: script.src || '',
+        id: script.id || '',
+        type: script.type || '',
+        textLength: String(script.textContent || '').length
+      })),
+      iframes: [...document.querySelectorAll('iframe')].map((frame, index) => ({
+        index,
+        id: frame.id || '',
+        name: frame.name || '',
+        src: frame.src || '',
+        title: frame.title || '',
+        visible: visible(frame),
+        domPath: domPathFor(frame)
+      }))
+    } : null;
     const typeCount = (types) => discovered.filter(control => types.includes(control.type)).length;
     return {
       event: 'discover',
@@ -707,10 +964,22 @@ function pageDiscover(options = {}) {
       url: location.href,
       title: document.title,
       pathPrefix: options.pathPrefix || '',
+      captureOptions: {
+        includeHiddenControls,
+        capturePageSource,
+        expandInteractiveSections,
+        maxHtmlChars,
+        maxSectionClicks
+      },
       totalControls: discovered.length,
+      visibleControlCount: discovered.filter(control => control.visibility.visible).length,
+      hiddenControlCount: discovered.filter(control => control.seenHidden || !control.visibility.visible).length,
       textLikeCount: typeCount(['text', 'email', 'tel', 'number', 'date', 'textarea', 'select', 'contenteditable', 'search', 'url']),
       checkboxCount: typeCount(['checkbox']),
       radioCount: typeCount(['radio']),
+      interactiveElements,
+      expansionSnapshots,
+      pageSource,
       sections: [...sectionCounts.entries()].map(([name, controlCount]) => ({ name, controlCount })),
       controls: discovered
     };
@@ -976,6 +1245,148 @@ function pageFill(config, merged, dryRun) {
     const text = String(value ?? '').toLowerCase();
     return terms.some(term => text.includes(term));
   };
+  const normalizedTextValue = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+  const lowerTextValue = (value) => normalizedTextValue(value).toLowerCase();
+  const isNotProvidedText = (value) => {
+    const text = lowerTextValue(value);
+    return [
+      'information not provided',
+      'not provided',
+      'not stated',
+      'not discussed',
+      'unknown',
+      'none stated',
+      'none reported'
+    ].includes(text);
+  };
+  const isRuleBlank = (value) => {
+    const coerced = coerce(value);
+    if (isBlankLocal(coerced)) return true;
+    const text = lowerTextValue(coerced);
+    return ['n/a', 'na', 'not applicable'].includes(text) || isNotProvidedText(coerced);
+  };
+  const hasSpecificValue = (value) => !isRuleBlank(value);
+  const firstSpecificPathValue = (obj, paths) => {
+    for (const path of paths) {
+      const value = coerce(getPath(obj, path));
+      if (hasSpecificValue(value)) return value;
+    }
+    return undefined;
+  };
+  const sentenceCaseName = (value) => String(value || '').trim().toLowerCase().replace(/(^|[-' ])([a-z])/g, (_match, prefix, letter) => `${prefix}${letter.toUpperCase()}`);
+  const firstNameFromText = (value) => {
+    const text = normalizedTextValue(value).replace(/\([^)]*\)/g, '').trim();
+    if (!text) return '';
+    const afterComma = text.includes(',') ? text.split(',').slice(1).join(',').trim() : text;
+    const token = (afterComma || text).split(/\s+/).find(part => /^[A-Za-z][A-Za-z'-]*$/.test(part));
+    return token ? sentenceCaseName(token) : '';
+  };
+  const findClientFirstName = (data) => {
+    const pathValue = firstSpecificPathValue(data, [
+      'client.first_name',
+      'client.firstName',
+      'client_first_name',
+      'first_name',
+      'demographics.first_name',
+      'client.name',
+      'client.full_name',
+      'clientName'
+    ]);
+    const fromData = firstNameFromText(pathValue);
+    if (fromData) return fromData;
+    const domSelectors = [
+      '.clientsrow.selected .cd-clientname',
+      '.clientName',
+      '[data-client-name]',
+      '#clientName',
+      '.client-name'
+    ];
+    for (const selector of domSelectors) {
+      const text = document.querySelector(selector)?.textContent || document.querySelector(selector)?.getAttribute('data-client-name') || '';
+      const parsed = firstNameFromText(text);
+      if (parsed) return parsed;
+    }
+    return '';
+  };
+  const clientFirstNameFromData = findClientFirstName(merged || {});
+  const clientSubject = () => clientFirstNameFromData || 'Client';
+  const applyClientNameToNarrative = (value) => {
+    if (typeof value !== 'string' || !clientFirstNameFromData) return value;
+    return value
+      .replace(/\[(?:client name|client first name|first name)\]/gi, clientFirstNameFromData)
+      .replace(/\b[Tt]he client['’]s\b/g, `${clientFirstNameFromData}'s`)
+      .replace(/\b[Tt]he client\b/g, clientFirstNameFromData)
+      .replace(/\bClient['’]s\b/g, `${clientFirstNameFromData}'s`)
+      .replace(/\bClient\b/g, clientFirstNameFromData);
+  };
+  const withPeriod = (value) => {
+    const text = normalizedTextValue(value);
+    if (!text) return '';
+    return /[.!?]$/.test(text) ? text : `${text}.`;
+  };
+  const setChoiceLocal = (obj, parentPath, choice) => {
+    const otherChoice = choice === 'yes' ? 'no' : choice === 'no' ? 'yes' : '';
+    const current = getPath(obj, parentPath);
+    if (current && typeof current === 'object' && !Array.isArray(current)) {
+      setPathLocal(obj, `${parentPath}.${choice}`, true);
+      if (otherChoice) setPathLocal(obj, `${parentPath}.${otherChoice}`, false);
+    } else {
+      setPathLocal(obj, parentPath, choice);
+    }
+  };
+  const clearYesNoChoiceLocal = (obj, parentPath) => {
+    const current = getPath(obj, parentPath);
+    if (current && typeof current === 'object' && !Array.isArray(current)) {
+      setPathLocal(obj, `${parentPath}.yes`, false);
+      setPathLocal(obj, `${parentPath}.no`, false);
+    }
+  };
+  const explicitYesNoChoice = (obj, parentPath) => choiceIsYes(obj, parentPath) || choiceIsNo(obj, parentPath);
+  const parseSubstanceAgeValue = (value) => {
+    const text = normalizedTextValue(value);
+    if (!text) return { substance: '', age: '' };
+    const match = text.match(/^([^:\n]+):\s*(?:(?:age of first use|age)\s*:?\s*)?(.+)$/i);
+    if (!match) return { substance: '', age: text.replace(/^age\s+/i, '').trim() };
+    const rawSubstance = match[1].trim();
+    const rawAge = match[2].trim().replace(/^age\s+/i, '').trim();
+    if (/^age of first use$/i.test(rawSubstance)) return { substance: '', age: rawAge };
+    return { substance: rawSubstance, age: rawAge };
+  };
+  const tobaccoTypePhrase = (value) => {
+    const text = lowerTextValue(value);
+    const vaping = /\bvap(e|es|ed|ing)?\b/.test(text);
+    const cigarettes = /\b(cigarette|cigarettes|cigar|cigars|smok(e|es|ed|ing)?)\b/.test(text);
+    if (vaping && !cigarettes) return 'vaping';
+    if (cigarettes && !vaping) return 'cigarette use';
+    return 'cigarette and vaping use';
+  };
+  const tobaccoNarrative = (value) => {
+    const detail = hasSpecificValue(value) ? normalizedTextValue(value) : '';
+    const typePhrase = tobaccoTypePhrase(detail);
+    if (!detail) return `${clientSubject()} reports ${typePhrase}.`;
+    if (/\breports?\b/i.test(detail)) return applyClientNameToNarrative(withPeriod(detail));
+    if (/^vapes?\b/i.test(detail)) return `${clientSubject()} reports ${withPeriod(detail.replace(/^vapes?\b/i, 'vaping'))}`;
+    if (/^smokes?\b/i.test(detail)) return `${clientSubject()} reports ${withPeriod(detail.replace(/^smokes?\b/i, 'cigarette use'))}`;
+    if (textIncludesAny(detail, ['vape', 'vaping', 'cigarette', 'cigarettes', 'smoke', 'smoking'])) {
+      return `${clientSubject()} reports ${withPeriod(detail)}`;
+    }
+    return `${clientSubject()} reports ${typePhrase}, ${withPeriod(detail)}`;
+  };
+  const noMentalHealthDiagnosisHistory = (data) => {
+    const noHistoryFlag = getPath(data, 'mental_health.no_history');
+    if (truthySelectionFlag(noHistoryFlag)) return true;
+    const diagnosis = getPath(data, 'mental_health.diagnosis_history');
+    const diagnosisText = lowerTextValue(diagnosis);
+    const deniesDiagnosis = /(^|\b)(no|none|denies|denied|never)\b.*\bdiagnos/.test(diagnosisText) ||
+      /no history of (a )?mental health diagnos/.test(diagnosisText) ||
+      ['no', 'none'].includes(diagnosisText);
+    const hasDiagnosisDetails = hasSpecificValue(getPath(data, 'mental_health.age_diagnosed')) ||
+      hasSpecificValue(getPath(data, 'mental_health.diagnosed_by')) ||
+      explicitYesNoChoice(data, 'mental_health.agrees_with_diagnosis') ||
+      hasSpecificValue(getPath(data, 'mental_health.using_substances_at_diagnosis')) ||
+      hasSpecificValue(getPath(data, 'mental_health.substance_use_impacted_diagnosis'));
+    return (isRuleBlank(diagnosis) || deniesDiagnosis) && !hasDiagnosisDetails;
+  };
   const slugToken = (value) => String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
   const canonicalMseItemKey = (value) => {
     const key = slugToken(value);
@@ -997,6 +1408,7 @@ function pageFill(config, merged, dryRun) {
     build_stature: ['Within Normal Limits'],
     posture: ['Within Normal Limits'],
     activity: ['Within Normal Limits'],
+    thought_process: ['Logical'],
     perception: ['Within normal limits'],
     hallucinations: ['Denied', 'None evidenced'],
     thought_content: ['Within normal limits'],
@@ -1006,33 +1418,107 @@ function pageFill(config, merged, dryRun) {
     judgment: ['Within normal limits'],
     judgement: ['Within normal limits']
   };
+  const normalizeMseSelection = (value) => String(value || '').trim().toLowerCase();
+  const normalSelectionsForMseItem = (itemKey) => (
+    mseNormalSelectionsByItem[canonicalMseItemKey(itemKey)] ||
+    mseNormalSelectionsByItem[itemKey] ||
+    []
+  );
+  const truthySelectionFlag = (value) => (
+    value === true ||
+    ['true', 'yes', 'checked', '1', 'selected', 'x'].includes(String(value ?? '').trim().toLowerCase())
+  );
+  const selectionListFromMseItem = (item) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return [];
+    if (Array.isArray(item.selections)) return item.selections.map(selection => String(selection || '').trim()).filter(Boolean);
+    if (item.selections && typeof item.selections === 'object') {
+      return Object.entries(item.selections)
+        .filter(([, value]) => truthySelectionFlag(value))
+        .map(([selection]) => String(selection || '').trim())
+        .filter(Boolean);
+    }
+    if (typeof item.selections === 'string') return [item.selections.trim()].filter(Boolean);
+    return [];
+  };
+  const mseItemFromData = (data, itemKey) => {
+    const items = data?.mse?.items;
+    if (!items || typeof items !== 'object' || Array.isArray(items)) return null;
+    for (const key of itemKeyAliases(itemKey)) {
+      if (items[key] && typeof items[key] === 'object' && !Array.isArray(items[key])) return items[key];
+    }
+    return null;
+  };
+  const mseItemHasAbnormalOrOther = (data, itemKey) => {
+    const item = mseItemFromData(data, itemKey);
+    if (!item) return false;
+    const normalSet = new Set(normalSelectionsForMseItem(itemKey).map(normalizeMseSelection));
+    const selections = selectionListFromMseItem(item).map(normalizeMseSelection).filter(Boolean);
+    const hasOtherText = Boolean(String(item.other_text || item.narrative || '').trim());
+    const hasOtherSelection = selections.includes('other');
+    const hasAbnormalSelection = selections.some(selection => !normalSet.has(selection));
+    return hasOtherText || hasOtherSelection || hasAbnormalSelection;
+  };
+  const mseSelectionPathInfo = (path) => {
+    const text = String(path || '');
+    const prefixedSelection = text.match(/^mse\.items\.([^.]+)\.selections\.(.+)$/);
+    if (prefixedSelection) return { itemKey: canonicalMseItemKey(prefixedSelection[1]), selection: prefixedSelection[2] };
+    const bareSelection = text.match(/^([^.]+)\.selections\.(.+)$/);
+    if (bareSelection) return { itemKey: canonicalMseItemKey(bareSelection[1]), selection: bareSelection[2] };
+    const prefixedChoice = text.match(/^mse\.items\.([^.]+)\.([^.]+)$/);
+    if (prefixedChoice && !['other_text', 'narrative'].includes(prefixedChoice[2])) {
+      return { itemKey: canonicalMseItemKey(prefixedChoice[1]), selection: prefixedChoice[2] };
+    }
+    const bareChoice = text.match(/^([^.]+)\.([^.]+)$/);
+    if (bareChoice && !['other_text', 'narrative'].includes(bareChoice[2])) {
+      return { itemKey: canonicalMseItemKey(bareChoice[1]), selection: bareChoice[2] };
+    }
+    return null;
+  };
+  const isMseNormalSelectionPath = (path) => {
+    const info = mseSelectionPathInfo(path);
+    if (!info) return false;
+    const normalSlugs = new Set(normalSelectionsForMseItem(info.itemKey).map(selection => slugToken(selection)));
+    return normalSlugs.has(slugToken(info.selection));
+  };
   const normalizeMseSelectionConflicts = (data) => {
     const items = data?.mse?.items;
     if (!items || typeof items !== 'object' || Array.isArray(items)) return;
-    const normalizeSelection = (value) => String(value || '').trim().toLowerCase();
     for (const [itemKey, normalSelections] of Object.entries(mseNormalSelectionsByItem)) {
-      const item = items[itemKey];
-      if (!item || !Array.isArray(item.selections)) continue;
-      const normalSet = new Set(normalSelections.map(normalizeSelection));
-      const hasAbnormalSelection = item.selections.some(selection => !normalSet.has(normalizeSelection(selection)));
+      const item = mseItemFromData(data, itemKey);
+      if (!item) continue;
+      const normalSet = new Set(normalSelections.map(normalizeMseSelection));
+      const selections = selectionListFromMseItem(item);
+      const hasAbnormalSelection = selections.some(selection => !normalSet.has(normalizeMseSelection(selection)));
       if (!hasAbnormalSelection) continue;
-      const before = item.selections.slice();
-      item.selections = item.selections.filter(selection => !normalSet.has(normalizeSelection(selection)));
-      if (item.selections.length !== before.length) {
-        dataShapeWarnings.push(`MSE ${itemKey} included normal/default selection with abnormal or Other selection; removed ${before.filter(selection => normalSet.has(normalizeSelection(selection))).join(', ')} before filling.`);
+      if (Array.isArray(item.selections)) {
+        const before = item.selections.slice();
+        item.selections = item.selections.filter(selection => !normalSet.has(normalizeMseSelection(selection)));
+        if (item.selections.length !== before.length) {
+          dataShapeWarnings.push(`MSE ${itemKey} included normal/default selection with abnormal or Other selection; removed ${before.filter(selection => normalSet.has(normalizeMseSelection(selection))).join(', ')} before filling.`);
+        }
+      } else if (item.selections && typeof item.selections === 'object') {
+        const removed = [];
+        for (const [selection, selected] of Object.entries(item.selections)) {
+          if (truthySelectionFlag(selected) && normalSet.has(normalizeMseSelection(selection))) {
+            item.selections[selection] = false;
+            removed.push(selection);
+          }
+        }
+        if (removed.length) {
+          dataShapeWarnings.push(`MSE ${itemKey} included normal/default selection with abnormal or Other selection; removed ${removed.join(', ')} before filling.`);
+        }
       }
     }
   };
   const normalizeMseOtherTextSelections = (data, sourceLabel) => {
     const items = data?.mse?.items;
     if (!items || typeof items !== 'object' || Array.isArray(items)) return;
-    const normalizeSelection = (value) => String(value || '').trim().toLowerCase();
     for (const [itemKey, item] of Object.entries(items)) {
       if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
       const otherText = String(item.other_text || item.narrative || '').trim();
       if (!otherText) continue;
       if (Array.isArray(item.selections)) {
-        if (!item.selections.some(selection => normalizeSelection(selection) === 'other')) {
+        if (!item.selections.some(selection => normalizeMseSelection(selection) === 'other')) {
           item.selections.push('Other');
           dataShapeWarnings.push(`${sourceLabel} ${itemKey} included other_text without Other selected; selected Other before filling.`);
         }
@@ -1057,11 +1543,81 @@ function pageFill(config, merged, dryRun) {
     } else if (hasNestedMedicalMedications && hasTopLevelMedications) {
       dataShapeWarnings.push('Prompt 3 returned both medications.* and medical.medications; using top-level medications.* values.');
     }
+    const thirdSubstanceAge = parseSubstanceAgeValue(getPath(normalized, 'substance_use.substance_3.age_first_use'));
+    if (!hasSpecificValue(getPath(normalized, 'substance_use.substance_3.substance')) && thirdSubstanceAge.substance) {
+      setPathLocal(normalized, 'substance_use.substance_3.substance', thirdSubstanceAge.substance);
+      dataShapeWarnings.push('Substance 3 age_first_use included a substance name; normalized it to the separate Substance 3 substance field before filling.');
+    }
+    if (thirdSubstanceAge.age && thirdSubstanceAge.age !== normalizedTextValue(getPath(normalized, 'substance_use.substance_3.age_first_use'))) {
+      setPathLocal(normalized, 'substance_use.substance_3.age_first_use', thirdSubstanceAge.age);
+    }
+    if (choiceIsYes(normalized, 'medical.has_primary_care')) {
+      ['primary_care_clinic_or_doctor', 'primary_care_doctor_name'].forEach(field => {
+        const path = `medical.${field}`;
+        if (isRuleBlank(getPath(normalized, path))) setPathLocal(normalized, path, 'Unknown by client');
+      });
+    } else if (choiceIsNo(normalized, 'medical.has_primary_care')) {
+      setPathLocal(normalized, 'medical.primary_care_clinic_or_doctor', 'n/a');
+      setPathLocal(normalized, 'medical.primary_care_doctor_name', 'n/a');
+    }
+    if (choiceIsNo(normalized, 'mental_health_treatment.currently_working_with_psychiatrist') &&
+      choiceIsNo(normalized, 'mental_health_treatment.currently_working_with_therapist')) {
+      setPathLocal(normalized, 'mental_health_treatment.mental_health_professionals_contact', 'n/a');
+    }
+    if (noMentalHealthDiagnosisHistory(normalized)) {
+      setPathLocal(normalized, 'mental_health.no_history', true);
+      setPathLocal(normalized, 'mental_health.diagnosis_history', `${clientSubject()} reports no history of mental health diagnosis.`);
+      setPathLocal(normalized, 'mental_health.age_diagnosed', 'n/a');
+      setPathLocal(normalized, 'mental_health.diagnosed_by', 'n/a');
+      clearYesNoChoiceLocal(normalized, 'mental_health.agrees_with_diagnosis');
+      setPathLocal(normalized, 'mental_health.using_substances_at_diagnosis', 'n/a');
+      setPathLocal(normalized, 'mental_health.substance_use_impacted_diagnosis', 'n/a');
+    }
+    for (let i = 1; i <= 3; i++) {
+      const base = `medications.medication_${i}`;
+      const hasMedication = hasSpecificValue(getPath(normalized, `${base}.name`)) ||
+        hasSpecificValue(getPath(normalized, `${base}.dosage_frequency`));
+      if (hasMedication && !explicitYesNoChoice(normalized, `${base}.mixed_with_alcohol_or_drugs`)) {
+        setChoiceLocal(normalized, `${base}.mixed_with_alcohol_or_drugs`, 'no');
+      }
+    }
+    if (choiceIsYes(normalized, 'sexual_history.tested_std_hepatitis_hiv')) {
+      setChoiceLocal(normalized, 'sexual_history.wants_sexual_health_resources_if_no', 'no');
+    }
+    if (choiceIsNo(normalized, 'medical.dental_problems')) {
+      setPathLocal(normalized, 'medical.dentist_next_plan', `${clientSubject()} reports no dental problems or plans to see a dentist at this time.`);
+    } else if (choiceIsYes(normalized, 'medical.dental_problems')) {
+      const currentPlan = getPath(normalized, 'medical.dentist_next_plan');
+      const planText = lowerTextValue(currentPlan);
+      const hasAppointmentPlan = hasSpecificValue(currentPlan) &&
+        /\b(appointment|scheduled|set up|next|tomorrow|today|week|month|on \d|plans? to see|will see)\b/.test(planText) &&
+        !/\b(no|not|without)\b.*\b(appointment|scheduled|set up)\b/.test(planText);
+      if (!hasAppointmentPlan) {
+        const concern = firstSpecificPathValue(normalized, [
+          'medical.dental_concern',
+          'medical.dental_concerns',
+          'medical.dental_problem_details',
+          'medical.dental_issue',
+          'medical.dental_issues'
+        ]) || (hasSpecificValue(currentPlan) ? currentPlan : 'dental concerns');
+        setPathLocal(normalized, 'medical.dentist_next_plan', `${clientSubject()} reports ${normalizedTextValue(concern)} and is not set up to see a dentist at this time.`);
+      }
+    }
+    const religion = getPath(normalized, 'spiritual_cultural.religion_affiliation');
+    if (isRuleBlank(religion) || ['no', 'none', 'no affiliation', 'none reported', 'not affiliated'].includes(lowerTextValue(religion))) {
+      setPathLocal(normalized, 'spiritual_cultural.religion_affiliation', 'No');
+      setPathLocal(normalized, 'spiritual_cultural.active_in_religion', 'n/a');
+    }
+    const tobaccoAmount = getPath(normalized, 'tobacco.amount_and_frequency');
+    const tobaccoText = [tobaccoAmount, getPath(normalized, 'tobacco.type'), getPath(normalized, 'tobacco.tobacco_type')].filter(Boolean).join(' ');
+    if (choiceIsYes(normalized, 'tobacco.uses_tobacco_or_vapes') || textIncludesAny(tobaccoText, ['tobacco', 'nicotine', 'vape', 'vaping', 'cigarette', 'cigarettes', 'smoke', 'smoking'])) {
+      setChoiceLocal(normalized, 'tobacco.uses_tobacco_or_vapes', 'yes');
+      setPathLocal(normalized, 'tobacco.amount_and_frequency', tobaccoNarrative(tobaccoAmount || tobaccoText));
+    }
     normalizeMseOtherTextSelections(normalized, 'MSE response');
     normalizeMseSelectionConflicts(normalized);
     return normalized;
   };
-  merged = normalizeMergedData(merged);
   const choiceFromPath = (path) => {
     const dotMatch = String(path || '').match(/^(.*)\.(yes|no)$/);
     if (dotMatch) return { parentPath: dotMatch[1], choice: dotMatch[2] };
@@ -1088,7 +1644,11 @@ function pageFill(config, merged, dryRun) {
   const getChoiceValue = (obj, path) => {
     const choicePath = choiceFromPath(path);
     if (!choicePath) return undefined;
-    const parentValue = coerce(getPath(obj, choicePath.parentPath));
+    const parentRaw = getPath(obj, choicePath.parentPath);
+    if (parentRaw && typeof parentRaw === 'object' && !Array.isArray(parentRaw) && choicePath.choice in parentRaw) {
+      return coerce(parentRaw[choicePath.choice]);
+    }
+    const parentValue = coerce(parentRaw);
     const matched = valueMatchesChoice(parentValue, choicePath.choice);
     return matched === undefined ? undefined : matched;
   };
@@ -1107,6 +1667,7 @@ function pageFill(config, merged, dryRun) {
     const rect = el.getBoundingClientRect();
     return rect.width > 0 && rect.height > 0;
   };
+  merged = normalizeMergedData(merged);
   const buildRoseRuleDefaults = (data) => {
     const defaults = {};
     const set = (path, value) => setPathLocal(defaults, path, value);
@@ -1137,6 +1698,7 @@ function pageFill(config, merged, dryRun) {
         set(`${base}.tried_to_quit`, 'yes');
       } else if (i > 1) {
         [
+          'substance',
           'age_first_use',
           'amount_used',
           'frequency_used',
@@ -1148,11 +1710,10 @@ function pageFill(config, merged, dryRun) {
           'consequences',
           'sober_duration'
         ].forEach(field => set(`${base}.${field}`, 'n/a'));
-        if (i === 3) set(`${base}.extra_notes`, 'n/a');
       }
     }
-    if (!hasAnyUsefulPath(data, ['substance_use.substance_2.age_first_use', 'substance_use.substance_3.age_first_use', 'substance_use.other_substances'])) {
-      set('substance_use.other_substances', 'Client reports no other substances used in the past.');
+    if (!hasAnyUsefulPath(data, ['substance_use.substance_2.age_first_use', 'substance_use.substance_3.substance', 'substance_use.substance_3.age_first_use', 'substance_use.other_substances'])) {
+      set('substance_use.other_substances', `${clientSubject()} reports no other substances used in the past.`);
     }
 
     const tobaccoText = firstUsefulPathValue(data, ['tobacco.amount_and_frequency']);
@@ -1188,16 +1749,22 @@ function pageFill(config, merged, dryRun) {
 
     set('previous_substance_use_treatment.sponsor_or_mentor', 'no');
     set('mental_health.diagnosed_by', 'Unknown');
-    if (choiceIsYes(data, 'mental_health.no_history')) {
-      set('mental_health.diagnosis_history', 'n/a');
+    if (choiceIsYes(data, 'mental_health.no_history') || noMentalHealthDiagnosisHistory(data)) {
+      set('mental_health.no_history', true);
+      set('mental_health.diagnosis_history', `${clientSubject()} reports no history of mental health diagnosis.`);
       set('mental_health.age_diagnosed', 'n/a');
+      set('mental_health.diagnosed_by', 'n/a');
       set('mental_health.using_substances_at_diagnosis', 'n/a');
       set('mental_health.substance_use_impacted_diagnosis', 'n/a');
-    } else if (!choiceIsNo(data, 'mental_health.no_history') && hasAnyUsefulPath(data, ['mental_health.diagnosis_history'])) {
-      set('mental_health.using_substances_at_diagnosis', 'Client reports they were not using substances at the time of their diagnosis.');
+    } else if (!truthySelectionFlag(getPath(data, 'mental_health.no_history')) && hasAnyUsefulPath(data, ['mental_health.diagnosis_history'])) {
+      set('mental_health.using_substances_at_diagnosis', `${clientSubject()} reports they were not using substances at the time of their diagnosis.`);
       set('mental_health.substance_use_impacted_diagnosis', 'n/a');
     }
     set('mental_health_treatment.not_interested_in_resources', false);
+    if (choiceIsNo(data, 'mental_health_treatment.currently_working_with_psychiatrist') &&
+      choiceIsNo(data, 'mental_health_treatment.currently_working_with_therapist')) {
+      set('mental_health_treatment.mental_health_professionals_contact', 'n/a');
+    }
     set('symptoms_suicide_self_harm.plan_to_end_life', 'no');
     set('symptoms_suicide_self_harm.means_or_plan_to_obtain_means', 'no');
     set('symptoms_suicide_self_harm.access_to_self_harm_means', 'n/a');
@@ -1232,9 +1799,12 @@ function pageFill(config, merged, dryRun) {
     set('family.father_mental_health_history', 'No');
     set('family.father_substance_abuse_history', 'No');
     set('family.has_siblings', 'yes');
-    if (hasUsefulValue(getPath(data, 'spiritual_cultural.religion_affiliation'))) {
-      const religion = firstUsefulPathValue(data, ['spiritual_cultural.religion_affiliation']);
+    if (hasSpecificValue(getPath(data, 'spiritual_cultural.religion_affiliation'))) {
+      const religion = firstSpecificPathValue(data, ['spiritual_cultural.religion_affiliation']);
       set('spiritual_cultural.active_in_religion', String(religion).trim().toLowerCase() === 'no' ? 'n/a' : 'Yes');
+    } else {
+      set('spiritual_cultural.religion_affiliation', 'No');
+      set('spiritual_cultural.active_in_religion', 'n/a');
     }
     const growingUp = firstUsefulPathValue(data, ['family.growing_up_experience']);
     if (hasUsefulValue(growingUp)) set('spiritual_cultural.culture_values_raised_with', growingUp);
@@ -1250,6 +1820,25 @@ function pageFill(config, merged, dryRun) {
       set('medical.has_or_needs_epipen', 'n/a');
     } else if (choiceIsYes(data, 'medical.allergies') || hasUsefulValue(getPath(data, 'medical.allergy_reaction'))) {
       set('medical.has_or_needs_epipen', 'No');
+    }
+    if (choiceIsYes(data, 'medical.has_primary_care')) {
+      set('medical.primary_care_clinic_or_doctor', 'Unknown by client');
+      set('medical.primary_care_doctor_name', 'Unknown by client');
+    } else if (choiceIsNo(data, 'medical.has_primary_care')) {
+      set('medical.primary_care_clinic_or_doctor', 'n/a');
+      set('medical.primary_care_doctor_name', 'n/a');
+    }
+    if (choiceIsNo(data, 'medical.dental_problems')) {
+      set('medical.dentist_next_plan', `${clientSubject()} reports no dental problems or plans to see a dentist at this time.`);
+    } else if (choiceIsYes(data, 'medical.dental_problems')) {
+      const dentalConcern = firstSpecificPathValue(data, [
+        'medical.dental_concern',
+        'medical.dental_concerns',
+        'medical.dental_problem_details',
+        'medical.dental_issue',
+        'medical.dental_issues'
+      ]);
+      set('medical.dentist_next_plan', `${clientSubject()} reports ${normalizedTextValue(dentalConcern || 'dental concerns')} and is not set up to see a dentist at this time.`);
     }
     for (let i = 1; i <= 3; i++) {
       const base = `medications.medication_${i}`;
@@ -1275,8 +1864,6 @@ function pageFill(config, merged, dryRun) {
     if (choiceIsYes(data, 'sexual_history.tested_std_hepatitis_hiv')) {
       set('sexual_history.wants_sexual_health_resources_if_no', 'no');
       set('sexual_history.additional_notes', 'n/a');
-    } else if (choiceIsNo(data, 'sexual_history.tested_std_hepatitis_hiv')) {
-      set('sexual_history.wants_sexual_health_resources_if_no', 'yes');
     }
     set('vocational.persons_living_on_income', 'Self');
     set('educational.clubs_or_sports', 'No');
@@ -1337,15 +1924,29 @@ function pageFill(config, merged, dryRun) {
   };
   const formatValueForField = (value, matchedPath) => {
     const substanceMatch = String(matchedPath || '').match(/^substance_use\.substance_([123])\.age_first_use$/);
-    if (!substanceMatch || isBlankLocal(value)) return value;
+    if (!substanceMatch || isBlankLocal(value)) return applyClientNameToNarrative(value);
+    if (substanceMatch[1] === '3') {
+      return applyClientNameToNarrative(parseSubstanceAgeValue(value).age || value);
+    }
     const substance = firstUsefulPathValue(merged, [`substance_use.substance_${substanceMatch[1]}.substance`]);
     const text = String(value);
-    if (!hasUsefulValue(substance) || /age of first use:/i.test(text)) return value;
-    return `${substance}\n\nAge of first use: ${text}`;
+    if (!hasUsefulValue(substance) || /age of first use:/i.test(text)) return applyClientNameToNarrative(value);
+    return applyClientNameToNarrative(`${substance}\n\nAge of first use: ${text}`);
   };
   const defaultObj = mergeDefaults(buildRoseRuleDefaults(merged), config.defaultAnswersObject || {});
   normalizeMseOtherTextSelections(defaultObj, 'MSE default');
   normalizeMseSelectionConflicts(defaultObj);
+  const suppressedMseNormalDefaultItems = new Set(
+    [...new Set(Object.keys(mseNormalSelectionsByItem).map(canonicalMseItemKey))]
+      .filter(itemKey => mseItemHasAbnormalOrOther(merged, itemKey))
+  );
+  if (suppressedMseNormalDefaultItems.size) {
+    dataShapeWarnings.push(`MSE response has abnormal or Other findings for ${[...suppressedMseNormalDefaultItems].join(', ')}; normal/default answers for those items will be ignored.`);
+  }
+  const shouldSkipMseNormalDefaultPath = (path) => {
+    const info = mseSelectionPathInfo(path);
+    return Boolean(info && suppressedMseNormalDefaultItems.has(canonicalMseItemKey(info.itemKey)) && isMseNormalSelectionPath(path));
+  };
   const defaultRowPaths = new Set((config.defaultAnswers || []).map(row => String(row.question || '').trim()).filter(Boolean));
   const mappedPaths = new Set();
   (config.fieldMap || []).forEach(item => (item.paths || []).forEach(path => mappedPaths.add(path)));
@@ -1389,10 +1990,12 @@ function pageFill(config, merged, dryRun) {
       if (!isBlankLocal(fromDataChoice)) return { value: fromDataChoice, source: 'BastionGPT response', matchedPath: path };
     }
     for (const path of expandedPaths) {
+      if (shouldSkipMseNormalDefaultPath(path)) continue;
       const fromDefault = coerce(getPath(defaultObj, path));
       if (!isBlankLocal(fromDefault)) return { value: formatValueForField(fromDefault, path), source: 'Rose default answer', matchedPath: path };
     }
     for (const path of expandedPaths) {
+      if (shouldSkipMseNormalDefaultPath(path)) continue;
       const fromDefaultChoice = getChoiceValue(defaultObj, path);
       if (!isBlankLocal(fromDefaultChoice)) return { value: fromDefaultChoice, source: 'Rose default answer', matchedPath: path };
     }
@@ -1459,6 +2062,27 @@ function pageFill(config, merged, dryRun) {
     const bare = String(path || '').match(/^([^.]+)\.(other_text|narrative)$/);
     return bare ? canonicalMseItemKey(bare[1]) : '';
   };
+  const looksLikeMseRuntime = () => config.workflowMode === 'mse' || (config.fieldMap || []).some(mapItem => (mapItem.paths || []).some(path => /^mse\.items\./.test(String(path || ''))));
+  const textLikeHasMseOtherPair = (el) => {
+    if (!looksLikeMseRuntime() || isCheckboxLike(el)) return false;
+    const tag = String(el?.tagName || '').toLowerCase();
+    const type = String(el?.type || '').toLowerCase();
+    if (!['textarea', 'select'].includes(tag) && !['text', 'search', 'email', 'tel', 'url', 'number', ''].includes(type) && !el?.isContentEditable) return false;
+    return Boolean(findNearbyOtherCheckbox(el));
+  };
+  const mseItemKeyFromTextElement = (el) => {
+    const row = el.closest('tr');
+    for (let candidate = row, depth = 0; candidate && depth < 4; candidate = candidate.previousElementSibling, depth++) {
+      const cells = [...candidate.children].filter(child => child.tagName === 'TD' || child.tagName === 'TH');
+      for (const cell of cells.slice(0, 3)) {
+        const text = String(cell.innerText || cell.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!text || /^(\d+\.?|&nbsp;|\s*)$/.test(text) || /^other:?$/i.test(text)) continue;
+        const key = canonicalMseItemKey(text);
+        if (key && key !== 'other') return key;
+      }
+    }
+    return '';
+  };
   const isCheckboxLike = (el) => ['checkbox', 'radio'].includes((el?.type || '').toLowerCase());
   const labelTextForInput = (el) => {
     const explicitLabel = el.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`) : null;
@@ -1493,14 +2117,13 @@ function pageFill(config, merged, dryRun) {
     return isCheckboxLike(el) ? el : null;
   };
   const ensureMseOtherCheckboxForText = ({ textEl, itemKey, fields, result, base, dryRun }) => {
-    if (!itemKey) return null;
     const checkbox = findMappedOtherCheckbox(itemKey, fields) || findNearbyOtherCheckbox(textEl);
     if (!checkbox) {
       const detail = {
         ...base,
         action: 'linked_other_checkbox_missing',
-        linkedItem: itemKey,
-        warning: `MSE ${itemKey} other_text was written, but no nearby Other checkbox was found.`
+        linkedItem: itemKey || '',
+        warning: `MSE text field was written${itemKey ? ` for ${itemKey}` : ''}, but no nearby Other checkbox was found.`
       };
       result.warnings.push(detail.warning);
       result.trace.push(detail);
@@ -1527,7 +2150,7 @@ function pageFill(config, merged, dryRun) {
     const detail = {
       ...describeElement(checkbox, fields.indexOf(checkbox)),
       linkedFromFillIndex: base.fillIndex,
-      linkedItem: itemKey,
+      linkedItem: itemKey || '',
       action: dryRun ? 'dry_run_linked_other_checkbox_write' : 'linked_other_checkbox_write',
       valueWritten: true,
       finalValue,
@@ -1676,12 +2299,12 @@ function pageFill(config, merged, dryRun) {
           };
         }
       }
-      const linkedMseOtherItem = !isCheckboxLike(el)
-        ? (item.paths || []).map(mseOtherTextItemKey).find(Boolean)
+      const linkedMseOtherItem = !isCheckboxLike(el) && looksLikeMseRuntime()
+        ? ((item.paths || []).map(mseOtherTextItemKey).find(Boolean) || mseItemKeyFromTextElement(el))
         : '';
-      if (linkedMseOtherItem && String(valueToWrite ?? '').trim()) {
+      if (!isCheckboxLike(el) && looksLikeMseRuntime() && String(valueToWrite ?? '').trim() && (linkedMseOtherItem || textLikeHasMseOtherPair(el))) {
         ensureMseOtherCheckboxForText({ textEl: el, itemKey: linkedMseOtherItem, fields, result, base, dryRun });
-        clearMseNormalCheckboxesForOtherText({ itemKey: linkedMseOtherItem, fields, result, base, dryRun });
+        if (linkedMseOtherItem) clearMseNormalCheckboxesForOtherText({ itemKey: linkedMseOtherItem, fields, result, base, dryRun });
       }
       result.written++;
       if (foundValue.source === 'Rose default answer') result.defaultWritten++;
@@ -1715,6 +2338,7 @@ function buildMseRuntimeConfig() {
   const mode = workflowMode('mse');
   const rows = getWorkflowDefaultRows('mse');
   return {
+    workflowMode: 'mse',
     selector: mode.selector || 'textarea, select, input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), [contenteditable="true"]',
     onlyVisibleControls: mode.onlyVisibleControls ?? true,
     expectedFieldCount: mode.expectedFieldCount,
@@ -1759,22 +2383,25 @@ function validateMseResponse() {
     build_stature: ['Within Normal Limits'],
     posture: ['Within Normal Limits'],
     activity: ['Within Normal Limits'],
+    thought_process: ['Logical'],
     perception: ['Within normal limits'],
     hallucinations: ['Denied', 'None evidenced'],
     thought_content: ['Within normal limits'],
     delusions: ['None reported'],
     cognition: ['Within normal limits'],
     insight: ['Within normal limits'],
-    judgment: ['Within normal limits']
+    judgment: ['Within normal limits'],
+    judgement: ['Within normal limits']
   };
   const normalizeSelection = (value) => String(value || '').trim().toLowerCase();
   const selectionConflicts = Object.entries(normalSelectionsByItem)
     .filter(([key, normalSelections]) => {
       const selections = Array.isArray(items[key]?.selections) ? items[key].selections : [];
+      const otherText = String(items[key]?.other_text || items[key]?.narrative || '').trim();
       if (!selections.length) return false;
       const normalSet = new Set(normalSelections.map(normalizeSelection));
       return selections.some(selection => normalSet.has(normalizeSelection(selection))) &&
-        selections.some(selection => !normalSet.has(normalizeSelection(selection)));
+        (otherText || selections.some(selection => !normalSet.has(normalizeSelection(selection))));
     })
     .map(([key]) => key);
   return {
@@ -1798,7 +2425,8 @@ async function saveMseResponse() {
 
 $('loadRemote').onclick = async () => {
   try {
-    const url = $('configUrl').value.trim();
+    const url = migrateLegacyConfigUrl($('configUrl').value.trim());
+    $('configUrl').value = url;
     const warnings = await loadRemoteConfigBundle(url);
     if (warnings.length) logTo('validation', { warnings });
     setStatus(warnings.length ? 'Remote config loaded with warnings' : 'Remote configs loaded');
@@ -1806,7 +2434,7 @@ $('loadRemote').onclick = async () => {
 };
 $('useBundled').onclick = async () => {
   activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
-  workflowConfig = window.DEFAULT_ROSE_WORKFLOW_CONFIG || {};
+  workflowConfig = normalizeWorkflowConfigUrls(window.DEFAULT_ROSE_WORKFLOW_CONFIG || {});
   activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG || {};
   defaultRows = getConfigDefaultRows(activeConfig);
   await chrome.storage.local.set({
@@ -2054,13 +2682,32 @@ $('discoverPage').onclick = async () => {
   try {
     const pathPrefix = $('discoveryPrefix').value.trim();
     await chrome.storage.local.set({ [STORAGE_KEYS.discoveryPrefix]: pathPrefix });
-    const result = await runInActiveTab(pageDiscover, [{ pathPrefix }]);
+    const result = await runInActiveTab(pageDiscover, [{
+      pathPrefix,
+      includeHiddenControls: Boolean($('discoverHiddenControls')?.checked),
+      capturePageSource: Boolean($('discoverPageSource')?.checked),
+      expandInteractiveSections: Boolean($('discoverClickSections')?.checked)
+    }]);
     if (result?.error) throw new Error(result.error);
     discoveryReport = result;
-    await chrome.storage.local.set({ [STORAGE_KEYS.discoveryReport]: discoveryReport });
+    const storedReport = result.pageSource?.html
+      ? {
+          ...result,
+          pageSource: {
+            ...result.pageSource,
+            html: '',
+            htmlOmittedFromStorage: true
+          }
+        }
+      : result;
+    try {
+      await chrome.storage.local.set({ [STORAGE_KEYS.discoveryReport]: storedReport });
+    } catch {
+      await chrome.storage.local.remove([STORAGE_KEYS.discoveryReport]);
+    }
     renderDiscoveryReport();
-    await appendTrace(result);
-    setStatus(`Discovered ${result.totalControls} controls`);
+    await appendTrace(storedReport);
+    setStatus(`Discovered ${result.totalControls} controls (${result.hiddenControlCount || 0} hidden/collapsed)`);
   } catch (err) { logTo('discoveryResults', err.message); setStatus('Discovery failed'); }
 };
 async function applyVisualMapping(mode) {

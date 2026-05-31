@@ -8,10 +8,18 @@
     fieldset { margin-bottom: 20px; padding: 16px; }
     label { display: block; margin: 8px 0; }
     textarea { width: 420px; height: 70px; }
+    .collapsed-panel { display: none; }
+    .collapsed-panel.active { display: block; }
   </style>
+  <script>
+    function showCollapsedSection() {
+      document.getElementById('diagnostics-panel').classList.add('active');
+    }
+  </script>
 </head>
 <body>
   <h1>Behavioral Health Intake</h1>
+  <button type="button" aria-controls="diagnostics-panel" onclick="showCollapsedSection()">Diagnostics Section</button>
   <form>
     <fieldset>
       <legend>Mental Status Exam</legend>
@@ -89,6 +97,11 @@
         </tr>
       </tbody>
     </table>
+    <section id="diagnostics-panel" class="collapsed-panel">
+      <h2>Diagnostics Part 4</h2>
+      <label for="diagnostic_summary">Diagnostic Summary</label>
+      <textarea id="diagnostic_summary" name="diagnostic_summary"></textarea>
+    </section>
   </form>
 </body>
 </html>

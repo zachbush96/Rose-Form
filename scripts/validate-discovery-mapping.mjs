@@ -7,7 +7,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const sidepanelPath = path.join(repoRoot, 'extension', 'sidepanel.js');
 const mockFormPath = path.join(repoRoot, 'mockups', 'test-discovery-form.html');
 const sidepanelSource = fs.readFileSync(sidepanelPath, 'utf8');
-const discoverStart = sidepanelSource.indexOf('function pageDiscover(options = {})');
+const discoverStart = sidepanelSource.indexOf('async function pageDiscover(options = {})');
 const discoverEnd = sidepanelSource.indexOf('function pageFill(config, merged, dryRun)', discoverStart);
 const discoverSource = discoverStart === -1 || discoverEnd === -1
   ? ''
@@ -21,15 +21,15 @@ const browser = await chromium.launch();
 const page = await browser.newPage();
 const failures = [];
 
-async function runDiscovery(url, pathPrefix) {
+async function runDiscovery(url, pathPrefix, options = {}) {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
   return page.evaluate(
-    ({ discoverSource, pathPrefix }) => {
+    ({ discoverSource, pathPrefix, options }) => {
       // eslint-disable-next-line no-eval
       eval(discoverSource);
-      return pageDiscover({ pathPrefix });
+      return pageDiscover({ pathPrefix, ...options });
     },
-    { discoverSource, pathPrefix }
+    { discoverSource, pathPrefix, options }
   );
 }
 async function runVisualMapping(mode, pathPrefix) {
@@ -54,6 +54,18 @@ if (!localResult.controls.some(control => control.type === 'radio' && control.op
 if (!localResult.controls.some(control => control.selectorHints.dataQnFieldId === '10371' && control.questionNumber === '1' && control.questionText === 'Perception' && control.answerText === 'Within normal limits' && control.suggestedPath === 'mse.perception.within_normal_limits')) failures.push('local Part 2 table checkbox did not include question context');
 if (!localResult.controls.some(control => control.selectorHints.dataQnFieldId === '10376' && control.questionText === 'Perception' && control.suggestedPath === 'mse.perception.other')) failures.push('local Part 2 continuation row did not inherit the question context');
 if (!localResult.controls.some(control => control.selectorHints.dataQnFieldId === '10377' && control.questionText === 'Perception' && control.answerText === 'Other text' && control.suggestedPath === 'mse.perception.other_text')) failures.push('local Part 2 wrapped textarea did not inherit the question and wrapper field id');
+const deepResult = await runDiscovery(pathToFileURL(mockFormPath).href, 'mse', {
+  includeHiddenControls: true,
+  capturePageSource: true,
+  expandInteractiveSections: true
+});
+if (deepResult.totalControls !== 13) failures.push(`deep discovery expected 13 controls including collapsed controls, found ${deepResult.totalControls}`);
+if (deepResult.hiddenControlCount < 1) failures.push('deep discovery did not report hidden/collapsed controls');
+if (!deepResult.controls.some(control => control.id === 'diagnostic_summary' && control.suggestedPath === 'mse.diagnostics_part_4.diagnostic_summary')) failures.push('deep discovery did not capture the collapsed diagnostics textarea');
+if (!deepResult.pageSource?.html?.includes('diagnostics-panel')) failures.push('deep discovery did not include full page HTML source');
+if (!deepResult.interactiveElements.some(item => item.ariaControls === 'diagnostics-panel')) failures.push('deep discovery did not inventory the diagnostics section button');
+if (!deepResult.expansionSnapshots.some(snapshot => snapshot.ariaControls === 'diagnostics-panel' && snapshot.afterVisibleControls === 13)) failures.push('deep discovery did not click through the diagnostics section');
+await page.goto(pathToFileURL(mockFormPath).href, { waitUntil: 'domcontentloaded', timeout: 30000 });
 const labelsResult = await runVisualMapping('labels', 'mse');
 const labelCount = await page.locator('.rose-discovery-map-label').count();
 if (labelsResult.controls !== localResult.totalControls) failures.push(`visual labels expected ${localResult.totalControls} controls, found ${labelsResult.controls}`);
