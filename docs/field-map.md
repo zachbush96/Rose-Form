@@ -2,6 +2,8 @@
 
 Total mapped fields: 264
 
+Substance mapping note: Substance 1 and Substance 2 do not expose writable `Substance` textboxes in ReliaTrax, so their `age_first_use` values are combined values such as `Cocaine: 16 years old`. Substance 3 exposes separate `Substance` and `Age of first use` textboxes at fill indices 35 and 36, and the runtime splits common combined third-substance values before filling.
+
 | Fill index | Primary path | Alternate paths |
 |---:|---|---|
 | 0 | `living_situation.referral_source` |  |

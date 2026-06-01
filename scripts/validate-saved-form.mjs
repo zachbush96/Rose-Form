@@ -194,7 +194,7 @@ const partOneRulesJson = {
   },
   substance_use: {
     substance_3: {
-      age_first_use: 'Cannabis: age 14',
+      age_first_use: 'Substance: Cannabis Age of first use: 14',
       amount_used: 'about 1 gram',
       frequency_used: 'weekly',
       tolerance: '',
@@ -305,6 +305,49 @@ const partOneSnapshot = await partOnePage.evaluate(() => {
   };
 });
 
+const threeSubstancePromptJson = {
+  client: { first_name: 'Riley' },
+  substance_use: {
+    substance_1: {
+      age_first_use: 'Cocaine: 16 years old'
+    },
+    substance_2: {
+      age_first_use: 'Alcohol: 14 years old'
+    },
+    substance_3: {
+      substance: 'Cannabis',
+      age_first_use: '12 years old',
+      amount_used: 'weekend use'
+    }
+  }
+};
+
+const threeSubstancePage = await browser.newPage();
+await threeSubstancePage.goto(pathToFileURL(savedFormPath).href);
+const threeSubstanceResult = await threeSubstancePage.evaluate(
+  ({ config, threeSubstancePromptJson, pageFillSource }) => {
+    // eslint-disable-next-line no-eval
+    eval(pageFillSource);
+    return pageFill(config, threeSubstancePromptJson, false);
+  },
+  { config, threeSubstancePromptJson, pageFillSource }
+);
+const threeSubstanceSnapshot = await threeSubstancePage.evaluate(() => {
+  const fields = [...document.querySelectorAll('textarea.qn-textarea, input.qn-editable-cb')];
+  const field = (index) => {
+    const el = fields[index];
+    if (!el) return undefined;
+    return (el.type || '').toLowerCase() === 'checkbox' ? Boolean(el.checked) : el.value;
+  };
+  return {
+    substanceOneAgeFirstUse: field(5),
+    substanceTwoAgeFirstUse: field(20),
+    substanceThreeSubstance: field(35),
+    substanceThreeAgeFirstUse: field(36),
+    substanceThreeAmountUsed: field(37)
+  };
+});
+
 await browser.close();
 
 const failures = [];
@@ -399,6 +442,14 @@ if (partOneSnapshot.tobaccoAmountFrequency !== 'Cruz reports cigarette and vapin
 if (partOneSnapshot.sexualResourcesYes !== false || partOneSnapshot.sexualResourcesNo !== true) {
   failures.push('STD/HIV tested yes did not default resources question to No');
 }
+if (threeSubstanceResult.found !== 264) failures.push(`three-substance prompt expected 264 fields, found ${threeSubstanceResult.found}`);
+if (threeSubstanceResult.missing?.length) failures.push(`three-substance prompt missing mapped fields: ${threeSubstanceResult.missing.length}`);
+if (threeSubstanceResult.warnings?.length) failures.push(`three-substance prompt produced unexpected warnings: ${threeSubstanceResult.warnings.join('; ')}`);
+if (threeSubstanceSnapshot.substanceOneAgeFirstUse !== 'Cocaine: 16 years old') failures.push('Substance 1 combined prompt value was not preserved');
+if (threeSubstanceSnapshot.substanceTwoAgeFirstUse !== 'Alcohol: 14 years old') failures.push('Substance 2 combined prompt value was not preserved');
+if (threeSubstanceSnapshot.substanceThreeSubstance !== 'Cannabis') failures.push('Substance 3 separate prompt substance was not written');
+if (threeSubstanceSnapshot.substanceThreeAgeFirstUse !== '12 years old') failures.push('Substance 3 separate prompt age was not written');
+if (threeSubstanceSnapshot.substanceThreeAmountUsed !== 'weekend use') failures.push('Substance 3 amount shifted away from the corrected field');
 
 console.log(JSON.stringify({
   summary: {
@@ -427,9 +478,16 @@ console.log(JSON.stringify({
     defaultWritten: partOneResult.defaultWritten,
     warnings: partOneResult.warnings
   },
+  threeSubstanceSummary: {
+    written: threeSubstanceResult.written,
+    responseWritten: threeSubstanceResult.responseWritten,
+    defaultWritten: threeSubstanceResult.defaultWritten,
+    warnings: threeSubstanceResult.warnings
+  },
   snapshot,
   nestedSnapshot,
   partOneSnapshot,
+  threeSubstanceSnapshot,
   failures
 }, null, 2));
 if (failures.length) process.exit(1);

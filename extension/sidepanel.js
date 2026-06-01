@@ -1389,15 +1389,40 @@ function pageFill(config, merged, dryRun) {
     }
   };
   const explicitYesNoChoice = (obj, parentPath) => choiceIsYes(obj, parentPath) || choiceIsNo(obj, parentPath);
+  const cleanSubstanceName = (value) => normalizedTextValue(value)
+    .replace(/^substance\s*:?\s*/i, '')
+    .replace(/[:,-]+\s*$/g, '')
+    .trim();
+  const cleanSubstanceAge = (value) => normalizedTextValue(value)
+    .replace(/^(?:age of first use|age)\s*:?\s*/i, '')
+    .trim();
   const parseSubstanceAgeValue = (value) => {
     const text = normalizedTextValue(value);
     if (!text) return { substance: '', age: '' };
-    const match = text.match(/^([^:\n]+):\s*(?:(?:age of first use|age)\s*:?\s*)?(.+)$/i);
-    if (!match) return { substance: '', age: text.replace(/^age\s+/i, '').trim() };
-    const rawSubstance = match[1].trim();
-    const rawAge = match[2].trim().replace(/^age\s+/i, '').trim();
-    if (/^age of first use$/i.test(rawSubstance)) return { substance: '', age: rawAge };
-    return { substance: rawSubstance, age: rawAge };
+    const labeledSubstanceAndAge = text.match(/^substance\s*:?\s*(.*?)\s+(?:age of first use|age)\s*:?\s*(.+)$/i);
+    if (labeledSubstanceAndAge) {
+      return { substance: cleanSubstanceName(labeledSubstanceAndAge[1]), age: cleanSubstanceAge(labeledSubstanceAndAge[2]) };
+    }
+    const ageLabelOnly = text.match(/^(?:age of first use|age)\s*:?\s*(.+)$/i);
+    if (ageLabelOnly) return { substance: '', age: cleanSubstanceAge(ageLabelOnly[1]) };
+    const substanceAndAgeLabel = text.match(/^(.+?)\s+(?:age of first use|age)\s*:?\s*(.+)$/i);
+    if (substanceAndAgeLabel) {
+      return { substance: cleanSubstanceName(substanceAndAgeLabel[1]), age: cleanSubstanceAge(substanceAndAgeLabel[2]) };
+    }
+    const colonMatch = text.match(/^([^:\n]+):\s*(.+)$/i);
+    if (colonMatch) {
+      const rawLabelText = normalizedTextValue(colonMatch[1]);
+      const rawLabel = cleanSubstanceName(rawLabelText);
+      const rawDetail = cleanSubstanceAge(colonMatch[2]);
+      if (/^age of first use$/i.test(rawLabelText) || /^age$/i.test(rawLabelText)) return { substance: '', age: rawDetail };
+      if (/^substance$/i.test(rawLabelText)) return { substance: cleanSubstanceName(rawDetail), age: '' };
+      return { substance: rawLabel, age: rawDetail };
+    }
+    const inlineAgeMatch = text.match(/^(.+?)\s+age\s+(.+)$/i);
+    if (inlineAgeMatch) {
+      return { substance: cleanSubstanceName(inlineAgeMatch[1]), age: cleanSubstanceAge(inlineAgeMatch[2]) };
+    }
+    return { substance: '', age: cleanSubstanceAge(text) };
   };
   const tobaccoTypePhrase = (value) => {
     const text = lowerTextValue(value);
@@ -1589,6 +1614,21 @@ function pageFill(config, merged, dryRun) {
       dataShapeWarnings.push('Prompt 3 returned medications under medical.medications; normalized to medications.* before filling.');
     } else if (hasNestedMedicalMedications && hasTopLevelMedications) {
       dataShapeWarnings.push('Prompt 3 returned both medications.* and medical.medications; using top-level medications.* values.');
+    }
+    const thirdSubstanceValue = getPath(normalized, 'substance_use.substance_3.substance');
+    const thirdSubstanceText = normalizedTextValue(thirdSubstanceValue);
+    if (hasSpecificValue(thirdSubstanceValue)) {
+      const thirdSubstanceCombined = parseSubstanceAgeValue(thirdSubstanceValue);
+      const thirdSubstanceLabel = thirdSubstanceText.match(/^substance\s*:?\s*(.+)$/i);
+      if (thirdSubstanceCombined.substance && thirdSubstanceCombined.age) {
+        setPathLocal(normalized, 'substance_use.substance_3.substance', thirdSubstanceCombined.substance);
+        if (!hasSpecificValue(getPath(normalized, 'substance_use.substance_3.age_first_use'))) {
+          setPathLocal(normalized, 'substance_use.substance_3.age_first_use', thirdSubstanceCombined.age);
+        }
+        dataShapeWarnings.push('Substance 3 substance field included an age value; split it into separate Substance 3 substance and age fields before filling.');
+      } else if (thirdSubstanceLabel && thirdSubstanceLabel[1].trim() !== thirdSubstanceText) {
+        setPathLocal(normalized, 'substance_use.substance_3.substance', thirdSubstanceLabel[1].trim());
+      }
     }
     const thirdSubstanceAge = parseSubstanceAgeValue(getPath(normalized, 'substance_use.substance_3.age_first_use'));
     if (!hasSpecificValue(getPath(normalized, 'substance_use.substance_3.substance')) && thirdSubstanceAge.substance) {
