@@ -12,7 +12,8 @@ const STORAGE_KEYS = {
   discoveryReport: 'roseBpsDiscoveryReport',
   discoveryPrefix: 'roseBpsDiscoveryPrefix',
   quicknotesResponse: 'roseQuickNotesResponse',
-  mseResponse: 'roseMseResponse'
+  mseResponse: 'roseMseResponse',
+  asamResponse: 'roseAsamResponse'
 };
 
 const CONFIG_REPO_PATH = 'zachbush96/Rose-Form';
@@ -64,6 +65,19 @@ const MSE_SCREENSHOT_TERMS = [
   'Perception, Hallucinations, Thought Content, and Delusions',
   'Cognition, Intelligence Estimate, Insight, and Judgement'
 ];
+
+const ASAM_FUNCTIONING_ITEMS = [
+  { key: 'housing', label: 'Housing', aliases: ['housing'] },
+  { key: 'financial_stressors', label: 'Financial Stressors', aliases: ['financial', 'financial stressors', 'financial_stressors'] },
+  { key: 'legal', label: 'Legal', aliases: ['legal'] },
+  { key: 'employment', label: 'Employment', aliases: ['employment'] },
+  { key: 'education_vocation', label: 'Education/Vocation', aliases: ['education', 'education/vocation', 'education_vocation', 'vocation'] },
+  { key: 'independent_living', label: 'Independent Living', aliases: ['independent living', 'independent_living'] },
+  { key: 'medical', label: 'Medical', aliases: ['medical'] },
+  { key: 'social_natural_supports', label: 'Social/Natural Supports', aliases: ['social supports', 'social/nat. supports', 'social/natural supports', 'social_nat_supports', 'social_natural_supports'] }
+];
+const ASAM_FUNCTIONING_LABELS = ['None', 'Mild', 'Moderate', 'Severe'];
+const ASAM_DIMENSION_LABELS = ['None', 'Mild', 'Moderate', 'High', 'Severe'];
 
 function setStatus(msg) { $('status').textContent = msg; }
 function logTo(id, value) { $(id).textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2); }
@@ -306,6 +320,17 @@ function renderMsePrompt() {
   $('msePromptMeta').textContent = `${source.title} | ${source.source}`;
   $('msePromptPreview').textContent = source.body || '';
 }
+function renderAsamPrompt() {
+  const source = workflowMode('asam').sourcePrompt;
+  if (!$('asamPromptPreview')) return;
+  if (!source) {
+    $('asamPromptMeta').textContent = 'No Part 3 source prompt is loaded.';
+    $('asamPromptPreview').textContent = '';
+    return;
+  }
+  $('asamPromptMeta').textContent = `${source.title} | ${source.source}`;
+  $('asamPromptPreview').textContent = source.body || '';
+}
 function renderMseDefaults() {
   renderReadOnlyDefaultRows('mseDefaultsBody', 'mseDefaultCount', getWorkflowDefaultRows('mse'));
 }
@@ -319,13 +344,12 @@ function renderMode() {
     const visible = classes.includes(`mode-${activeMode}`);
     panel.classList.toggle('hidden', !visible);
   });
-  if (['mse', 'asam', 'diagnostics', 'treatment'].includes(activeMode)) {
-    if (activeMode !== 'mse') {
-      $('plannedModeTitle').textContent = modeTitle(activeMode);
-      $('plannedModeBody').textContent = modeDescription(activeMode);
-    }
+  if (['diagnostics', 'treatment'].includes(activeMode)) {
+    $('plannedModeTitle').textContent = modeTitle(activeMode);
+    $('plannedModeBody').textContent = modeDescription(activeMode);
   }
   renderMsePrompt();
+  renderAsamPrompt();
   renderMseDefaults();
   renderPlannedModeSource();
 }
@@ -509,7 +533,8 @@ async function loadState() {
     STORAGE_KEYS.discoveryReport,
     STORAGE_KEYS.discoveryPrefix,
     STORAGE_KEYS.quicknotesResponse,
-    STORAGE_KEYS.mseResponse
+    STORAGE_KEYS.mseResponse,
+    STORAGE_KEYS.asamResponse
   ]);
   activeConfig = data[STORAGE_KEYS.config] || window.DEFAULT_ROSE_BPS_CONFIG;
   workflowConfig = normalizeWorkflowConfigUrls(data[STORAGE_KEYS.workflowConfig] || window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig);
@@ -537,6 +562,7 @@ async function loadState() {
   $('discoveryPrefix').value = data[STORAGE_KEYS.discoveryPrefix] || '';
   if ($('quicknotesResp')) $('quicknotesResp').value = data[STORAGE_KEYS.quicknotesResponse] || '';
   if ($('mseResp')) $('mseResp').value = data[STORAGE_KEYS.mseResponse] || '';
+  if ($('asamResp')) $('asamResp').value = data[STORAGE_KEYS.asamResponse] || '';
   (data[STORAGE_KEYS.responses] || []).forEach((v, i) => { if ($(`resp${i+1}`)) $(`resp${i+1}`).value = v || ''; });
   renderTraceLog();
   renderDiscoveryReport();
@@ -2347,6 +2373,19 @@ function buildMseRuntimeConfig() {
     defaultAnswersObject: defaultRowsToObject(rows)
   };
 }
+function buildAsamRuntimeConfig() {
+  const mode = workflowMode('asam');
+  const rows = getWorkflowDefaultRows('asam');
+  return {
+    workflowMode: 'asam',
+    selector: mode.selector || 'textarea, select, input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), [contenteditable="true"]',
+    onlyVisibleControls: mode.onlyVisibleControls ?? false,
+    expectedFieldCount: mode.expectedFieldCount,
+    fieldMap: mode.fieldMap || [],
+    defaultAnswers: rows,
+    defaultAnswersObject: defaultRowsToObject(rows)
+  };
+}
 function validateQuickNotesResponse() {
   const raw = $('quicknotesResp')?.value.trim() || '';
   if (!raw) return {};
@@ -2421,6 +2460,314 @@ function validateMseResponse() {
 }
 async function saveMseResponse() {
   await chrome.storage.local.set({ [STORAGE_KEYS.mseResponse]: $('mseResp')?.value || '' });
+}
+function normalizeAsamKey(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/nat\./g, 'natural')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+function getObjectValueByAliases(container, aliases) {
+  if (!container || typeof container !== 'object' || Array.isArray(container)) return undefined;
+  const aliasSet = new Set((aliases || []).map(normalizeAsamKey));
+  for (const [key, value] of Object.entries(container)) {
+    if (aliasSet.has(normalizeAsamKey(key))) return value;
+  }
+  return undefined;
+}
+function firstAsamObject(...values) {
+  return values.find(value => value && typeof value === 'object' && !Array.isArray(value));
+}
+function asamText(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
+function parseFunctioningScore(value) {
+  if (typeof value === 'number' && value >= 0 && value <= 3) return value;
+  if (typeof value === 'boolean') return undefined;
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    for (const key of ['score', 'rating', 'severity_number', 'severityNumber', 'level', 'number', 'value']) {
+      const parsed = parseFunctioningScore(value[key]);
+      if (parsed !== undefined) return parsed;
+    }
+    const selections = value.selections || value.scores || value.scoreSelections;
+    if (selections && typeof selections === 'object' && !Array.isArray(selections)) {
+      for (const [label, selected] of Object.entries(selections)) {
+        if (selected === true || String(selected).toLowerCase() === 'true') {
+          const byNumber = Number(label);
+          if (Number.isInteger(byNumber) && byNumber >= 0 && byNumber <= 3) return byNumber;
+          const byLabel = ASAM_FUNCTIONING_LABELS.findIndex(item => normalizeAsamKey(item) === normalizeAsamKey(label));
+          if (byLabel >= 0) return byLabel;
+        }
+      }
+    }
+    const parsedSeverity = parseFunctioningScore(value.severity || value.label);
+    if (parsedSeverity !== undefined) return parsedSeverity;
+  }
+  const text = asamText(value);
+  if (!text) return undefined;
+  const leadingNumber = text.match(/^\D*([0-3])\b/);
+  if (leadingNumber) return Number(leadingNumber[1]);
+  const parenthetical = text.match(/\(([0-3])\s*(?:none|mild|moderate|severe)?\)/i);
+  if (parenthetical) return Number(parenthetical[1]);
+  const severityLabel = ASAM_FUNCTIONING_LABELS.findIndex(label => new RegExp(`\\b${label}\\b`, 'i').test(text));
+  return severityLabel >= 0 ? severityLabel : undefined;
+}
+function parseAsamSeverityNumber(value) {
+  if (typeof value === 'number' && value >= 0 && value <= 4) return value;
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    for (const key of ['severity', 'severity_number', 'severityNumber', 'rating', 'score', 'level', 'number']) {
+      const parsed = parseAsamSeverityNumber(value[key]);
+      if (parsed !== undefined) return parsed;
+    }
+  }
+  const text = asamText(value);
+  if (!text) return undefined;
+  const severityLine = text.match(/severity:\s*([0-4])\s*:?\s*(none|mild|moderate|high|severe)?/i);
+  if (severityLine) return Number(severityLine[1]);
+  const parenthetical = text.match(/\(([0-4])\s*(?:none|mild|moderate|high|severe)?\)/i);
+  if (parenthetical) return Number(parenthetical[1]);
+  const leadingNumber = text.match(/^\D*([0-4])\b/);
+  if (leadingNumber) return Number(leadingNumber[1]);
+  const labelIndex = ASAM_DIMENSION_LABELS.findIndex(label => new RegExp(`\\b${label}\\b`, 'i').test(text));
+  return labelIndex >= 0 ? labelIndex : undefined;
+}
+function asamSeverityLabel(value, fallbackNumber) {
+  const text = asamText(value);
+  const matched = ASAM_DIMENSION_LABELS.find(label => new RegExp(`\\b${label}\\b`, 'i').test(text));
+  return matched || ASAM_DIMENSION_LABELS[fallbackNumber] || '';
+}
+function firstUsefulAsamText(...values) {
+  for (const value of values) {
+    const text = asamText(value);
+    if (text) return text;
+  }
+  return '';
+}
+function formatAsamDimensionText(value) {
+  if (typeof value === 'string') {
+    const text = value.trim();
+    if (/^severity:/i.test(text) || /^dimension\s+\d+/i.test(text)) return text;
+    const severityNumber = parseAsamSeverityNumber(text);
+    if (severityNumber === undefined) return text;
+    return `Severity: ${severityNumber}: ${asamSeverityLabel(text, severityNumber)}\n\n${text}`;
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return '';
+  const severityNumber = parseAsamSeverityNumber(value);
+  const label = asamSeverityLabel(value.label || value.severity || value.severity_label || value.severityLabel, severityNumber);
+  const componentText = [
+    value.clinical_justification || value.justification || value.rationale || value.clinical_rationale,
+    value.functional_impact || value.functioning || value.impact,
+    value.risk_implications || value.risk || value.risk_level,
+    value.level_of_care_support || value.loc_support || value.level_of_care_rationale
+  ].map(asamText).filter(Boolean).join(' ');
+  const narrative = firstUsefulAsamText(
+    value.text,
+    value.narrative,
+    value.paragraph,
+    value.summary,
+    componentText
+  );
+  if (!narrative) return '';
+  if (/^severity:/i.test(narrative)) return narrative;
+  if (severityNumber === undefined) return narrative;
+  return `Severity: ${severityNumber}: ${label}\n\n${narrative}`;
+}
+function findAsamDimensionValue(root, dimensionNumber) {
+  const containers = [
+    root?.case_management?.asam_criteria,
+    root?.case_management?.asamCriteria,
+    root?.case_management?.asam,
+    root?.asam_criteria,
+    root?.asamCriteria,
+    root?.asam,
+    root?.dimensions,
+    root?.case_management?.dimensions
+  ].filter(Boolean);
+  const keys = [
+    `dimension_${dimensionNumber}`,
+    `dimension${dimensionNumber}`,
+    `Dimension ${dimensionNumber}`,
+    String(dimensionNumber)
+  ];
+  for (const container of containers) {
+    if (typeof container === 'string') {
+      const nextMarker = dimensionNumber < 6 ? `Dimension\\s+${dimensionNumber + 1}` : '$';
+      const match = container.match(new RegExp(`(Dimension\\s+${dimensionNumber}[\\s\\S]*?)(?=${nextMarker})`, 'i'));
+      if (match) return match[1].trim();
+    }
+    const value = getObjectValueByAliases(container, keys);
+    if (value !== undefined) return value;
+  }
+  return undefined;
+}
+function findAsamSafetyValue(root, keys) {
+  const containers = [
+    root?.case_management?.safety_planning,
+    root?.case_management?.safetyPlanning,
+    root?.safety_planning,
+    root?.safetyPlanning,
+    root?.safety,
+    root?.case_management
+  ].filter(Boolean);
+  for (const container of containers) {
+    const value = getObjectValueByAliases(container, keys);
+    if (value !== undefined) return value;
+  }
+  return undefined;
+}
+function normalizeYesNoText(value) {
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  const text = asamText(value);
+  if (/^yes\b/i.test(text)) return 'Yes';
+  if (/^no\b/i.test(text)) return 'No';
+  return text;
+}
+function normalizeAsamResponseForFill(parsed) {
+  const normalized = JSON.parse(JSON.stringify(parsed || {}));
+  normalized.case_management = firstAsamObject(normalized.case_management, normalized.caseManagement, normalized.part3, {}) || {};
+  const sourceRoot = {
+    ...normalized,
+    case_management: firstAsamObject(parsed?.case_management, parsed?.caseManagement, parsed?.part3, parsed) || {}
+  };
+  const caseManagement = normalized.case_management;
+  caseManagement.items = firstAsamObject(caseManagement.items, caseManagement.functioning, {}) || {};
+
+  const functioningContainers = [
+    sourceRoot.case_management?.items,
+    sourceRoot.case_management?.functioning,
+    sourceRoot.case_management?.case_management_assessment,
+    sourceRoot.functioning,
+    sourceRoot.case_management_assessment,
+    sourceRoot.case_management
+  ].filter(Boolean);
+  for (const item of ASAM_FUNCTIONING_ITEMS) {
+    const aliases = [item.key, item.label, ...(item.aliases || [])];
+    let sourceValue;
+    for (const container of functioningContainers) {
+      sourceValue = getObjectValueByAliases(container, aliases);
+      if (sourceValue !== undefined) break;
+    }
+    const score = parseFunctioningScore(sourceValue);
+    if (score === undefined) continue;
+    const target = firstAsamObject(caseManagement.items[item.key], {}) || {};
+    target.score = score;
+    target.severity = ASAM_FUNCTIONING_LABELS[score];
+    target.selections = {};
+    ASAM_FUNCTIONING_LABELS.forEach((label, index) => {
+      target.selections[label] = index === score;
+    });
+    caseManagement.items[item.key] = target;
+  }
+
+  caseManagement.asam_criteria = firstAsamObject(caseManagement.asam_criteria, caseManagement.asamCriteria, {}) || {};
+  for (let dimension = 1; dimension <= 6; dimension++) {
+    const sourceValue = findAsamDimensionValue(sourceRoot, dimension);
+    const text = formatAsamDimensionText(sourceValue);
+    if (!text) continue;
+    const target = firstAsamObject(caseManagement.asam_criteria[`dimension_${dimension}`], {}) || {};
+    target.text = text;
+    caseManagement.asam_criteria[`dimension_${dimension}`] = target;
+  }
+
+  caseManagement.safety_planning = firstAsamObject(caseManagement.safety_planning, caseManagement.safetyPlanning, {}) || {};
+  const safetyNeeded = findAsamSafetyValue(sourceRoot, [
+    'additional_safety_planning_needed',
+    'is_additional_safety_planning_needed',
+    'additional safety planning needed',
+    'needed'
+  ]);
+  const safetyWhy = findAsamSafetyValue(sourceRoot, [
+    'why_or_why_not',
+    'why or why not',
+    'rationale',
+    'reason',
+    'clinical_explanation',
+    'explanation'
+  ]);
+  if (safetyNeeded !== undefined) {
+    caseManagement.safety_planning.additional_safety_planning_needed = normalizeYesNoText(safetyNeeded);
+  }
+  if (safetyWhy !== undefined) {
+    caseManagement.safety_planning.why_or_why_not = asamText(safetyWhy);
+  }
+  return normalized;
+}
+function validateAsamResponse() {
+  const response = $('asamResp')?.value.trim() || '';
+  if (!response) throw new Error('Paste the Case Management and ASAM Part 3 response first.');
+  const parsed = JSON.parse(response);
+  const normalized = normalizeAsamResponseForFill(parsed);
+  const items = normalized.case_management?.items || {};
+  const missingFunctioning = [];
+  const invalidFunctioning = [];
+  for (const item of ASAM_FUNCTIONING_ITEMS) {
+    const selections = items[item.key]?.selections || {};
+    const selected = ASAM_FUNCTIONING_LABELS.filter(label => selections[label] === true);
+    if (!selected.length) missingFunctioning.push(item.label);
+    if (selected.length > 1) invalidFunctioning.push(item.label);
+  }
+  const dimensions = normalized.case_management?.asam_criteria || {};
+  const missingDimensions = [];
+  const dimensionSeverityWarnings = [];
+  for (let dimension = 1; dimension <= 6; dimension++) {
+    const text = String(dimensions[`dimension_${dimension}`]?.text || '').trim();
+    if (!text) {
+      missingDimensions.push(`Dimension ${dimension}`);
+      continue;
+    }
+    const severityNumber = parseAsamSeverityNumber(text);
+    const expectedLabel = ASAM_DIMENSION_LABELS[severityNumber];
+    const hasMatchingSeverityLabel = severityNumber !== undefined && (
+      new RegExp(`severity:\\s*${severityNumber}\\s*:?\\s*${expectedLabel}`, 'i').test(text) ||
+      new RegExp(`\\(${severityNumber}\\s*${expectedLabel}\\)`, 'i').test(text) ||
+      new RegExp(`\\(${expectedLabel}\\s*${severityNumber}\\)`, 'i').test(text)
+    );
+    if (!hasMatchingSeverityLabel) {
+      dimensionSeverityWarnings.push(`Dimension ${dimension} is missing a matching severity number/label`);
+    }
+  }
+  const safety = normalized.case_management?.safety_planning || {};
+  const missingSafetyFields = [
+    !String(safety.additional_safety_planning_needed || '').trim() ? 'Is additional safety planning needed?' : '',
+    !String(safety.why_or_why_not || '').trim() ? 'Why or why not?' : ''
+  ].filter(Boolean);
+  return {
+    characterCount: response.length,
+    parsedJson: true,
+    topLevelKeys: Object.keys(parsed),
+    functioningCategories: ASAM_FUNCTIONING_ITEMS.length - missingFunctioning.length,
+    missingFunctioning,
+    invalidFunctioning,
+    dimensionsPresent: 6 - missingDimensions.length,
+    missingDimensions,
+    dimensionSeverityWarnings,
+    missingSafetyFields,
+    warnings: [
+      ...(missingFunctioning.length ? [`Missing Functioning scores: ${missingFunctioning.join(', ')}`] : []),
+      ...(invalidFunctioning.length ? [`Multiple Functioning scores selected: ${invalidFunctioning.join(', ')}`] : []),
+      ...(missingDimensions.length ? [`Missing ASAM dimensions: ${missingDimensions.join(', ')}`] : []),
+      ...dimensionSeverityWarnings,
+      ...(missingSafetyFields.length ? [`Missing safety planning fields: ${missingSafetyFields.join(', ')}`] : [])
+    ],
+    normalized
+  };
+}
+function assertAsamResponseComplete(summary) {
+  const blocking = [
+    ...(summary.missingFunctioning || []).map(item => `Functioning: ${item}`),
+    ...(summary.invalidFunctioning || []).map(item => `Functioning has multiple scores: ${item}`),
+    ...(summary.missingDimensions || []),
+    ...(summary.dimensionSeverityWarnings || []),
+    ...(summary.missingSafetyFields || [])
+  ];
+  if (blocking.length) {
+    throw new Error(`Part 3 response is incomplete. Fix these before filling:\n${blocking.join('\n')}`);
+  }
+}
+async function saveAsamResponse() {
+  await chrome.storage.local.set({ [STORAGE_KEYS.asamResponse]: $('asamResp')?.value || '' });
 }
 
 $('loadRemote').onclick = async () => {
@@ -2651,6 +2998,79 @@ $('fillMsePage').onclick = async () => {
     setStatus(result?.warnings?.length ? 'MSE filled with warnings' : 'MSE fill complete');
   } catch (err) { logTo('mseFillResults', err.message); setStatus('MSE fill failed'); }
 };
+$('copyAsamPrompt').onclick = async () => {
+  const source = workflowMode('asam').sourcePrompt;
+  if (!source?.body) {
+    setStatus('No Part 3 prompt loaded');
+    return;
+  }
+  await navigator.clipboard.writeText(source.body);
+  setStatus('Copied Part 3 prompt');
+};
+$('copyAsamPromptNotes').onclick = async () => {
+  const source = workflowMode('asam').sourcePrompt;
+  if (!source?.body) {
+    setStatus('No Part 3 prompt loaded');
+    return;
+  }
+  await navigator.clipboard.writeText(`${source.title}\n${source.source}\n\n${source.body}`);
+  setStatus('Copied Part 3 prompt notes');
+};
+$('validateAsamResponse').onclick = async () => {
+  try {
+    const summary = validateAsamResponse();
+    await saveAsamResponse();
+    logTo('asamValidation', { ok: !summary.warnings.length, ...summary });
+    setStatus(summary.warnings.length ? 'Part 3 response saved with warnings' : 'Part 3 response saved');
+  } catch (err) { logTo('asamValidation', err.message); setStatus('Part 3 validation failed'); }
+};
+$('copyAsamResponse').onclick = async () => {
+  try {
+    validateAsamResponse();
+    await saveAsamResponse();
+    await navigator.clipboard.writeText($('asamResp').value);
+    setStatus('Copied Part 3 response');
+  } catch (err) { logTo('asamValidation', err.message); setStatus('Part 3 copy failed'); }
+};
+$('clearAsamResponse').onclick = async () => {
+  $('asamResp').value = '';
+  await chrome.storage.local.remove([STORAGE_KEYS.asamResponse]);
+  logTo('asamValidation', 'Part 3 response cleared.');
+  setStatus('Cleared Part 3 response');
+};
+$('scanAsamPage').onclick = async () => {
+  try {
+    const result = await runInActiveTab(pageScan, [buildAsamRuntimeConfig()]);
+    logTo('asamFillResults', result);
+    await appendTrace({ ...result, mode: 'asam' });
+    setStatus('Part 3 scan complete');
+  } catch (err) { logTo('asamFillResults', err.message); setStatus('Part 3 scan failed'); }
+};
+$('fillAsamPage').onclick = async () => {
+  try {
+    const summary = validateAsamResponse();
+    assertAsamResponseComplete(summary);
+    await saveAsamResponse();
+    const config = buildAsamRuntimeConfig();
+    if (!config.fieldMap?.length) {
+      const result = {
+        event: 'fill',
+        mode: 'asam',
+        dryRun: $('asamDryRun').checked,
+        written: 0,
+        warnings: ['Case Management and ASAM Part 3 field map is not loaded yet. Use Discovery and Mapping to capture the form before enabling live fill.']
+      };
+      logTo('asamFillResults', result);
+      await appendTrace(result);
+      setStatus('Part 3 field map needed');
+      return;
+    }
+    const result = await runInActiveTab(pageFill, [config, summary.normalized, $('asamDryRun').checked]);
+    logTo('asamFillResults', result);
+    await appendTrace({ ...result, mode: 'asam' });
+    setStatus(result?.warnings?.length ? 'Part 3 filled with warnings' : 'Part 3 fill complete');
+  } catch (err) { logTo('asamFillResults', err.message); setStatus('Part 3 fill failed'); }
+};
 $('copyModeSourcePrompt').onclick = async () => {
   const source = modeSourcePrompt(activeMode);
   if (!source) {
@@ -2753,4 +3173,5 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
 [1,2,3,4].forEach(i => $(`resp${i}`).addEventListener('input', saveResponses));
 $('quicknotesResp')?.addEventListener('input', saveQuickNotesResponse);
 $('mseResp')?.addEventListener('input', saveMseResponse);
+$('asamResp')?.addEventListener('input', saveAsamResponse);
 loadState();

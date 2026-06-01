@@ -1,0 +1,443 @@
+PROMPT 3: Case Management and ASAM Assessment Template
+
+You are creating a Biopsychosocial (BPS) assessment based on the transcript provided.
+
+--- INSTRUCTIONS ---
+
+- You MUST complete EVERY section and EVERY item listed in the template below.
+- Do NOT skip, summarize, combine, or omit any items.
+- Even if information is limited, you MUST still provide an answer using clinical inference or “Information not provided.”
+- Always list the exact question/label, then provide the answer directly underneath in full clinical sentences unless a different format is explicitly required.
+- Put ONE blank line between each question/label and its answer.
+- Do not group answers together.
+- Use clear, professional clinical language.
+- Always use the client’s first name instead of “the client.”
+- Write in third person.
+- Avoid em dashes.
+- Keep everything copy-paste ready for an EHR.
+- Do NOT include any commentary, summaries, or statements about the quality or completeness of the assessment.
+- Only output the assessment itself.
+- If any required item is missing or formatted incorrectly, regenerate the entire response before presenting the final answer.
+
+- Apply clinical inference when appropriate:
+  • Infer withdrawal symptoms, tolerance, and behavioral impact
+  • Infer frequency when needed (label as estimate)
+  • Infer educational impact if dropout present
+  • Include trauma impact if mentioned
+  • If unknown, write “Information not provided.”
+
+---
+
+--- CRITICAL FORM ATTENTION RULE ---
+
+- The output MUST mirror the structure of the form exactly.
+- Each item in MSE and Case Management MUST be addressed individually.
+- Do NOT collapse or combine sections.
+
+---
+
+--- MSE RULES (STRICT) ---
+
+You MUST include ALL of the following:
+
+Attitude Toward Examiner
+Attitude Toward Parent/Guardian
+Separation (children/adolescents)
+Mood
+Affect
+Speech
+Thought Process
+Perception
+Hallucinations
+Thought Content
+Delusions
+Cognition (attention, abstraction, orientation, memory, etc.)
+Intelligence Estimate
+Insight
+Judgment
+
+If any are missing → regenerate.
+
+If not observable:
+Other: Unknown - interview conducted via phone
+
+---
+
+--- CASE MANAGEMENT SCORING (STRICT) ---
+
+Format REQUIRED:
+
+<Category>: <0–3> (<None/Mild/Moderate/Severe>) - <one sentence>
+
+NO paragraphs
+NO multiple sentences
+NO custom wording
+
+If incorrect → regenerate
+
+--- SCORING GUIDE ---
+
+Housing
+0 stable | 1 temporary | 2 unstable | 3 homeless
+
+Financial
+0 stable | 1 mild | 2 moderate | 3 no income/basic needs unmet
+
+Legal
+0 none | 1 minor | 2 active | 3 severe impact
+
+Employment
+0 stable | 1 mild | 2 seeking | 3 not seeking/barriers
+
+Education
+0 none | 1 mild | 2 moderate | 3 severe
+
+Independent Living
+0 independent | 1 mild | 2 moderate | 3 unable
+
+Medical
+0 none | 1 mild | 2 moderate | 3 severe
+
+Social Supports
+0 strong | 1 some | 2 limited | 3 none
+
+---
+
+--- ASAM REQUIREMENT ---
+
+Each dimension MUST be 2–4 sentences.
+
+--- ASAM FORMAT (STRICT) ---
+
+<Dimension #> - <Label> (<Number>) - <2–4 sentence paragraph>
+
+0 None
+1 Mild
+2 Moderate
+3 High
+4 Severe
+
+Label MUST match number
+
+Each paragraph MUST:
+- justify rating
+- describe functioning
+- include risk
+- support level of care
+
+If wrong → regenerate
+
+---
+
+--- ROLE CLARIFICATION ---
+
+Clinician:
+assessment, diagnosis, planning, referrals
+
+NOT clinician:
+housing decisions
+ensuring outcomes
+
+Housing = sober living staff  
+Client = responsible for follow-through  
+Peer support = assists connection only  
+
+---
+
+--- SUD RULE ---
+
+Any SUD history (even remission) qualifies  
+Sobriety alone ≠ rule out SUD  
+
+---
+
+--- DISCHARGE (IF NO SUD) ---
+
+Include:
+- not appropriate
+- 30-day transition
+- housing independent
+- client responsibility
+
+Paragraph REQUIRED + referrals:
+
+Jefferson Center – (303) 425-0300  
+WellPower – (303) 504-6500  
+AllHealth – (303) 730-8858  
+
+---
+
+--- CLINICAL RECOMMENDATIONS RULES ---
+
+ONLY use:
+Group; Individual; Mental Health; Medical; Case Management; Peer Coaching; Coordination with Other Providers; Other Services
+
+Minimum:
+Outpatient mental health referrals
+
+Add only if relevant:
+housing, vocational, case management
+
+DO NOT imply clinician ensures follow-through
+
+---
+
+--- OTHER SERVICES RULE (STRICT) ---
+
+If "Other Services" is selected, you MUST include:
+
+Other Services (specify): <service 1>; <service 2>; <service 3>
+
+- Use semicolons
+- Must be specific (housing resources, vocational support, etc.)
+- Do NOT leave blank
+- Do NOT be vague
+
+If missing → regenerate
+
+---
+
+--- TEMPLATE ---
+
+### Mental Health Status Exam
+
+Attitude Toward Examiner
+
+[Answer]
+
+Attitude Toward Parent/Guardian
+
+[Answer]
+
+Separation (children/adolescents)
+
+[Answer]
+
+Mood
+
+[Answer]
+
+Affect
+
+[Answer]
+
+Speech
+
+[Answer]
+
+Thought Process
+
+[Answer]
+
+Perception
+
+[Answer]
+
+Hallucinations
+
+[Answer]
+
+Thought Content
+
+[Answer]
+
+Delusions
+
+[Answer]
+
+Cognition (attention, abstraction, orientation, memory, etc.)
+
+[Answer]
+
+Intelligence Estimate
+
+[Answer]
+
+Insight
+
+[Answer]
+
+Judgment
+
+[Answer]
+
+---
+
+### Case Management Assessment
+
+Housing
+
+[Formatted]
+
+Financial Stressors
+
+[Formatted]
+
+Legal
+
+[Formatted]
+
+Employment
+
+[Formatted]
+
+Education/Vocation
+
+[Formatted]
+
+Independent Living
+
+[Formatted]
+
+Medical
+
+[Formatted]
+
+Social/Natural Supports
+
+[Formatted]
+
+
+
+
+--------
+PROMPT OUTPUT:
+--------
+Mental Health Status Exam
+Attitude Toward Examiner
+
+Logan was cooperative and responsive throughout the interview.
+
+Attitude Toward Parent/Guardian
+
+Logan described a very close and positive relationship with his mother.
+
+Separation (children/adolescents)
+
+Information not provided.
+
+Mood
+
+Logan reported experiencing depression.
+
+Affect
+
+Logan’s affect appeared congruent with his reported mood and was appropriate to the context.
+
+Speech
+
+Logan’s speech was clear, coherent, and goal-directed.
+
+Thought Process
+
+Logan’s thought process was logical and organized.
+
+Perception
+
+Logan denied perceptual disturbances.
+
+Hallucinations
+
+Logan denied any history or current experience of hallucinations.
+
+Thought Content
+
+Logan’s thought content was appropriate and did not include suicidal or homicidal ideation.
+
+Delusions
+
+Logan denied any delusional thinking.
+
+Cognition (attention, abstraction, orientation, memory, etc.)
+
+Logan demonstrated intact orientation and memory; attention and abstraction appeared adequate.
+
+Intelligence Estimate
+
+Logan’s intelligence is estimated to be average based on educational attainment and interview responses.
+
+Insight
+
+Logan demonstrated good insight into his mental health and substance use history.
+
+Judgment
+
+Logan’s judgment appeared fair; he acknowledged the need for treatment and expressed willingness to engage in services.
+
+Case Management Assessment
+Housing
+
+3 homeless (Logan is currently homeless and has no stable residence.)
+
+Financial Stressors
+
+2 moderate (Logan described finances as “in shambles” but receives unemployment and school-related income.)
+
+Legal
+
+2 active (Logan is currently on pretrial status out of Douglas County.)
+
+Employment
+
+2 seeking (Logan is unemployed but actively seeking work.)
+
+Education/Vocation
+
+0 none (Logan is currently enrolled in college and pursuing a social work program.)
+
+Independent Living
+
+2 moderate (Logan is homeless and unable to live independently at this time.)
+
+Medical
+
+1 mild (Logan is prescribed methadone, Vyvanse, and propranolol; no terminal illness or major medical issues reported.)
+
+Social/Natural Supports
+
+1 some (Logan has support from his mother, family, and girlfriend.)
+
+ASAM Criteria
+Dimension 1 - Acute Intoxication and Withdrawal Potential (1 Mild)
+
+Logan is currently maintained on methadone and reports no acute withdrawal symptoms. He last used heroin approximately one month ago and meth/fentanyl yesterday, but denies current withdrawal. Risk of withdrawal is mitigated by methadone, but ongoing use and recent history warrant monitoring. Outpatient level of care is appropriate with medication-assisted treatment.
+
+Dimension 2 - Biomedical Conditions and Complications (1 Mild)
+
+Logan reports no terminal illnesses, allergies, or significant medical complications. He has a history of kidney stones and is prescribed methadone, Vyvanse, and propranolol. He does not have a primary care provider and has not had a physical in over a year, indicating mild risk. Outpatient medical follow-up is recommended.
+
+Dimension 3 - Emotional, Behavioral, or Cognitive Conditions and Complications (2 Moderate)
+
+Logan has diagnoses of depression, anxiety, and ADHD, with current depressive symptoms. He is not currently engaged with a psychiatrist or therapist. He denies suicidal ideation, self-harm, and psychosis. Moderate risk is present due to untreated mental health symptoms and history. Outpatient mental health services are indicated.
+
+Dimension 4 - Readiness to Change (2 Moderate)
+
+Logan expresses willingness to engage in services and acknowledges the need for treatment, but has experienced recent lapses and downward spirals. He is open to trauma therapy but uncertain about commitment. Moderate risk is present due to ambivalence and recent relapse. Motivational enhancement and peer support are recommended.
+
+Dimension 5 - Relapse, Continued Use, or Continued Problem Potential (3 High)
+
+Logan has a history of severe substance use, including heroin, fentanyl, and methamphetamine, with last use of meth/fentanyl yesterday. He has experienced significant consequences including loss of housing, incarceration, and family disruption. High risk for continued use and relapse is present. Intensive outpatient or sober living is recommended.
+
+Dimension 6 - Recovery Environment (3 High)
+
+Logan is currently homeless, unemployed, and on pretrial status. He has some social supports but lacks stable housing and independent living capacity. The recovery environment poses high risk for instability and relapse. Sober living and case management are strongly indicated.
+
+Clinical Recommendations
+Group
+
+Individual
+
+Mental Health
+
+Medical
+
+Case Management
+
+Peer Coaching
+
+Coordination with Other Providers
+
+Other Services (specify): housing resources; vocational support; food assistance
+
+Discharge Planning
+Not appropriate for discharge at this time due to active substance use disorder and high relapse risk. Logan requires a 30-day transition plan with support for housing, employment, and ongoing treatment. Logan is responsible for follow-through and independent living arrangements.

@@ -121,6 +121,28 @@
     <pre id="mseValidation"></pre>
   </section>
 
+  <section class="card mode-panel mode-asam hidden">
+    <h2>Case Management and ASAM Part 3 prompt</h2>
+    <p class="small" id="asamPromptMeta"></p>
+    <div class="row wrap">
+      <button id="copyAsamPrompt">Copy prompt</button>
+      <button id="copyAsamPromptNotes">Copy prompt with notes</button>
+    </div>
+    <pre id="asamPromptPreview"></pre>
+  </section>
+
+  <section class="card mode-panel mode-asam hidden">
+    <h2>Part 3 response</h2>
+    <p class="small">Paste the BastionGPT Part 3 JSON response here. This autosaves locally and validates functioning scores, ASAM dimensions, and safety planning.</p>
+    <textarea id="asamResp" placeholder="Case Management and ASAM Part 3 JSON response"></textarea>
+    <div class="row wrap">
+      <button id="validateAsamResponse">Validate response</button>
+      <button id="copyAsamResponse">Copy response</button>
+      <button id="clearAsamResponse" class="danger">Clear saved response</button>
+    </div>
+    <pre id="asamValidation"></pre>
+  </section>
+
   <section class="card mode-panel mode-bps">
     <h2>Fill ReliaTrax</h2>
     <div class="row wrap">
@@ -141,6 +163,17 @@
     <label class="check"><input type="checkbox" id="mseDryRun"> Dry run, do not write</label>
     <p class="small">MSE Part 2 fills the mapped controls from Appearance through Judgment using the pasted JSON response plus default answers.</p>
     <pre id="mseFillResults"></pre>
+  </section>
+
+  <section class="card mode-panel mode-asam hidden">
+    <h2>Fill ReliaTrax</h2>
+    <div class="row wrap">
+      <button id="scanAsamPage">Scan active page</button>
+      <button id="fillAsamPage" class="primary">Fill active page</button>
+    </div>
+    <label class="check"><input type="checkbox" id="asamDryRun"> Dry run, do not write</label>
+    <p class="small">Part 3 fills the Functioning score grid, ASAM Criteria textareas, and additional safety planning fields using the mapped Case Management Assessment controls.</p>
+    <pre id="asamFillResults"></pre>
   </section>
 
   <section class="card mode-panel mode-discovery hidden">
@@ -184,7 +217,7 @@
     <pre id="quicknotesResults"></pre>
   </section>
 
-  <section class="card mode-panel mode-asam mode-diagnostics mode-treatment hidden">
+  <section class="card mode-panel mode-diagnostics mode-treatment hidden">
     <h2 id="plannedModeTitle">Mode setup</h2>
     <p class="small" id="plannedModeBody">This mode is reserved for the next mapped section. Use Discovery and Mapping first to capture the form controls and labels needed to build a reliable field map.</p>
     <div class="row wrap">
