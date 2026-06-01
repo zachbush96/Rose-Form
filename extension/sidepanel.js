@@ -18,8 +18,9 @@ const STORAGE_KEYS = {
 
 const CONFIG_REPO_DATA_DIR = 'github-data';
 const CONFIG_FILE_RE = /(rose-reliatrax-bps-config\.json|rose-reliatrax-workflows-config\.json|rose-quicknotes-config\.json)$/;
-const DEFAULT_REMOTE_CONFIG_URL = '';
-const DEFAULT_WORKFLOW_CONFIG_URL = '';
+const CONFIG_REPO_RAW_BASE_URL = 'https://raw.githubusercontent.com/zachbush96/Rose-Form/main/github-data/';
+const DEFAULT_REMOTE_CONFIG_URL = `${CONFIG_REPO_RAW_BASE_URL}rose-reliatrax-bps-config.json`;
+const DEFAULT_WORKFLOW_CONFIG_URL = `${CONFIG_REPO_RAW_BASE_URL}rose-reliatrax-workflows-config.json`;
 const REMOTE_CONFIG_TIMEOUT_MS = 10000;
 
 let activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
@@ -296,12 +297,18 @@ function workflowConfigUrlFromConfigUrl(url) {
   if (!normalizedUrl || !CONFIG_FILE_RE.test(normalizedUrl)) return DEFAULT_WORKFLOW_CONFIG_URL;
   return normalizedUrl.replace(CONFIG_FILE_RE, 'rose-reliatrax-workflows-config.json');
 }
-function normalizeWorkflowConfigUrls(config, baseUrl = '') {
+function normalizeWorkflowConfigUrls(config, baseUrl = DEFAULT_WORKFLOW_CONFIG_URL) {
   if (!config?.modes || typeof config.modes !== 'object') return config;
-  Object.values(config.modes).forEach(mode => {
-    if (mode?.configUrl) mode.configUrl = resolveConfigUrl(mode.configUrl, baseUrl);
+  const normalized = { ...config, modes: { ...config.modes } };
+  Object.entries(config.modes).forEach(([key, mode]) => {
+    if (!mode || typeof mode !== 'object') return;
+    const normalizedMode = { ...mode };
+    if (normalizedMode.configUrl) {
+      normalizedMode.configUrl = resolveConfigUrl(normalizedMode.configUrl, baseUrl) || migrateLegacyConfigUrl(normalizedMode.configUrl);
+    }
+    normalized.modes[key] = normalizedMode;
   });
-  return config;
+  return normalized;
 }
 function modeDescription(mode) {
   return workflowMode(mode).description || workflowMode('bps').description || 'Mode details unavailable.';
