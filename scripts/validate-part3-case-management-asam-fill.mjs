@@ -187,7 +187,9 @@ state.dimensions.forEach((text, index) => {
   if (!/functioning/i.test(text) || !/risk/i.test(text) || !/level of care/i.test(text)) failures.push(`Dimension ${dimension} missing functioning, risk, or level-of-care text`);
 });
 if (state.safetyNeeded !== 'No') failures.push(`Safety needed expected No, found ${state.safetyNeeded}`);
-if (!/SI\/HI|withdrawal|medical|psychiatric/i.test(state.safetyWhy)) failures.push('Safety why/no rationale was not written with specific risk domains');
+if (state.safetyWhy !== 'Logan denies being a suicide risk') {
+  failures.push(`Safety why/no rationale expected exact denial wording, found ${state.safetyWhy}`);
+}
 if (state.duplicateWhy131 || state.duplicateWhy146) failures.push('Earlier duplicate Why or why not fields were incorrectly written');
 
 const yesResult = await runScenario(safetyYesResponse);

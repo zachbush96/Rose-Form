@@ -1345,6 +1345,27 @@ function pageFill(config, merged, dryRun) {
       .replace(/\bClient['’]s\b/g, `${clientFirstNameFromData}'s`)
       .replace(/\bClient\b/g, clientFirstNameFromData);
   };
+  const asamSafetyWhySubject = (value) => {
+    if (clientFirstNameFromData) return clientFirstNameFromData;
+    const text = normalizedTextValue(value).replace(/^(the client|client|the patient|patient)\b/i, '').trim();
+    const leadingName = text.match(/^([A-Z][A-Za-z'-]*)\b/);
+    const blockedSubjects = new Set(['Additional', 'No', 'Safety', 'There', 'While', 'Although', 'Because']);
+    return leadingName && !blockedSubjects.has(leadingName[1]) ? leadingName[1] : clientSubject();
+  };
+  const formatAsamSafetyWhy = (value) => {
+    const needed = normalizeYesNoText(
+      firstUsefulPathValue(merged, [
+        'case_management.safety_planning.additional_safety_planning_needed',
+        'case_management.safetyPlanning.additional_safety_planning_needed',
+        'case_management.safety_planning.is_additional_safety_planning_needed',
+        'case_management.safetyPlanning.is_additional_safety_planning_needed',
+        'case_management.safety_planning.needed',
+        'case_management.safetyPlanning.needed'
+      ])
+    );
+    if (needed === 'No' && hasUsefulValue(value)) return `${asamSafetyWhySubject(value)} denies being a suicide risk`;
+    return applyClientNameToNarrative(value);
+  };
   const withPeriod = (value) => {
     const text = normalizedTextValue(value);
     if (!text) return '';
@@ -1949,6 +1970,9 @@ function pageFill(config, merged, dryRun) {
     return merge(mergedDefaults, override || {});
   };
   const formatValueForField = (value, matchedPath) => {
+    if (/^case_management\.safety_planning\.(why_or_why_not|rationale|clinical_explanation)$/.test(String(matchedPath || ''))) {
+      return formatAsamSafetyWhy(value);
+    }
     const substanceMatch = String(matchedPath || '').match(/^substance_use\.substance_([123])\.age_first_use$/);
     if (!substanceMatch || isBlankLocal(value)) return applyClientNameToNarrative(value);
     if (substanceMatch[1] === '3') {
