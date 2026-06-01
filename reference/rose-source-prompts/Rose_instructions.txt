@@ -319,14 +319,22 @@ Only check this if the client reports no history of tobacco use.
 Field: Do you smoke cigarettes, cigars, use chewing tobacco, or vape?
 Rule:
 
-Select Yes if the client reports any current tobacco/nicotine use.
+Select Yes if the client reports any current tobacco/nicotine use, including yes, current smoking, tobacco, nicotine, or vaping.
 
 Select No if no current tobacco/nicotine use.
+
+If current use is present but the application type is unspecified, treat the application type as both smoking and vaping for the amount/frequency narrative.
+
+Generic current-use statements such as yes, smoke, smoking, smoker, tobacco, or nicotine are not specific application types.
 
 Field: If vape, does it contain nicotine?
 Rule:
 
 If client says they vape, assume Yes unless they specify nicotine-free vaping.
+
+If client specifies nicotine-free vaping, select No.
+
+A nicotine-free vape report sets vape_contains_nicotine.no true.
 
 If client does not vape and only uses cigarettes, leave blank.
 
@@ -337,13 +345,21 @@ Rule:
 
 Enter a sentence based on client report.
 
+Do not infer daily frequency when frequency is missing. Document missing frequency as frequency not specified.
+
 Examples:
 
-[Client first name] reports vaping daily.
+{Client_Name} reports smoking and vaping, frequency not specified.
 
-[Client first name] reports cigarette use.
+{Client_Name} reports smoking and vaping daily.
 
-[Client first name] reports no tobacco use.
+{Client_Name} reports vaping daily.
+
+{Client_Name} reports smoking cigarettes sometimes.
+
+{Client_Name} reports no tobacco use.
+
+Replace {Client_Name} with the actual client first name. Do not output the literal placeholder.
 
 Field: Do you consider this to be a problem?
 If client wants quitting resources:
@@ -603,21 +619,29 @@ Rule:
 
 Select Yes if currently working with psychiatrist.
 
-Select No if not currently working with psychiatrist.
+Select No if not currently working with psychiatrist, including when current provider use is not mentioned, regardless of diagnosis, mental health history, or prior treatment.
 
 Field: Are you currently working with an outpatient or intensive outpatient therapist?
 Rule:
 
-Select Yes or No based on current treatment.
+Select Yes only if currently working with an outpatient or intensive outpatient therapist.
+
+Select No if current therapist use is not mentioned, regardless of diagnosis, mental health history, or prior treatment.
 
 Field: Please provide name and contact information for any mental health professionals you are currently working with.
 Rule:
 
-Include therapist and/or psychiatrist name if provided.
+If both current psychiatrist and current therapist are No, enter n/a.
+
+If a current psychiatrist or therapist is reported, include the provider role and therapist and/or psychiatrist name if provided.
 
 Include organization/agency/practice they work for if provided.
 
+Include phone number if provided.
+
 Include additional relevant information such as length of time working together if client reports it.
+
+If a reported current provider detail such as name, organization, or phone number is missing, state that the detail was not provided.
 
 Clinician asks name and organization for psychiatrist and therapist when applicable.
 
@@ -791,17 +815,28 @@ If no attempts:
 Enter n/a.
 
 Field: How do you feel about past attempts now?
-If client specifies or this can be inferred:
-
-Use client’s report or clinical inference.
-
-Default if attempt history exists but no details on current feelings:
-
-Enter [Client first name] reports they regret their attempt.
-
 If no attempts:
 
 Enter n/a.
+
+If client specifies feelings about past attempts:
+
+Use client’s report.
+
+Default if attempt history exists but current feelings are missing or non-specific:
+
+For exactly one attempt:
+
+Enter {Client_Name} reports regretting their past suicide attempt.
+
+For multiple attempts or unknown count:
+
+Enter {Client_Name} reports regretting past suicide attempts.
+
+Replace {Client_Name} with the actual client first name. Do not output the literal placeholder.
+
+Preserve specific reported feelings when provided.
+
 
 Field: What are parts of your life that you feel keep you from attempting suicide?
 Type: Inference field.
@@ -2204,4 +2239,3 @@ CPS details if no CPS involvement
 
 Final Quality Standard
 The completed automation should produce Reliatrax-ready entries that require minimal manual editing. It should prioritize accuracy, consistency, and faithful representation of client report. It should not over-document unsupported details, but it should use clinician-specified defaults and inference rules exactly as described above.
-

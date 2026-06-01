@@ -1424,25 +1424,138 @@ function pageFill(config, merged, dryRun) {
     }
     return { substance: '', age: cleanSubstanceAge(text) };
   };
-  const tobaccoTypePhrase = (value) => {
+  const stripReportedNarrativePrefix = (value) => normalizedTextValue(value)
+    .replace(/^(?:the\s+client|client|i|he|she|they|[A-Z][A-Za-z'-]*)\s+(?:reports?|reported|states?|stated|endorses?|endorsed|says?|said)\s+(?:that\s+)?/i, '')
+    .replace(/^(?:the\s+client|client|i|he|she|they)\s+(?:currently\s+)?/i, '')
+    .trim();
+  const tobaccoMentionsVaping = (value) => /\b(vap(?:e|es|ed|ing)?|e[-\s]?cigs?|e[-\s]?cigarettes?|electronic cigarettes?|juul)\b/i.test(String(value || ''));
+  const tobaccoMentionsSpecificNonVapeRoute = (value) => /\b(cigarettes?|cigars?|pipe|hookah|chew(?:ing)?(?:\s+tobacco)?|chewing tobacco|dip|snuff)\b/i.test(String(value || ''));
+  const tobaccoMentionsGenericCurrentUse = (value) => {
     const text = lowerTextValue(value);
-    const vaping = /\bvap(e|es|ed|ing)?\b/.test(text);
-    const cigarettes = /\b(cigarette|cigarettes|cigar|cigars|smok(e|es|ed|ing)?)\b/.test(text);
-    if (vaping && !cigarettes) return 'vaping';
-    if (cigarettes && !vaping) return 'cigarette use';
-    return 'cigarette and vaping use';
+    return ['yes', 'y'].includes(text) ||
+      /^yes\b/.test(text) ||
+      /\b(current(?:ly)?|active(?:ly)?)\b.*\b(smok(?:e|es|ing|er)?|tobacco|nicotine|vap(?:e|es|ed|ing)?)\b/.test(text) ||
+      /\b(smok(?:e|es|ing|er)?|tobacco|nicotine|vap(?:e|es|ed|ing)?)\b/.test(text);
   };
-  const tobaccoNarrative = (value) => {
-    const detail = hasSpecificValue(value) ? normalizedTextValue(value) : '';
-    const typePhrase = tobaccoTypePhrase(detail);
-    if (!detail) return `${clientSubject()} reports ${typePhrase}.`;
-    if (/\breports?\b/i.test(detail)) return applyClientNameToNarrative(withPeriod(detail));
-    if (/^vapes?\b/i.test(detail)) return `${clientSubject()} reports ${withPeriod(detail.replace(/^vapes?\b/i, 'vaping'))}`;
-    if (/^smokes?\b/i.test(detail)) return `${clientSubject()} reports ${withPeriod(detail.replace(/^smokes?\b/i, 'cigarette use'))}`;
-    if (textIncludesAny(detail, ['vape', 'vaping', 'cigarette', 'cigarettes', 'smoke', 'smoking'])) {
-      return `${clientSubject()} reports ${withPeriod(detail)}`;
+  const tobaccoDeniesCurrentUse = (value) => {
+    const text = lowerTextValue(value);
+    return /\b(no|none|never|denies?|denied|not)\b.{0,40}\b(tobacco|nicotine|smok(?:e|es|ing|er)?|cigarettes?|cigars?|vap(?:e|es|ed|ing)?|e[-\s]?cig|chew|dip|snuff)\b/.test(text) ||
+      /\b(?:does\s+not|doesn't|do\s+not|don't|not\s+currently)\s+(?:use\s+)?(?:tobacco|nicotine|smok(?:e|es|ing)?|cigarettes?|cigars?|vap(?:e|es|ed|ing)?|e[-\s]?cig|chew|dip|snuff)\b/.test(text) ||
+      /\b(former|past|previous|quit|stopped|abstinent)\b.{0,40}\b(tobacco|nicotine|smok(?:e|es|ing|er)?|cigarettes?|cigars?|vap(?:e|es|ed|ing)?|e[-\s]?cig|chew|dip|snuff)\b/.test(text);
+  };
+  const tobaccoNicotineFreeVaping = (value) => /\b(nicotine[-\s]?free|without nicotine|no nicotine|non[-\s]?nicotine|zero nicotine|0\s*mg(?:\s+of)?\s+nicotine|does\s+not\s+contain\s+nicotine|doesn't\s+contain\s+nicotine|contains?\s+no\s+nicotine)\b/i.test(String(value || ''));
+  const tobaccoFrequencyMissing = (value) => {
+    const text = lowerTextValue(value);
+    if (!text) return true;
+    if (isRuleBlank(text)) return true;
+    if (['yes', 'y', 'smoke', 'smokes', 'smoking', 'smoker', 'tobacco', 'nicotine', 'tobacco use', 'nicotine use', 'current tobacco use', 'current nicotine use'].includes(text.replace(/[.]+$/g, ''))) return true;
+    if (/\b(frequency|amount|specific amount and frequency)\b.*\b(not provided|not specified|unknown)\b/.test(text)) return true;
+    return !tobaccoFrequencyDetail(value);
+  };
+  const tobaccoFrequencyDetail = (value) => stripReportedNarrativePrefix(value)
+    .replace(/\b(nicotine[-\s]?free|without nicotine|no nicotine|non[-\s]?nicotine|zero nicotine|0\s*mg(?:\s+of)?\s+nicotine|does\s+not\s+contain\s+nicotine|doesn't\s+contain\s+nicotine|contains?\s+no\s+nicotine)(?:\s+\w+)?\b/ig, ' ')
+    .replace(/\b(current(?:ly)?|active(?:ly)?|use|uses|using|tobacco|nicotine|smoke|smokes|smoking|smoker|vape|vapes|vaping|vaped|e[-\s]?cigs?|e[-\s]?cigarettes?|electronic cigarettes?|juul|cigarettes?|cigars?|pipe|hookah|chew(?:ing)?(?:\s+tobacco)?|dip|snuff|i|he|she|they|client|the client|it|does|do|not|but)\b/ig, ' ')
+    .replace(/^yes\b/ig, ' ')
+    .replace(/\b(and|or|with|contains?)\b/ig, ' ')
+    .replace(/[.;:,]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const tobaccoCurrentUseReported = (data, combinedText) => {
+    if (truthySelectionFlag(getPath(data, 'tobacco.no_history'))) return false;
+    const textReportsCurrentUse = tobaccoMentionsGenericCurrentUse(combinedText) &&
+      (!tobaccoDeniesCurrentUse(combinedText) || (tobaccoMentionsVaping(combinedText) && tobaccoNicotineFreeVaping(combinedText)));
+    if (textReportsCurrentUse) return true;
+    if (choiceIsYes(data, 'tobacco.uses_tobacco_or_vapes')) return true;
+    return false;
+  };
+  const tobaccoNarrative = (value, combinedText, forceAmbiguousUse = false) => {
+    const sourceText = hasSpecificValue(value) ? normalizedTextValue(value) : normalizedTextValue(combinedText);
+    const detail = stripReportedNarrativePrefix(sourceText);
+    const hasVaping = tobaccoMentionsVaping(detail);
+    const hasSpecificNonVape = tobaccoMentionsSpecificNonVapeRoute(detail);
+    const genericSmokingOnly = /\bsmok(?:e|es|ing|er)?\b/i.test(detail) && !hasSpecificNonVape && !hasVaping;
+    const ambiguousCurrentUse = !hasSpecificNonVape && (!hasVaping || /\btobacco\b/i.test(detail)) && tobaccoMentionsGenericCurrentUse(detail);
+    const normalizeAction = (text) => text
+      .replace(/^i\s+/i, '')
+      .replace(/^currently\s+/i, '')
+      .replace(/^smokes?\b/i, 'smoking')
+      .replace(/^vapes?\b/i, 'vaping')
+      .replace(/^uses?\s+(?:a\s+)?vape\b/i, 'vaping')
+      .trim();
+    if (forceAmbiguousUse || genericSmokingOnly || ambiguousCurrentUse) {
+      const frequency = tobaccoFrequencyMissing(detail) ? '' : tobaccoFrequencyDetail(detail);
+      return `${clientSubject()} reports smoking and vaping${frequency ? ` ${frequency}` : ', frequency not specified'}.`;
     }
-    return `${clientSubject()} reports ${typePhrase}, ${withPeriod(detail)}`;
+    const normalizedDetail = normalizeAction(detail);
+    if (hasVaping && !hasSpecificNonVape) {
+      const frequency = tobaccoFrequencyDetail(normalizedDetail);
+      return `${clientSubject()} reports vaping${frequency ? ` ${frequency}` : ', frequency not specified'}.`;
+    }
+    if (hasSpecificNonVape && tobaccoFrequencyMissing(detail)) {
+      return `${clientSubject()} reports ${normalizedDetail || 'tobacco use'}, frequency not specified.`;
+    }
+    return `${clientSubject()} reports ${withPeriod(normalizedDetail || 'smoking and vaping, frequency not specified')}`;
+  };
+  const currentProviderDetails = (data) => firstSpecificPathValue(data, [
+    'mental_health_treatment.mental_health_professionals_contact',
+    'mental_health_treatment.provider_contact',
+    'mental_health_treatment.current_provider_contact',
+    'mental_health_treatment.psychiatrist_contact',
+    'mental_health_treatment.therapist_contact'
+  ]);
+  const hasCurrentProviderDetails = (data) => hasSpecificValue(currentProviderDetails(data));
+  const providerDetailsMentionPsychiatrist = (value) => /\b(psychiatrist|psychiatric\s+(?:provider|prescriber|doctor)|psych\s*(?:provider|doctor|prescriber|np|pa)|medication\s+management|med\s+management)\b/i.test(String(value || ''));
+  const providerDetailsMentionTherapist = (value) => /\b(therapist|therapy|counsel(?:or|ing)|outpatient\s+therapist|intensive\s+outpatient|iop|clinician)\b/i.test(String(value || ''));
+  const normalizeMentalHealthProviderDefaults = (data) => {
+    const providerDetails = currentProviderDetails(data);
+    if (providerDetailsMentionPsychiatrist(providerDetails) && !explicitYesNoChoice(data, 'mental_health_treatment.currently_working_with_psychiatrist')) {
+      setChoiceLocal(data, 'mental_health_treatment.currently_working_with_psychiatrist', 'yes');
+    }
+    if (providerDetailsMentionTherapist(providerDetails) && !explicitYesNoChoice(data, 'mental_health_treatment.currently_working_with_therapist')) {
+      setChoiceLocal(data, 'mental_health_treatment.currently_working_with_therapist', 'yes');
+    }
+    [
+      'mental_health_treatment.currently_working_with_psychiatrist',
+      'mental_health_treatment.currently_working_with_therapist'
+    ].forEach(path => {
+      if (!explicitYesNoChoice(data, path)) setChoiceLocal(data, path, 'no');
+    });
+    if (choiceIsNo(data, 'mental_health_treatment.currently_working_with_psychiatrist') &&
+      choiceIsNo(data, 'mental_health_treatment.currently_working_with_therapist') &&
+      !hasCurrentProviderDetails(data)) {
+      setPathLocal(data, 'mental_health_treatment.mental_health_professionals_contact', 'n/a');
+    }
+  };
+  const attemptCountIsExactlyOne = (value) => {
+    const text = lowerTextValue(value);
+    const hasRangeOrPluralCue = /\b(or more|or two|to|and|plus|multiple|several|many|unknown|unclear)\b/.test(text);
+    const numbers = [...text.matchAll(/\b\d+(?:\.\d+)?\b/g)].map(match => Number(match[0]));
+    if (numbers.length) return numbers[0] === 1 && !hasRangeOrPluralCue;
+    if (/^1(?:\.0)?$/.test(text)) return true;
+    if (/^(?:one|single|a single)$/.test(text)) return true;
+    if (/\b(?:one|single|a single)\b.{0,40}\b(?:past\s+)?(?:suicide\s+)?attempt\b/.test(text) && !hasRangeOrPluralCue) return true;
+    if (/\b1\b.{0,40}\b(?:past\s+)?(?:suicide\s+)?attempt\b/.test(text) && !hasRangeOrPluralCue) return true;
+    return false;
+  };
+  const nonSpecificAttemptFeelings = (value) => {
+    const text = lowerTextValue(value);
+    return isRuleBlank(value) ||
+      /\b(not provided|not reported|not specified|not discussed|unspecified|unknown|no specific|information unavailable)\b/.test(text);
+  };
+  const suicideAttemptRegretDefault = (data) => (
+    attemptCountIsExactlyOne(getPath(data, 'symptoms_suicide_self_harm.attempt_count'))
+      ? `${clientSubject()} reports regretting their past suicide attempt.`
+      : `${clientSubject()} reports regretting past suicide attempts.`
+  );
+  const normalizeSuicideAttemptFeelings = (data) => {
+    const feelingsPath = 'symptoms_suicide_self_harm.feelings_about_past_attempts';
+    if (choiceIsNo(data, 'symptoms_suicide_self_harm.history_suicide_attempts')) {
+      setPathLocal(data, feelingsPath, 'n/a');
+      return;
+    }
+    if (choiceIsYes(data, 'symptoms_suicide_self_harm.history_suicide_attempts') && nonSpecificAttemptFeelings(getPath(data, feelingsPath))) {
+      setPathLocal(data, feelingsPath, suicideAttemptRegretDefault(data));
+    }
   };
   const noMentalHealthDiagnosisHistory = (data) => {
     const noHistoryFlag = getPath(data, 'mental_health.no_history');
@@ -1647,10 +1760,7 @@ function pageFill(config, merged, dryRun) {
       setPathLocal(normalized, 'medical.primary_care_clinic_or_doctor', 'n/a');
       setPathLocal(normalized, 'medical.primary_care_doctor_name', 'n/a');
     }
-    if (choiceIsNo(normalized, 'mental_health_treatment.currently_working_with_psychiatrist') &&
-      choiceIsNo(normalized, 'mental_health_treatment.currently_working_with_therapist')) {
-      setPathLocal(normalized, 'mental_health_treatment.mental_health_professionals_contact', 'n/a');
-    }
+    normalizeMentalHealthProviderDefaults(normalized);
     if (noMentalHealthDiagnosisHistory(normalized)) {
       setPathLocal(normalized, 'mental_health.no_history', true);
       setPathLocal(normalized, 'mental_health.diagnosis_history', `${clientSubject()} reports no history of mental health diagnosis.`);
@@ -1671,6 +1781,7 @@ function pageFill(config, merged, dryRun) {
     if (choiceIsYes(normalized, 'sexual_history.tested_std_hepatitis_hiv')) {
       setChoiceLocal(normalized, 'sexual_history.wants_sexual_health_resources_if_no', 'no');
     }
+    normalizeSuicideAttemptFeelings(normalized);
     if (choiceIsNo(normalized, 'medical.dental_problems')) {
       setPathLocal(normalized, 'medical.dentist_next_plan', `${clientSubject()} reports no dental problems or plans to see a dentist at this time.`);
     } else if (choiceIsYes(normalized, 'medical.dental_problems')) {
@@ -1696,10 +1807,23 @@ function pageFill(config, merged, dryRun) {
       setPathLocal(normalized, 'spiritual_cultural.active_in_religion', 'n/a');
     }
     const tobaccoAmount = getPath(normalized, 'tobacco.amount_and_frequency');
-    const tobaccoText = [tobaccoAmount, getPath(normalized, 'tobacco.type'), getPath(normalized, 'tobacco.tobacco_type')].filter(Boolean).join(' ');
-    if (choiceIsYes(normalized, 'tobacco.uses_tobacco_or_vapes') || textIncludesAny(tobaccoText, ['tobacco', 'nicotine', 'vape', 'vaping', 'cigarette', 'cigarettes', 'smoke', 'smoking'])) {
+    const tobaccoText = [
+      tobaccoAmount,
+      getPath(normalized, 'tobacco.type'),
+      getPath(normalized, 'tobacco.tobacco_type'),
+      getPath(normalized, 'tobacco.route'),
+      getPath(normalized, 'tobacco.product')
+    ].filter(Boolean).join(' ');
+    const tobaccoCurrentUse = tobaccoCurrentUseReported(normalized, tobaccoText);
+    if (tobaccoCurrentUse) {
+      const tobaccoHasVaping = tobaccoMentionsVaping(tobaccoText);
+      const tobaccoHasSpecificNonVape = tobaccoMentionsSpecificNonVapeRoute(tobaccoText);
+      const tobaccoImpliesVaping = tobaccoHasVaping || !tobaccoHasSpecificNonVape;
       setChoiceLocal(normalized, 'tobacco.uses_tobacco_or_vapes', 'yes');
-      setPathLocal(normalized, 'tobacco.amount_and_frequency', tobaccoNarrative(tobaccoAmount || tobaccoText));
+      if (tobaccoImpliesVaping) {
+        setChoiceLocal(normalized, 'tobacco.vape_contains_nicotine', tobaccoNicotineFreeVaping(tobaccoText) ? 'no' : 'yes');
+      }
+      setPathLocal(normalized, 'tobacco.amount_and_frequency', tobaccoNarrative(tobaccoAmount, tobaccoText, !tobaccoHasVaping && !tobaccoHasSpecificNonVape));
     }
     normalizeMseOtherTextSelections(normalized, 'MSE response');
     normalizeMseSelectionConflicts(normalized);

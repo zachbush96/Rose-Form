@@ -295,6 +295,8 @@ const partOneSnapshot = await partOnePage.evaluate(() => {
     pcpClinic: field(182),
     pcpDoctor: field(183),
     dentistNextPlan: field(193),
+    tobaccoVapeYes: field(55),
+    tobaccoVapeNo: field(56),
     medicationOneMixedYes: field(199),
     medicationOneMixedNo: field(200),
     religionAffiliation: field(167),
@@ -304,6 +306,209 @@ const partOneSnapshot = await partOnePage.evaluate(() => {
     sexualResourcesNo: field(228)
   };
 });
+
+const runFillAndSnapshot = async (data, fieldsToRead) => {
+  const testPage = await browser.newPage();
+  await testPage.goto(pathToFileURL(savedFormPath).href);
+  const fillResult = await testPage.evaluate(
+    ({ config, data, pageFillSource }) => {
+      // eslint-disable-next-line no-eval
+      eval(pageFillSource);
+      return pageFill(config, data, false);
+    },
+    { config, data, pageFillSource }
+  );
+  const fillSnapshot = await testPage.evaluate((fieldsToRead) => {
+    const fields = [...document.querySelectorAll('textarea.qn-textarea, input.qn-editable-cb')];
+    const field = (index) => {
+      const el = fields[index];
+      if (!el) return undefined;
+      return (el.type || '').toLowerCase() === 'checkbox' ? Boolean(el.checked) : el.value;
+    };
+    return Object.fromEntries(Object.entries(fieldsToRead).map(([name, index]) => [name, field(index)]));
+  }, fieldsToRead);
+  await testPage.close();
+  return { result: fillResult, snapshot: fillSnapshot };
+};
+
+const genericTobaccoCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    tobacco: {
+      uses_tobacco_or_vapes: { yes: true, no: false },
+      amount_and_frequency: 'yes'
+    }
+  },
+  {
+    usesYes: 53,
+    usesNo: 54,
+    vapeYes: 55,
+    vapeNo: 56,
+    amountAndFrequency: 57
+  }
+);
+
+const specificTobaccoCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    tobacco: {
+      amount_and_frequency: 'smoking cigarettes sometimes'
+    }
+  },
+  {
+    usesYes: 53,
+    usesNo: 54,
+    vapeYes: 55,
+    vapeNo: 56,
+    amountAndFrequency: 57
+  }
+);
+
+const nicotineFreeVapeCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    tobacco: {
+      amount_and_frequency: 'I vape but it does not contain nicotine'
+    }
+  },
+  {
+    usesYes: 53,
+    usesNo: 54,
+    vapeYes: 55,
+    vapeNo: 56,
+    amountAndFrequency: 57
+  }
+);
+
+const ambiguousSmokingCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    tobacco: {
+      amount_and_frequency: 'yes, I smoke'
+    }
+  },
+  {
+    usesYes: 53,
+    usesNo: 54,
+    vapeYes: 55,
+    vapeNo: 56,
+    amountAndFrequency: 57
+  }
+);
+
+const missingProviderCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    mental_health_treatment: {
+      mental_health_professionals_contact: 'Information not provided'
+    }
+  },
+  {
+    psychiatristYes: 90,
+    psychiatristNo: 91,
+    therapistYes: 92,
+    therapistNo: 93,
+    professionalsContact: 94
+  }
+);
+
+const providerDetailsCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    mental_health_treatment: {
+      mental_health_professionals_contact: 'Riley reports currently seeing therapist Jordan at Recovery Clinic.'
+    }
+  },
+  {
+    psychiatristYes: 90,
+    psychiatristNo: 91,
+    therapistYes: 92,
+    therapistNo: 93,
+    professionalsContact: 94
+  }
+);
+
+const psychiatristDetailsCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    mental_health_treatment: {
+      mental_health_professionals_contact: 'Psychiatrist: Dr. Smith, phone number not provided.'
+    }
+  },
+  {
+    psychiatristYes: 90,
+    psychiatristNo: 91,
+    therapistYes: 92,
+    therapistNo: 93,
+    professionalsContact: 94
+  }
+);
+
+const noAttemptFeelingsCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    symptoms_suicide_self_harm: {
+      history_suicide_attempts: { yes: false, no: true },
+      feelings_about_past_attempts: 'Information not provided'
+    }
+  },
+  {
+    attemptHistoryYes: 111,
+    attemptHistoryNo: 112,
+    feelingsAboutAttempts: 117
+  }
+);
+
+const singleAttemptFeelingsCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    symptoms_suicide_self_harm: {
+      history_suicide_attempts: { yes: true, no: false },
+      attempt_count: 'Client reports 1 lifetime suicide attempt.',
+      feelings_about_past_attempts: 'Information not provided'
+    }
+  },
+  {
+    attemptHistoryYes: 111,
+    attemptHistoryNo: 112,
+    attemptCount: 113,
+    feelingsAboutAttempts: 117
+  }
+);
+
+const unknownAttemptFeelingsCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    symptoms_suicide_self_harm: {
+      history_suicide_attempts: { yes: true, no: false },
+      attempt_count: 'Information not provided',
+      feelings_about_past_attempts: ''
+    }
+  },
+  {
+    attemptHistoryYes: 111,
+    attemptHistoryNo: 112,
+    attemptCount: 113,
+    feelingsAboutAttempts: 117
+  }
+);
+
+const specificAttemptFeelingsCase = await runFillAndSnapshot(
+  {
+    client: { first_name: 'Riley' },
+    symptoms_suicide_self_harm: {
+      history_suicide_attempts: { yes: true, no: false },
+      attempt_count: '2',
+      feelings_about_past_attempts: 'Riley reports feeling grateful to be alive now.'
+    }
+  },
+  {
+    attemptHistoryYes: 111,
+    attemptHistoryNo: 112,
+    attemptCount: 113,
+    feelingsAboutAttempts: 117
+  }
+);
 
 const threeSubstancePromptJson = {
   client: { first_name: 'Riley' },
@@ -436,11 +641,79 @@ if (partOneSnapshot.medicationOneMixedYes !== false || partOneSnapshot.medicatio
 if (partOneSnapshot.religionAffiliation !== 'No' || partOneSnapshot.activeInReligion !== 'n/a') {
   failures.push('missing religion did not default to No with n/a follow-up');
 }
-if (partOneSnapshot.tobaccoAmountFrequency !== 'Cruz reports cigarette and vaping use.') {
-  failures.push('tobacco/vape yes without type did not write the requested default narrative');
+if (partOneSnapshot.tobaccoVapeYes !== true || partOneSnapshot.tobaccoVapeNo !== false) {
+  failures.push('ambiguous tobacco use did not default vape-contains-nicotine to Yes');
+}
+if (partOneSnapshot.tobaccoAmountFrequency !== 'Cruz reports smoking and vaping, frequency not specified.') {
+  failures.push('tobacco/vape yes without type did not write the requested no-frequency narrative');
 }
 if (partOneSnapshot.sexualResourcesYes !== false || partOneSnapshot.sexualResourcesNo !== true) {
   failures.push('STD/HIV tested yes did not default resources question to No');
+}
+if (genericTobaccoCase.snapshot.usesYes !== true || genericTobaccoCase.snapshot.usesNo !== false) {
+  failures.push('generic tobacco current-use case did not set uses_tobacco_or_vapes Yes');
+}
+if (genericTobaccoCase.snapshot.vapeYes !== true || genericTobaccoCase.snapshot.vapeNo !== false) {
+  failures.push('generic tobacco current-use case did not default nicotine-vape Yes');
+}
+if (genericTobaccoCase.snapshot.amountAndFrequency !== 'Riley reports smoking and vaping, frequency not specified.') {
+  failures.push('generic tobacco current-use case did not write smoking-and-vaping no-frequency narrative');
+}
+if (specificTobaccoCase.snapshot.usesYes !== true || specificTobaccoCase.snapshot.usesNo !== false) {
+  failures.push('specific tobacco route case did not set uses_tobacco_or_vapes Yes');
+}
+if (specificTobaccoCase.snapshot.vapeYes !== false || specificTobaccoCase.snapshot.vapeNo !== false) {
+  failures.push('specific non-vape tobacco route should not force vape nicotine checkboxes');
+}
+if (specificTobaccoCase.snapshot.amountAndFrequency !== 'Riley reports smoking cigarettes sometimes.') {
+  failures.push('specific tobacco route/frequency was not preserved');
+}
+if (nicotineFreeVapeCase.snapshot.vapeYes !== false || nicotineFreeVapeCase.snapshot.vapeNo !== true) {
+  failures.push('nicotine-free vaping did not set vape_contains_nicotine No');
+}
+if (nicotineFreeVapeCase.snapshot.amountAndFrequency !== 'Riley reports vaping, frequency not specified.') {
+  failures.push('nicotine-free vaping without frequency did not write the no-frequency narrative');
+}
+if (ambiguousSmokingCase.snapshot.usesYes !== true || ambiguousSmokingCase.snapshot.usesNo !== false ||
+  ambiguousSmokingCase.snapshot.vapeYes !== true || ambiguousSmokingCase.snapshot.vapeNo !== false) {
+  failures.push('ambiguous yes-I-smoke case did not set tobacco use and nicotine-vape defaults');
+}
+if (ambiguousSmokingCase.snapshot.amountAndFrequency !== 'Riley reports smoking and vaping, frequency not specified.') {
+  failures.push('ambiguous yes-I-smoke case did not write smoking-and-vaping no-frequency narrative');
+}
+if (missingProviderCase.snapshot.psychiatristYes !== false || missingProviderCase.snapshot.psychiatristNo !== true ||
+  missingProviderCase.snapshot.therapistYes !== false || missingProviderCase.snapshot.therapistNo !== true) {
+  failures.push('missing current provider checkboxes did not default to No');
+}
+if (missingProviderCase.snapshot.professionalsContact !== 'n/a') {
+  failures.push('missing current provider details did not default contact to n/a');
+}
+if (providerDetailsCase.snapshot.psychiatristYes !== false || providerDetailsCase.snapshot.psychiatristNo !== true ||
+  providerDetailsCase.snapshot.therapistYes !== true || providerDetailsCase.snapshot.therapistNo !== false) {
+  failures.push('current therapist details did not infer therapist Yes with psychiatrist No');
+}
+if (providerDetailsCase.snapshot.professionalsContact !== 'Riley reports currently seeing therapist Jordan at Recovery Clinic.') {
+  failures.push('current provider details were replaced instead of preserved');
+}
+if (psychiatristDetailsCase.snapshot.psychiatristYes !== true || psychiatristDetailsCase.snapshot.psychiatristNo !== false ||
+  psychiatristDetailsCase.snapshot.therapistYes !== false || psychiatristDetailsCase.snapshot.therapistNo !== true) {
+  failures.push('current psychiatrist details did not infer psychiatrist Yes with therapist No');
+}
+if (psychiatristDetailsCase.snapshot.professionalsContact !== 'Psychiatrist: Dr. Smith, phone number not provided.') {
+  failures.push('psychiatrist details without phone number were not preserved');
+}
+if (noAttemptFeelingsCase.snapshot.attemptHistoryYes !== false || noAttemptFeelingsCase.snapshot.attemptHistoryNo !== true ||
+  noAttemptFeelingsCase.snapshot.feelingsAboutAttempts !== 'n/a') {
+  failures.push('no suicide-attempt history did not force feelings_about_past_attempts to n/a');
+}
+if (singleAttemptFeelingsCase.snapshot.feelingsAboutAttempts !== 'Riley reports regretting their past suicide attempt.') {
+  failures.push('single suicide-attempt history did not write singular regret default');
+}
+if (unknownAttemptFeelingsCase.snapshot.feelingsAboutAttempts !== 'Riley reports regretting past suicide attempts.') {
+  failures.push('unknown/multiple suicide-attempt history did not write plural regret default');
+}
+if (specificAttemptFeelingsCase.snapshot.feelingsAboutAttempts !== 'Riley reports feeling grateful to be alive now.') {
+  failures.push('specific suicide-attempt feelings were not preserved');
 }
 if (threeSubstanceResult.found !== 264) failures.push(`three-substance prompt expected 264 fields, found ${threeSubstanceResult.found}`);
 if (threeSubstanceResult.missing?.length) failures.push(`three-substance prompt missing mapped fields: ${threeSubstanceResult.missing.length}`);
@@ -477,6 +750,19 @@ console.log(JSON.stringify({
     responseWritten: partOneResult.responseWritten,
     defaultWritten: partOneResult.defaultWritten,
     warnings: partOneResult.warnings
+  },
+  normalizationSnapshots: {
+    genericTobacco: genericTobaccoCase.snapshot,
+    specificTobacco: specificTobaccoCase.snapshot,
+    nicotineFreeVape: nicotineFreeVapeCase.snapshot,
+    ambiguousSmoking: ambiguousSmokingCase.snapshot,
+    missingProvider: missingProviderCase.snapshot,
+    providerDetails: providerDetailsCase.snapshot,
+    psychiatristDetails: psychiatristDetailsCase.snapshot,
+    noAttemptFeelings: noAttemptFeelingsCase.snapshot,
+    singleAttemptFeelings: singleAttemptFeelingsCase.snapshot,
+    unknownAttemptFeelings: unknownAttemptFeelingsCase.snapshot,
+    specificAttemptFeelings: specificAttemptFeelingsCase.snapshot
   },
   threeSubstanceSummary: {
     written: threeSubstanceResult.written,
