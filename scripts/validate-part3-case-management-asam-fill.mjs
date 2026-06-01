@@ -133,6 +133,51 @@ const safetyYesResponse = {
   }
 };
 
+const promptShapeResponse = {
+  case_management: {
+    items: loganResponse.case_management.items
+  },
+  asam_criteria: loganResponse.case_management.asam_criteria,
+  safety_planning: loganResponse.case_management.safety_planning,
+  assessment_summary: {
+    paragraph_1: 'Logan has a substance use history with recent relapse and current environmental instability.',
+    paragraph_2: 'The ASAM profile supports structured treatment due to relapse and recovery environment risk.',
+    paragraph_3: 'Protective factors include some family support.',
+    paragraph_4: 'IOP is the least restrictive clinically appropriate level of care.',
+    paragraph_5_optional: ''
+  },
+  clinical_recommendations: {
+    group: { selected: true, rationale: 'Structured SUD group support is clinically appropriate.' },
+    individual: { selected: true, rationale: 'Individual support is clinically appropriate.' },
+    mental_health: { selected: true, rationale: 'Mental health symptoms are present.' },
+    medical: { selected: true, rationale: 'Medication follow up is relevant.' },
+    case_management: { selected: true, rationale: 'Housing support is relevant.' },
+    peer_coaching: { selected: true, rationale: 'Peer recovery linkage is appropriate.' },
+    coordination_with_other_providers: { selected: true, rationale: 'MAT coordination is relevant.' },
+    other_services: { selected: true, services: 'housing navigation', rationale: 'Housing instability is present.' }
+  },
+  dsm_v: {
+    sud_diagnoses_only: ['F11.20 Opioid Use Disorder, Severe'],
+    diagnostic_rationale: 'Transcript supports opioid use disorder.'
+  },
+  level_of_care: {
+    recommended_level: 'IOP 2.1',
+    asam_rationale: 'ASAM dimensions support IOP.',
+    why_lower_level_is_not_indicated: 'Lower care is insufficient due to relapse risk.',
+    why_higher_level_is_not_indicated: 'Higher care is not required due to no acute instability.',
+    estimated_length_of_time_at_this_level: '90 days',
+    estimated_date_of_discharge: 'August 2026'
+  },
+  quality_check: {
+    case_management_asam_alignment_confirmed: true,
+    asam_dsm_alignment_confirmed: true,
+    asam_level_of_care_alignment_confirmed: true,
+    safety_planning_alignment_confirmed: true,
+    dimension_3_calibration_confirmed: true,
+    notes: ''
+  }
+};
+
 const browser = await chromium.launch();
 const page = await browser.newPage();
 const failures = [];
@@ -206,6 +251,21 @@ if (yesResult?.error) failures.push(yesResult.error);
 if (yesState.safetyNeeded !== 'Yes') failures.push(`Safety needed expected Yes, found ${yesState.safetyNeeded}`);
 if (!/suicidal ideation|psychiatric instability|crisis/i.test(yesState.safetyWhy)) failures.push('Safety yes rationale was not written with active risk details');
 
+const promptShapeResult = await runScenario(promptShapeResponse);
+const promptShapeState = await page.evaluate(() => ({
+  housingSevere: document.querySelector('#housing_severe').checked,
+  dimension3: document.querySelector('#dimension_3').value,
+  safetyNeeded: document.querySelector('#safety_needed').value,
+  safetyWhy: document.querySelector('#safety_why').value
+}));
+if (promptShapeResult?.error) failures.push(promptShapeResult.error);
+if (!promptShapeState.housingSevere) failures.push('Prompt-shaped response did not select Housing Severe');
+if (!/Severity: 2: Moderate/.test(promptShapeState.dimension3)) failures.push('Prompt-shaped response did not normalize top-level ASAM dimension 3');
+if (promptShapeState.safetyNeeded !== 'No') failures.push(`Prompt-shaped response safety needed expected No, found ${promptShapeState.safetyNeeded}`);
+if (promptShapeState.safetyWhy !== 'Logan denies being a suicide risk') {
+  failures.push(`Prompt-shaped response safety why expected exact denial wording, found ${promptShapeState.safetyWhy}`);
+}
+
 const driftResult = await runScenario(loganResponse, driftHtml);
 const driftState = await page.evaluate(() => ({
   safetyNeeded: document.querySelector('#safety_needed').value,
@@ -237,9 +297,11 @@ const summarizeResult = (value) => value ? {
 console.log(JSON.stringify({
   state,
   yesState,
+  promptShapeState,
   driftState,
   result: summarizeResult(result),
   yesResult: summarizeResult(yesResult),
+  promptShapeResult: summarizeResult(promptShapeResult),
   driftResult: summarizeResult(driftResult),
   failures
 }, null, 2));
