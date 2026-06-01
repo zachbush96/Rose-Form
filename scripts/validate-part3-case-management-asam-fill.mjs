@@ -65,10 +65,10 @@ for (const [key, label] of functioningRows) {
   }
 }
 for (let dimension = 1; dimension <= 6; dimension++) {
-  part3Controls.push(`<textarea id=\"dimension_${dimension}\" class=\"qn-textarea\"></textarea>`);
+  part3Controls.push(`<div class=\"qn-editable textarea-wrapper\" data-qn-field-id=\"${qnFieldId++}\"><textarea id=\"dimension_${dimension}\" class=\"qn-textarea\"></textarea></div>`);
 }
-part3Controls.push('<textarea id=\"safety_needed\" class=\"qn-textarea\"></textarea>');
-part3Controls.push('<textarea id=\"safety_why\" class=\"qn-textarea\"></textarea>');
+part3Controls.push(`<div class=\"qn-editable textarea-wrapper\" data-qn-field-id=\"${qnFieldId++}\"><textarea id=\"safety_needed\" class=\"qn-textarea\"></textarea></div>`);
+part3Controls.push(`<div class=\"qn-editable textarea-wrapper\" data-qn-field-id=\"${qnFieldId++}\"><textarea id=\"safety_why\" class=\"qn-textarea\"></textarea></div>`);
 
 const html = `<!doctype html>
 <html>
@@ -78,6 +78,11 @@ const html = `<!doctype html>
   ${Array.from({ length: 41 }, (_, index) => `<textarea id=\"post_${index}\" class=\"qn-textarea\"></textarea>`).join('\\n')}
 </body>
 </html>`;
+
+const driftHtml = html.replace(
+  '<div class=\"qn-editable textarea-wrapper\" data-qn-field-id=\"10490\"><textarea id=\"safety_why\"',
+  '<textarea id=\"unmapped_between_safety_fields\" class=\"qn-textarea\"></textarea>\\n<div class=\"qn-editable textarea-wrapper\" data-qn-field-id=\"10490\"><textarea id=\"safety_why\"'
+);
 
 const runtimeConfig = {
   workflowMode: 'asam',
@@ -132,8 +137,8 @@ const browser = await chromium.launch();
 const page = await browser.newPage();
 const failures = [];
 
-async function runScenario(response) {
-  await page.setContent(html, { waitUntil: 'domcontentloaded' });
+async function runScenario(response, content = html) {
+  await page.setContent(content, { waitUntil: 'domcontentloaded' });
   return page.evaluate(
     ({ fillSource, asamSupportSource, runtimeConfig, response }) => {
       // eslint-disable-next-line no-eval
@@ -201,6 +206,17 @@ if (yesResult?.error) failures.push(yesResult.error);
 if (yesState.safetyNeeded !== 'Yes') failures.push(`Safety needed expected Yes, found ${yesState.safetyNeeded}`);
 if (!/suicidal ideation|psychiatric instability|crisis/i.test(yesState.safetyWhy)) failures.push('Safety yes rationale was not written with active risk details');
 
+const driftResult = await runScenario(loganResponse, driftHtml);
+const driftState = await page.evaluate(() => ({
+  safetyNeeded: document.querySelector('#safety_needed').value,
+  unmappedBetweenSafetyFields: document.querySelector('#unmapped_between_safety_fields').value,
+  safetyWhy: document.querySelector('#safety_why').value
+}));
+if (driftResult?.error) failures.push(driftResult.error);
+if (driftState.safetyNeeded !== 'No') failures.push(`Drift fixture safety needed expected No, found ${driftState.safetyNeeded}`);
+if (driftState.unmappedBetweenSafetyFields) failures.push('Drift fixture wrote Why or why not text into an unmapped intervening textarea');
+if (driftState.safetyWhy !== 'Logan denies being a suicide risk') failures.push(`Drift fixture safety why expected exact denial wording, found ${driftState.safetyWhy}`);
+
 await browser.close();
 
 const summarizeResult = (value) => value ? {
@@ -221,8 +237,10 @@ const summarizeResult = (value) => value ? {
 console.log(JSON.stringify({
   state,
   yesState,
+  driftState,
   result: summarizeResult(result),
   yesResult: summarizeResult(yesResult),
+  driftResult: summarizeResult(driftResult),
   failures
 }, null, 2));
 if (failures.length) process.exit(1);

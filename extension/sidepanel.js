@@ -2259,6 +2259,7 @@ function pageFill(config, merged, dryRun) {
       });
     }
   };
+  const dataQnFieldIdForElement = (el) => el?.getAttribute?.('data-qn-field-id') || el?.closest?.('[data-qn-field-id]')?.getAttribute('data-qn-field-id') || '';
   const describeElement = (el, fillIndex) => ({
     fillIndex,
     tag: el.tagName,
@@ -2266,7 +2267,7 @@ function pageFill(config, merged, dryRun) {
     id: el.id || '',
     name: el.name || '',
     className: String(el.className || ''),
-    dataQnFieldId: el.getAttribute('data-qn-field-id') || '',
+    dataQnFieldId: dataQnFieldIdForElement(el),
     checked: (el.type || '').toLowerCase() === 'checkbox' ? Boolean(el.checked) : undefined,
     disabled: Boolean(el.disabled),
     readOnly: Boolean(el.readOnly),
@@ -2277,6 +2278,11 @@ function pageFill(config, merged, dryRun) {
   try {
     const selector = config.selector || 'textarea.qn-textarea, input.qn-editable-cb';
     const fields = [...document.querySelectorAll(selector)].filter(isVisible);
+    const fieldsByDataQnFieldId = new Map();
+    fields.forEach(el => {
+      const id = dataQnFieldIdForElement(el);
+      if (id && !fieldsByDataQnFieldId.has(id)) fieldsByDataQnFieldId.set(id, el);
+    });
     const result = {
       event: 'fill',
       timestamp: new Date().toISOString(),
@@ -2303,17 +2309,22 @@ function pageFill(config, merged, dryRun) {
       result.warnings.push(`Expected ${config.expectedFieldCount} fields, found ${fields.length}. Review mapping before using on a live record.`);
     }
     for (const item of (config.fieldMap || [])) {
-      const el = fields[item.fillIndex];
+      const mappedDataQnFieldId = String(item.dataQnFieldId || '').trim();
+      const el = mappedDataQnFieldId && fieldsByDataQnFieldId.has(mappedDataQnFieldId)
+        ? fieldsByDataQnFieldId.get(mappedDataQnFieldId)
+        : fields[item.fillIndex];
       if (!el) {
         const missing = { action: 'missing_field', fillIndex: item.fillIndex, paths: item.paths || [] };
         result.missing.push(missing);
         result.trace.push(missing);
         continue;
       }
+      const resolvedFillIndex = fields.indexOf(el);
       const before = (el.type || '').toLowerCase() === 'checkbox' ? Boolean(el.checked) : String(el.value || '');
       const foundValue = findValue(item.paths || []);
       const base = {
-        ...describeElement(el, item.fillIndex),
+        ...describeElement(el, resolvedFillIndex >= 0 ? resolvedFillIndex : item.fillIndex),
+        mappedFillIndex: item.fillIndex,
         paths: item.paths || [],
         matchedPath: foundValue.matchedPath,
         source: foundValue.source,
