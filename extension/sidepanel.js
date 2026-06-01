@@ -16,12 +16,10 @@ const STORAGE_KEYS = {
   asamResponse: 'roseAsamResponse'
 };
 
-const CONFIG_REPO_PATH = 'zachbush96/Rose-Form';
-const LEGACY_CONFIG_REPO_PATH = 'zachbush96/Rose_Automation';
 const CONFIG_REPO_DATA_DIR = 'github-data';
 const CONFIG_FILE_RE = /(rose-reliatrax-bps-config\.json|rose-reliatrax-workflows-config\.json|rose-quicknotes-config\.json)$/;
-const DEFAULT_REMOTE_CONFIG_URL = `https://raw.githubusercontent.com/${CONFIG_REPO_PATH}/refs/heads/main/${CONFIG_REPO_DATA_DIR}/rose-reliatrax-bps-config.json`;
-const DEFAULT_WORKFLOW_CONFIG_URL = `https://raw.githubusercontent.com/${CONFIG_REPO_PATH}/refs/heads/main/${CONFIG_REPO_DATA_DIR}/rose-reliatrax-workflows-config.json`;
+const DEFAULT_REMOTE_CONFIG_URL = '';
+const DEFAULT_WORKFLOW_CONFIG_URL = '';
 const REMOTE_CONFIG_TIMEOUT_MS = 10000;
 
 let activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
@@ -279,14 +277,29 @@ function workflowMode(mode) {
 }
 function migrateLegacyConfigUrl(url) {
   if (typeof url !== 'string') return url;
-  const migrated = url.replaceAll(LEGACY_CONFIG_REPO_PATH, CONFIG_REPO_PATH);
+  const migrated = url;
   if (!CONFIG_FILE_RE.test(migrated) || migrated.includes(`/${CONFIG_REPO_DATA_DIR}/`)) return migrated;
   return migrated.replace(CONFIG_FILE_RE, `${CONFIG_REPO_DATA_DIR}/$1`);
 }
-function normalizeWorkflowConfigUrls(config) {
+function isHttpUrl(url) {
+  return /^https?:\/\//i.test(String(url || ''));
+}
+function resolveConfigUrl(url, baseUrl = '') {
+  const value = typeof url === 'string' ? url.trim() : '';
+  if (!value) return '';
+  if (isHttpUrl(value)) return migrateLegacyConfigUrl(value);
+  if (!isHttpUrl(baseUrl)) return '';
+  return migrateLegacyConfigUrl(new URL(value, baseUrl).href);
+}
+function workflowConfigUrlFromConfigUrl(url) {
+  const normalizedUrl = migrateLegacyConfigUrl(url || '');
+  if (!normalizedUrl || !CONFIG_FILE_RE.test(normalizedUrl)) return DEFAULT_WORKFLOW_CONFIG_URL;
+  return normalizedUrl.replace(CONFIG_FILE_RE, 'rose-reliatrax-workflows-config.json');
+}
+function normalizeWorkflowConfigUrls(config, baseUrl = '') {
   if (!config?.modes || typeof config.modes !== 'object') return config;
   Object.values(config.modes).forEach(mode => {
-    if (mode?.configUrl) mode.configUrl = migrateLegacyConfigUrl(mode.configUrl);
+    if (mode?.configUrl) mode.configUrl = resolveConfigUrl(mode.configUrl, baseUrl);
   });
   return config;
 }
@@ -492,8 +505,10 @@ async function loadRemoteConfig(url, { preserveDefaultRows = false } = {}) {
   await chrome.storage.local.set({ [STORAGE_KEYS.config]: cfg, [STORAGE_KEYS.configUrl]: normalizedUrl, [STORAGE_KEYS.defaultRows]: defaultRows });
   renderConfigState();
 }
-async function loadRemoteWorkflowConfig() {
-  const cfg = normalizeWorkflowConfigUrls(await fetchRemoteJson(DEFAULT_WORKFLOW_CONFIG_URL));
+async function loadRemoteWorkflowConfig(url = DEFAULT_WORKFLOW_CONFIG_URL) {
+  const normalizedUrl = migrateLegacyConfigUrl(url);
+  if (!normalizedUrl) throw new Error('Paste a raw GitHub config URL first.');
+  const cfg = normalizeWorkflowConfigUrls(await fetchRemoteJson(normalizedUrl), normalizedUrl);
   if (!cfg?.modes || typeof cfg.modes !== 'object') throw new Error('Workflow config is missing modes.');
   workflowConfig = cfg;
   await chrome.storage.local.set({ [STORAGE_KEYS.workflowConfig]: cfg });
@@ -508,7 +523,7 @@ async function loadRemoteQuickNotesConfig() {
 async function loadRemoteConfigBundle(url, options = {}) {
   const warnings = [];
   try {
-    await loadRemoteWorkflowConfig();
+    await loadRemoteWorkflowConfig(workflowConfigUrlFromConfigUrl(url));
   } catch (err) {
     warnings.push(`Workflow config: ${err.message}`);
   }
@@ -543,8 +558,10 @@ async function loadState() {
   traceLog = Array.isArray(data[STORAGE_KEYS.traceLog]) ? data[STORAGE_KEYS.traceLog] : [];
   activeMode = data[STORAGE_KEYS.mode] || 'bps';
   discoveryReport = data[STORAGE_KEYS.discoveryReport] || null;
+  const storedConfigUrl = data[STORAGE_KEYS.configUrl];
+  const configUrl = migrateLegacyConfigUrl(storedConfigUrl || workflowMode('bps').configUrl || DEFAULT_REMOTE_CONFIG_URL);
   try {
-    await loadRemoteWorkflowConfig();
+    await loadRemoteWorkflowConfig(workflowConfigUrlFromConfigUrl(configUrl));
   } catch {
     workflowConfig = normalizeWorkflowConfigUrls(window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig);
   }
@@ -553,8 +570,6 @@ async function loadState() {
   } catch {
     activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG || activeQuickNotesConfig;
   }
-  const storedConfigUrl = data[STORAGE_KEYS.configUrl];
-  const configUrl = migrateLegacyConfigUrl(storedConfigUrl || workflowMode('bps').configUrl || DEFAULT_REMOTE_CONFIG_URL);
   if (storedConfigUrl && configUrl !== storedConfigUrl) {
     await chrome.storage.local.set({ [STORAGE_KEYS.configUrl]: configUrl });
   }

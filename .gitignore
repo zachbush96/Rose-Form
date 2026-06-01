@@ -1,7 +1,17 @@
-.DS_Store
-node_modules/
-dist/
-build/
-.env
-.env.*
-*.log
+# Only publish the extension package and GitHub-hosted config data.
+*
+
+!.gitignore
+!extension/
+!extension/**
+!github-data/
+!github-data/**
+
+# Never publish local/system/build artifacts even inside allowed folders.
+**/.DS_Store
+**/node_modules/
+**/dist/
+**/build/
+**/.env
+**/.env.*
+**/*.log

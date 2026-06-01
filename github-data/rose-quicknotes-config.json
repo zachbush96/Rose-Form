@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "updated": "2026-05-25",
   "sourceEmail": {
-    "from": "Rosalee Harris <rosaleeharriscounseling@gmail.com>",
+    "from": "Provider (redacted)",
     "subject": "Re: part two: mental health status exam rules",
-    "messageId": "19e61d4c50642870",
+    "messageId": "redacted",
     "timestamp": "2026-05-25T21:09:37-04:00"
   },
   "discoverySnapshot": "github-data/rose-quicknotes-discovery-2026-05-25.json",
@@ -39,11 +39,11 @@
     {
       "fillIndex": 1,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.date",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.date",
         "quicknotes.controls.1"
       ],
       "label": "",
-      "contextText": "Rosalee Harris change Date: Notes for the full week will be loaded.",
+      "contextText": "Provider change Date: Notes for the full week will be loaded.",
       "type": "text",
       "selectorHints": {
         "dataQnFieldId": "",
@@ -54,7 +54,7 @@
     {
       "fillIndex": 2,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.doccategoryid",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.doccategoryid",
         "quicknotes.controls.2"
       ],
       "label": "",
@@ -69,7 +69,7 @@
     {
       "fillIndex": 3,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.who_referred_you_to_services",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.who_referred_you_to_services",
         "quicknotes.controls.3"
       ],
       "label": "",
@@ -84,7 +84,7 @@
     {
       "fillIndex": 4,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.tell_me_a_bit_about_why_you_decided_to_our_services",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.tell_me_a_bit_about_why_you_decided_to_our_services",
         "quicknotes.controls.4"
       ],
       "label": "",
@@ -99,7 +99,7 @@
     {
       "fillIndex": 5,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.where_are_you_currently_living_is_this_the_same_or_different_tha",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.where_are_you_currently_living_is_this_the_same_or_different_tha",
         "quicknotes.controls.5"
       ],
       "label": "",
@@ -114,7 +114,7 @@
     {
       "fillIndex": 6,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.with_whom_are_you_living",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.with_whom_are_you_living",
         "quicknotes.controls.6"
       ],
       "label": "",
@@ -129,7 +129,7 @@
     {
       "fillIndex": 7,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.check_if_no_history_of_substance_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.check_if_no_history_of_substance_use",
         "quicknotes.controls.7"
       ],
       "label": "Check if NO history of substance use",
@@ -144,7 +144,7 @@
     {
       "fillIndex": 8,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.age_of_first_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.age_of_first_use",
         "quicknotes.controls.8"
       ],
       "label": "",
@@ -159,7 +159,7 @@
     {
       "fillIndex": 9,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.in_general_how_much_were_you_using",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.in_general_how_much_were_you_using",
         "quicknotes.controls.9"
       ],
       "label": "",
@@ -174,7 +174,7 @@
     {
       "fillIndex": 10,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_often_were_you_using",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_often_were_you_using",
         "quicknotes.controls.10"
       ],
       "label": "",
@@ -189,7 +189,7 @@
     {
       "fillIndex": 11,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.at_any_point_of_your_use_did_you_develop_a_tolerance",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.at_any_point_of_your_use_did_you_develop_a_tolerance",
         "quicknotes.controls.11"
       ],
       "label": "",
@@ -204,7 +204,7 @@
     {
       "fillIndex": 12,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_was_the_method_of_use_smoking_injecting_nasal_etc",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_was_the_method_of_use_smoking_injecting_nasal_etc",
         "quicknotes.controls.12"
       ],
       "label": "",
@@ -219,7 +219,7 @@
     {
       "fillIndex": 13,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_was_the_date_of_last_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_was_the_date_of_last_use",
         "quicknotes.controls.13"
       ],
       "label": "",
@@ -234,7 +234,7 @@
     {
       "fillIndex": 14,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_many_days_in_the_last_30_days_did_you_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_many_days_in_the_last_30_days_did_you_use",
         "quicknotes.controls.14"
       ],
       "label": "",
@@ -249,7 +249,7 @@
     {
       "fillIndex": 15,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_your_most_recent_pattern_of_use_and_how_long_has_this_pa",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_your_most_recent_pattern_of_use_and_how_long_has_this_pa",
         "quicknotes.controls.15"
       ],
       "label": "",
@@ -264,7 +264,7 @@
     {
       "fillIndex": 16,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.did_you_notice_any_behavioral_changes_in_yourself_when_using_thi",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.did_you_notice_any_behavioral_changes_in_yourself_when_using_thi",
         "quicknotes.controls.16"
       ],
       "label": "",
@@ -279,7 +279,7 @@
     {
       "fillIndex": 17,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_were_the_consequences_to_using_this_substance_impacts_on_re",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_were_the_consequences_to_using_this_substance_impacts_on_re",
         "quicknotes.controls.17"
       ],
       "label": "",
@@ -294,7 +294,7 @@
     {
       "fillIndex": 18,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.18"
       ],
       "label": "Yes",
@@ -309,7 +309,7 @@
     {
       "fillIndex": 19,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.19"
       ],
       "label": "No",
@@ -324,7 +324,7 @@
     {
       "fillIndex": 20,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.20"
       ],
       "label": "Yes",
@@ -339,7 +339,7 @@
     {
       "fillIndex": 21,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.21"
       ],
       "label": "No",
@@ -354,7 +354,7 @@
     {
       "fillIndex": 22,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_long_were_you_sober",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_long_were_you_sober",
         "quicknotes.controls.22"
       ],
       "label": "",
@@ -369,7 +369,7 @@
     {
       "fillIndex": 23,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.age_of_first_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.age_of_first_use",
         "quicknotes.controls.23"
       ],
       "label": "",
@@ -384,7 +384,7 @@
     {
       "fillIndex": 24,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.in_general_how_much_were_you_using",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.in_general_how_much_were_you_using",
         "quicknotes.controls.24"
       ],
       "label": "",
@@ -399,7 +399,7 @@
     {
       "fillIndex": 25,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_often_were_you_using",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_often_were_you_using",
         "quicknotes.controls.25"
       ],
       "label": "",
@@ -414,7 +414,7 @@
     {
       "fillIndex": 26,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.at_any_point_of_your_use_did_you_develop_a_tolerance",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.at_any_point_of_your_use_did_you_develop_a_tolerance",
         "quicknotes.controls.26"
       ],
       "label": "",
@@ -429,7 +429,7 @@
     {
       "fillIndex": 27,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_was_the_method_of_use_smoking_injecting_nasal_etc",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_was_the_method_of_use_smoking_injecting_nasal_etc",
         "quicknotes.controls.27"
       ],
       "label": "",
@@ -444,7 +444,7 @@
     {
       "fillIndex": 28,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_was_the_date_of_last_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_was_the_date_of_last_use",
         "quicknotes.controls.28"
       ],
       "label": "",
@@ -459,7 +459,7 @@
     {
       "fillIndex": 29,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_many_days_in_the_last_30_days_did_you_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_many_days_in_the_last_30_days_did_you_use",
         "quicknotes.controls.29"
       ],
       "label": "",
@@ -474,7 +474,7 @@
     {
       "fillIndex": 30,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_your_most_recent_pattern_of_use_and_how_long_has_this_pa",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_your_most_recent_pattern_of_use_and_how_long_has_this_pa",
         "quicknotes.controls.30"
       ],
       "label": "",
@@ -489,7 +489,7 @@
     {
       "fillIndex": 31,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.did_you_notice_any_behavioral_changes_in_yourself_when_using_thi",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.did_you_notice_any_behavioral_changes_in_yourself_when_using_thi",
         "quicknotes.controls.31"
       ],
       "label": "",
@@ -504,7 +504,7 @@
     {
       "fillIndex": 32,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_were_the_consequences_to_using_this_substance_impacts_on_re",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_were_the_consequences_to_using_this_substance_impacts_on_re",
         "quicknotes.controls.32"
       ],
       "label": "",
@@ -519,7 +519,7 @@
     {
       "fillIndex": 33,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.33"
       ],
       "label": "Yes",
@@ -534,7 +534,7 @@
     {
       "fillIndex": 34,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.34"
       ],
       "label": "No",
@@ -549,7 +549,7 @@
     {
       "fillIndex": 35,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.35"
       ],
       "label": "Yes",
@@ -564,7 +564,7 @@
     {
       "fillIndex": 36,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.36"
       ],
       "label": "No",
@@ -579,7 +579,7 @@
     {
       "fillIndex": 37,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_long_were_you_sober",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_long_were_you_sober",
         "quicknotes.controls.37"
       ],
       "label": "",
@@ -594,7 +594,7 @@
     {
       "fillIndex": 38,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.substance",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.substance",
         "quicknotes.controls.38"
       ],
       "label": "",
@@ -609,7 +609,7 @@
     {
       "fillIndex": 39,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.age_of_first_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.age_of_first_use",
         "quicknotes.controls.39"
       ],
       "label": "",
@@ -624,7 +624,7 @@
     {
       "fillIndex": 40,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.in_general_how_much_were_you_using",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.in_general_how_much_were_you_using",
         "quicknotes.controls.40"
       ],
       "label": "",
@@ -639,7 +639,7 @@
     {
       "fillIndex": 41,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_often_were_you_using",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_often_were_you_using",
         "quicknotes.controls.41"
       ],
       "label": "",
@@ -654,7 +654,7 @@
     {
       "fillIndex": 42,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.at_any_point_of_your_use_did_you_develop_a_tolerance",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.at_any_point_of_your_use_did_you_develop_a_tolerance",
         "quicknotes.controls.42"
       ],
       "label": "",
@@ -669,7 +669,7 @@
     {
       "fillIndex": 43,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_was_the_method_of_use_smoking_injecting_nasal_etc",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_was_the_method_of_use_smoking_injecting_nasal_etc",
         "quicknotes.controls.43"
       ],
       "label": "",
@@ -684,7 +684,7 @@
     {
       "fillIndex": 44,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_was_the_date_of_last_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_was_the_date_of_last_use",
         "quicknotes.controls.44"
       ],
       "label": "",
@@ -699,7 +699,7 @@
     {
       "fillIndex": 45,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_many_days_in_the_last_30_days_did_you_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_many_days_in_the_last_30_days_did_you_use",
         "quicknotes.controls.45"
       ],
       "label": "",
@@ -714,7 +714,7 @@
     {
       "fillIndex": 46,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_your_most_recent_pattern_of_use_and_how_long_has_this_pa",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_your_most_recent_pattern_of_use_and_how_long_has_this_pa",
         "quicknotes.controls.46"
       ],
       "label": "",
@@ -729,7 +729,7 @@
     {
       "fillIndex": 47,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.did_you_notice_any_behavioral_changes_in_yourself_when_using_thi",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.did_you_notice_any_behavioral_changes_in_yourself_when_using_thi",
         "quicknotes.controls.47"
       ],
       "label": "",
@@ -744,7 +744,7 @@
     {
       "fillIndex": 48,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_were_the_consequences_to_using_this_substance_impacts_on_re",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_were_the_consequences_to_using_this_substance_impacts_on_re",
         "quicknotes.controls.48"
       ],
       "label": "",
@@ -759,7 +759,7 @@
     {
       "fillIndex": 49,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.49"
       ],
       "label": "Yes",
@@ -774,7 +774,7 @@
     {
       "fillIndex": 50,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.50"
       ],
       "label": "No",
@@ -789,7 +789,7 @@
     {
       "fillIndex": 51,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.51"
       ],
       "label": "Yes",
@@ -804,7 +804,7 @@
     {
       "fillIndex": 52,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.52"
       ],
       "label": "No",
@@ -819,7 +819,7 @@
     {
       "fillIndex": 53,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_long_were_you_sober",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_long_were_you_sober",
         "quicknotes.controls.53"
       ],
       "label": "",
@@ -834,7 +834,7 @@
     {
       "fillIndex": 54,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_55",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_55",
         "quicknotes.controls.54"
       ],
       "label": "",
@@ -849,7 +849,7 @@
     {
       "fillIndex": 55,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.check_if_no_history_of_tobacco_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.check_if_no_history_of_tobacco_use",
         "quicknotes.controls.55"
       ],
       "label": "Check if NO history of Tobacco use",
@@ -864,7 +864,7 @@
     {
       "fillIndex": 56,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.56"
       ],
       "label": "Yes",
@@ -879,7 +879,7 @@
     {
       "fillIndex": 57,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.57"
       ],
       "label": "No",
@@ -894,7 +894,7 @@
     {
       "fillIndex": 58,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.58"
       ],
       "label": "Yes",
@@ -909,7 +909,7 @@
     {
       "fillIndex": 59,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.59"
       ],
       "label": "No",
@@ -924,7 +924,7 @@
     {
       "fillIndex": 60,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_much_do_you_use_and_how_often",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_much_do_you_use_and_how_often",
         "quicknotes.controls.60"
       ],
       "label": "",
@@ -939,7 +939,7 @@
     {
       "fillIndex": 61,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.61"
       ],
       "label": "Yes",
@@ -954,7 +954,7 @@
     {
       "fillIndex": 62,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.62"
       ],
       "label": "No",
@@ -969,7 +969,7 @@
     {
       "fillIndex": 63,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.63"
       ],
       "label": "Yes",
@@ -984,7 +984,7 @@
     {
       "fillIndex": 64,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.64"
       ],
       "label": "No",
@@ -999,7 +999,7 @@
     {
       "fillIndex": 65,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.have_you_tried_to_quit_in_the_past",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.have_you_tried_to_quit_in_the_past",
         "quicknotes.controls.65"
       ],
       "label": "",
@@ -1014,7 +1014,7 @@
     {
       "fillIndex": 66,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.check_if_no_history_of_withdrawl",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.check_if_no_history_of_withdrawl",
         "quicknotes.controls.66"
       ],
       "label": "Check if NO history of Withdrawl",
@@ -1029,7 +1029,7 @@
     {
       "fillIndex": 67,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.67"
       ],
       "label": "Yes",
@@ -1044,7 +1044,7 @@
     {
       "fillIndex": 68,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.68"
       ],
       "label": "No",
@@ -1059,7 +1059,7 @@
     {
       "fillIndex": 69,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_symptoms_did_you_experience",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_symptoms_did_you_experience",
         "quicknotes.controls.69"
       ],
       "label": "",
@@ -1074,7 +1074,7 @@
     {
       "fillIndex": 70,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.70"
       ],
       "label": "Yes",
@@ -1089,7 +1089,7 @@
     {
       "fillIndex": 71,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.71"
       ],
       "label": "No",
@@ -1104,7 +1104,7 @@
     {
       "fillIndex": 72,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_long_did_your_symptoms_last",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_long_did_your_symptoms_last",
         "quicknotes.controls.72"
       ],
       "label": "",
@@ -1119,7 +1119,7 @@
     {
       "fillIndex": 73,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_long_after_your_last_use_did_these_symptoms_begin",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_long_after_your_last_use_did_these_symptoms_begin",
         "quicknotes.controls.73"
       ],
       "label": "",
@@ -1134,7 +1134,7 @@
     {
       "fillIndex": 74,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_did_you_manage_your_withdrawal_symptoms_detox_medication_etc",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_did_you_manage_your_withdrawal_symptoms_detox_medication_etc",
         "quicknotes.controls.74"
       ],
       "label": "",
@@ -1149,7 +1149,7 @@
     {
       "fillIndex": 75,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_many_times_have_you_detoxed",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_many_times_have_you_detoxed",
         "quicknotes.controls.75"
       ],
       "label": "",
@@ -1164,7 +1164,7 @@
     {
       "fillIndex": 76,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.total_number_of_inpatient_residential_treatments",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.total_number_of_inpatient_residential_treatments",
         "quicknotes.controls.76"
       ],
       "label": "",
@@ -1179,7 +1179,7 @@
     {
       "fillIndex": 77,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.total_number_of_outpatient_treatment_episodes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.total_number_of_outpatient_treatment_episodes",
         "quicknotes.controls.77"
       ],
       "label": "",
@@ -1194,7 +1194,7 @@
     {
       "fillIndex": 78,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.78"
       ],
       "label": "Yes",
@@ -1209,7 +1209,7 @@
     {
       "fillIndex": 79,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.79"
       ],
       "label": "No",
@@ -1224,7 +1224,7 @@
     {
       "fillIndex": 80,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.80"
       ],
       "label": "Yes",
@@ -1239,7 +1239,7 @@
     {
       "fillIndex": 81,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.81"
       ],
       "label": "No",
@@ -1254,7 +1254,7 @@
     {
       "fillIndex": 82,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_was_that_experience_like_for_you",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_was_that_experience_like_for_you",
         "quicknotes.controls.82"
       ],
       "label": "",
@@ -1269,7 +1269,7 @@
     {
       "fillIndex": 83,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.check_if_no_history_of_mental_health",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.check_if_no_history_of_mental_health",
         "quicknotes.controls.83"
       ],
       "label": "Check if NO history of Mental Health",
@@ -1284,7 +1284,7 @@
     {
       "fillIndex": 84,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.have_you_ever_been_given_a_mental_health_diagnosis_is_yes_state_",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.have_you_ever_been_given_a_mental_health_diagnosis_is_yes_state_",
         "quicknotes.controls.84"
       ],
       "label": "",
@@ -1299,7 +1299,7 @@
     {
       "fillIndex": 85,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_old_were_you_when_you_were_diagnosed",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_old_were_you_when_you_were_diagnosed",
         "quicknotes.controls.85"
       ],
       "label": "",
@@ -1314,7 +1314,7 @@
     {
       "fillIndex": 86,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.who_were_you_diagnosed_by_name_clinic_or_type_of_professional",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.who_were_you_diagnosed_by_name_clinic_or_type_of_professional",
         "quicknotes.controls.86"
       ],
       "label": "",
@@ -1329,7 +1329,7 @@
     {
       "fillIndex": 87,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.87"
       ],
       "label": "Yes",
@@ -1344,7 +1344,7 @@
     {
       "fillIndex": 88,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.88"
       ],
       "label": "No",
@@ -1359,7 +1359,7 @@
     {
       "fillIndex": 89,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.were_you_using_any_substances_at_the_time_of_your_diagnosis",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.were_you_using_any_substances_at_the_time_of_your_diagnosis",
         "quicknotes.controls.89"
       ],
       "label": "",
@@ -1374,7 +1374,7 @@
     {
       "fillIndex": 90,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.if_yes_do_you_believe_your_use_impacted_your_diagnosis",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.if_yes_do_you_believe_your_use_impacted_your_diagnosis",
         "quicknotes.controls.90"
       ],
       "label": "",
@@ -1389,7 +1389,7 @@
     {
       "fillIndex": 91,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.91"
       ],
       "label": "Yes",
@@ -1404,7 +1404,7 @@
     {
       "fillIndex": 92,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.92"
       ],
       "label": "No",
@@ -1419,7 +1419,7 @@
     {
       "fillIndex": 93,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.93"
       ],
       "label": "Yes",
@@ -1434,7 +1434,7 @@
     {
       "fillIndex": 94,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.94"
       ],
       "label": "No",
@@ -1449,7 +1449,7 @@
     {
       "fillIndex": 95,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.95"
       ],
       "label": "Yes",
@@ -1464,7 +1464,7 @@
     {
       "fillIndex": 96,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.96"
       ],
       "label": "No",
@@ -1479,7 +1479,7 @@
     {
       "fillIndex": 97,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_98",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_98",
         "quicknotes.controls.97"
       ],
       "label": "",
@@ -1494,7 +1494,7 @@
     {
       "fillIndex": 98,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.i_am_not_interested_in_receiving_any_resources_or_referrals",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.i_am_not_interested_in_receiving_any_resources_or_referrals",
         "quicknotes.controls.98"
       ],
       "label": "I am not interested in receiving any resources or referrals",
@@ -1509,7 +1509,7 @@
     {
       "fillIndex": 99,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_100",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_100",
         "quicknotes.controls.99"
       ],
       "label": "",
@@ -1524,7 +1524,7 @@
     {
       "fillIndex": 100,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.100"
       ],
       "label": "Yes",
@@ -1539,7 +1539,7 @@
     {
       "fillIndex": 101,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.101"
       ],
       "label": "No",
@@ -1554,7 +1554,7 @@
     {
       "fillIndex": 102,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.have_you_ever_received_treatment_or_been_in_need_of_treatment_fo",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.have_you_ever_received_treatment_or_been_in_need_of_treatment_fo",
         "quicknotes.controls.102"
       ],
       "label": "",
@@ -1569,7 +1569,7 @@
     {
       "fillIndex": 103,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.103"
       ],
       "label": "Yes",
@@ -1584,7 +1584,7 @@
     {
       "fillIndex": 104,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.104"
       ],
       "label": "No",
@@ -1599,7 +1599,7 @@
     {
       "fillIndex": 105,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.105"
       ],
       "label": "Yes",
@@ -1614,7 +1614,7 @@
     {
       "fillIndex": 106,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.106"
       ],
       "label": "No",
@@ -1629,7 +1629,7 @@
     {
       "fillIndex": 107,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.107"
       ],
       "label": "Yes",
@@ -1644,7 +1644,7 @@
     {
       "fillIndex": 108,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.108"
       ],
       "label": "No",
@@ -1659,7 +1659,7 @@
     {
       "fillIndex": 109,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.109"
       ],
       "label": "Yes",
@@ -1674,7 +1674,7 @@
     {
       "fillIndex": 110,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.110"
       ],
       "label": "No",
@@ -1689,7 +1689,7 @@
     {
       "fillIndex": 111,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_was_going_on_in_your_life_when_these_thoughts_have_been_esp",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_was_going_on_in_your_life_when_these_thoughts_have_been_esp",
         "quicknotes.controls.111"
       ],
       "label": "",
@@ -1704,7 +1704,7 @@
     {
       "fillIndex": 112,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.when_did_these_thoughts_occur_dates_and_when_did_they_occur_most",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.when_did_these_thoughts_occur_dates_and_when_did_they_occur_most",
         "quicknotes.controls.112"
       ],
       "label": "",
@@ -1719,7 +1719,7 @@
     {
       "fillIndex": 113,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.can_you_describe_the_thoughts_you_experienced",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.can_you_describe_the_thoughts_you_experienced",
         "quicknotes.controls.113"
       ],
       "label": "",
@@ -1734,7 +1734,7 @@
     {
       "fillIndex": 114,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.114"
       ],
       "label": "Yes",
@@ -1749,7 +1749,7 @@
     {
       "fillIndex": 115,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.115"
       ],
       "label": "No",
@@ -1764,7 +1764,7 @@
     {
       "fillIndex": 116,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_many_attempts_have_you_had_in_your_lifetime",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_many_attempts_have_you_had_in_your_lifetime",
         "quicknotes.controls.116"
       ],
       "label": "",
@@ -1779,7 +1779,7 @@
     {
       "fillIndex": 117,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.when_did_this_attempt_these_attempts_occur_years_dates_in_what_w",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.when_did_this_attempt_these_attempts_occur_years_dates_in_what_w",
         "quicknotes.controls.117"
       ],
       "label": "",
@@ -1794,7 +1794,7 @@
     {
       "fillIndex": 118,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.were_you_under_the_influence_of_drugs_or_alcohol_at_the_time_of_",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.were_you_under_the_influence_of_drugs_or_alcohol_at_the_time_of_",
         "quicknotes.controls.118"
       ],
       "label": "",
@@ -1809,7 +1809,7 @@
     {
       "fillIndex": 119,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_do_you_feel_about_your_past_attempt_s_now",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_do_you_feel_about_your_past_attempt_s_now",
         "quicknotes.controls.119"
       ],
       "label": "",
@@ -1824,7 +1824,7 @@
     {
       "fillIndex": 120,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_are_the_parts_of_your_life_that_keep_you_from_attempting_su",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_are_the_parts_of_your_life_that_keep_you_from_attempting_su",
         "quicknotes.controls.120"
       ],
       "label": "",
@@ -1839,7 +1839,7 @@
     {
       "fillIndex": 121,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.is_there_anything_that_would_push_you_towards_a_suicide_attempt_",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.is_there_anything_that_would_push_you_towards_a_suicide_attempt_",
         "quicknotes.controls.121"
       ],
       "label": "",
@@ -1854,7 +1854,7 @@
     {
       "fillIndex": 122,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.122"
       ],
       "label": "Yes",
@@ -1869,7 +1869,7 @@
     {
       "fillIndex": 123,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.123"
       ],
       "label": "No",
@@ -1884,7 +1884,7 @@
     {
       "fillIndex": 124,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.when_did_you_engage_in_this_behavior_and_when_was_the_most_recen",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.when_did_you_engage_in_this_behavior_and_when_was_the_most_recen",
         "quicknotes.controls.124"
       ],
       "label": "",
@@ -1899,7 +1899,7 @@
     {
       "fillIndex": 125,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.in_what_ways_did_you_engage_in_self_harm",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.in_what_ways_did_you_engage_in_self_harm",
         "quicknotes.controls.125"
       ],
       "label": "",
@@ -1914,7 +1914,7 @@
     {
       "fillIndex": 126,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_do_you_feel_about_past_self_harming_now",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_do_you_feel_about_past_self_harming_now",
         "quicknotes.controls.126"
       ],
       "label": "",
@@ -1929,7 +1929,7 @@
     {
       "fillIndex": 127,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.do_you_have_access_to_means_to_engage_in_self_harm",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.do_you_have_access_to_means_to_engage_in_self_harm",
         "quicknotes.controls.127"
       ],
       "label": "",
@@ -1944,7 +1944,7 @@
     {
       "fillIndex": 128,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.128"
       ],
       "label": "Yes",
@@ -1959,7 +1959,7 @@
     {
       "fillIndex": 129,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.129"
       ],
       "label": "No",
@@ -1974,7 +1974,7 @@
     {
       "fillIndex": 130,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.why_or_why_not",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.why_or_why_not",
         "quicknotes.controls.130"
       ],
       "label": "",
@@ -1989,7 +1989,7 @@
     {
       "fillIndex": 131,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.131"
       ],
       "label": "Yes",
@@ -2004,7 +2004,7 @@
     {
       "fillIndex": 132,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.132"
       ],
       "label": "No",
@@ -2019,7 +2019,7 @@
     {
       "fillIndex": 133,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_do_those_experiences_impact_your_life_now",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_do_those_experiences_impact_your_life_now",
         "quicknotes.controls.133"
       ],
       "label": "",
@@ -2034,7 +2034,7 @@
     {
       "fillIndex": 134,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.are_you_interested_in_receiving_any_treatment_regarding_these_ex",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.are_you_interested_in_receiving_any_treatment_regarding_these_ex",
         "quicknotes.controls.134"
       ],
       "label": "",
@@ -2049,7 +2049,7 @@
     {
       "fillIndex": 135,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.are_you_currently_experiencing_any_grief_or_loss",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.are_you_currently_experiencing_any_grief_or_loss",
         "quicknotes.controls.135"
       ],
       "label": "",
@@ -2064,7 +2064,7 @@
     {
       "fillIndex": 136,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.if_so_what_are_you_currently_grieving",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.if_so_what_are_you_currently_grieving",
         "quicknotes.controls.136"
       ],
       "label": "",
@@ -2079,7 +2079,7 @@
     {
       "fillIndex": 137,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.137"
       ],
       "label": "Yes",
@@ -2094,7 +2094,7 @@
     {
       "fillIndex": 138,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.138"
       ],
       "label": "No",
@@ -2109,7 +2109,7 @@
     {
       "fillIndex": 139,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.139"
       ],
       "label": "Yes",
@@ -2124,7 +2124,7 @@
     {
       "fillIndex": 140,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.140"
       ],
       "label": "No",
@@ -2139,7 +2139,7 @@
     {
       "fillIndex": 141,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.141"
       ],
       "label": "Yes",
@@ -2154,7 +2154,7 @@
     {
       "fillIndex": 142,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.142"
       ],
       "label": "No",
@@ -2169,7 +2169,7 @@
     {
       "fillIndex": 143,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.143"
       ],
       "label": "Yes",
@@ -2184,7 +2184,7 @@
     {
       "fillIndex": 144,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.144"
       ],
       "label": "No",
@@ -2199,7 +2199,7 @@
     {
       "fillIndex": 145,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.why_or_why_not",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.why_or_why_not",
         "quicknotes.controls.145"
       ],
       "label": "",
@@ -2214,7 +2214,7 @@
     {
       "fillIndex": 146,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_many_times_throughout_your_life_have_you_been_arrested_if_at",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_many_times_throughout_your_life_have_you_been_arrested_if_at",
         "quicknotes.controls.146"
       ],
       "label": "",
@@ -2229,7 +2229,7 @@
     {
       "fillIndex": 147,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.have_you_ever_been_convicted_of_a_sex_crime",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.have_you_ever_been_convicted_of_a_sex_crime",
         "quicknotes.controls.147"
       ],
       "label": "",
@@ -2244,7 +2244,7 @@
     {
       "fillIndex": 148,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_were_the_results_of_the_arrest_s_e_g_jail_time_probation_cl",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_were_the_results_of_the_arrest_s_e_g_jail_time_probation_cl",
         "quicknotes.controls.148"
       ],
       "label": "",
@@ -2259,7 +2259,7 @@
     {
       "fillIndex": 149,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.149"
       ],
       "label": "Yes",
@@ -2274,7 +2274,7 @@
     {
       "fillIndex": 150,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.150"
       ],
       "label": "No",
@@ -2289,7 +2289,7 @@
     {
       "fillIndex": 151,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.151"
       ],
       "label": "Yes",
@@ -2304,7 +2304,7 @@
     {
       "fillIndex": 152,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.152"
       ],
       "label": "No",
@@ -2319,7 +2319,7 @@
     {
       "fillIndex": 153,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.153"
       ],
       "label": "Yes",
@@ -2334,7 +2334,7 @@
     {
       "fillIndex": 154,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.154"
       ],
       "label": "No",
@@ -2349,7 +2349,7 @@
     {
       "fillIndex": 155,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.if_deceased_when_did_she_pass_and_what_was_the_reason_for_her_pa",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.if_deceased_when_did_she_pass_and_what_was_the_reason_for_her_pa",
         "quicknotes.controls.155"
       ],
       "label": "",
@@ -2364,7 +2364,7 @@
     {
       "fillIndex": 156,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_was_your_relationship_like_with_your_mother_are_you_in_c",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_was_your_relationship_like_with_your_mother_are_you_in_c",
         "quicknotes.controls.156"
       ],
       "label": "",
@@ -2379,7 +2379,7 @@
     {
       "fillIndex": 157,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.does_did_your_mother_have_any_history_of_medical_conditions",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.does_did_your_mother_have_any_history_of_medical_conditions",
         "quicknotes.controls.157"
       ],
       "label": "",
@@ -2394,7 +2394,7 @@
     {
       "fillIndex": 158,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.does_did_your_mother_have_any_history_of_mental_health_difficult",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.does_did_your_mother_have_any_history_of_mental_health_difficult",
         "quicknotes.controls.158"
       ],
       "label": "",
@@ -2409,7 +2409,7 @@
     {
       "fillIndex": 159,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.does_did_your_mother_have_any_history_of_substance_abuse",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.does_did_your_mother_have_any_history_of_substance_abuse",
         "quicknotes.controls.159"
       ],
       "label": "",
@@ -2424,7 +2424,7 @@
     {
       "fillIndex": 160,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.160"
       ],
       "label": "Yes",
@@ -2439,7 +2439,7 @@
     {
       "fillIndex": 161,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.161"
       ],
       "label": "No",
@@ -2454,7 +2454,7 @@
     {
       "fillIndex": 162,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.if_deceased_when_did_he_pass_and_what_was_the_reason_for_his_pas",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.if_deceased_when_did_he_pass_and_what_was_the_reason_for_his_pas",
         "quicknotes.controls.162"
       ],
       "label": "",
@@ -2469,7 +2469,7 @@
     {
       "fillIndex": 163,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_was_your_relationship_like_with_your_father_are_you_in_c",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_was_your_relationship_like_with_your_father_are_you_in_c",
         "quicknotes.controls.163"
       ],
       "label": "",
@@ -2484,7 +2484,7 @@
     {
       "fillIndex": 164,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.does_did_your_father_have_any_history_of_medical_conditions",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.does_did_your_father_have_any_history_of_medical_conditions",
         "quicknotes.controls.164"
       ],
       "label": "",
@@ -2499,7 +2499,7 @@
     {
       "fillIndex": 165,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.does_did_your_father_have_any_history_of_mental_health_difficult",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.does_did_your_father_have_any_history_of_mental_health_difficult",
         "quicknotes.controls.165"
       ],
       "label": "",
@@ -2514,7 +2514,7 @@
     {
       "fillIndex": 166,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.does_did_your_father_have_any_history_of_substance_abuse",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.does_did_your_father_have_any_history_of_substance_abuse",
         "quicknotes.controls.166"
       ],
       "label": "",
@@ -2529,7 +2529,7 @@
     {
       "fillIndex": 167,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.167"
       ],
       "label": "Yes",
@@ -2544,7 +2544,7 @@
     {
       "fillIndex": 168,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.168"
       ],
       "label": "No",
@@ -2559,7 +2559,7 @@
     {
       "fillIndex": 169,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_170",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_170",
         "quicknotes.controls.169"
       ],
       "label": "",
@@ -2574,7 +2574,7 @@
     {
       "fillIndex": 170,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.are_you_affiliated_with_any_religion",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.are_you_affiliated_with_any_religion",
         "quicknotes.controls.170"
       ],
       "label": "",
@@ -2589,7 +2589,7 @@
     {
       "fillIndex": 171,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.if_yes_would_you_consider_yourself_to_be_active_in_your_religion",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.if_yes_would_you_consider_yourself_to_be_active_in_your_religion",
         "quicknotes.controls.171"
       ],
       "label": "",
@@ -2604,7 +2604,7 @@
     {
       "fillIndex": 172,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_173",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_173",
         "quicknotes.controls.172"
       ],
       "label": "",
@@ -2619,7 +2619,7 @@
     {
       "fillIndex": 173,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_174",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_174",
         "quicknotes.controls.173"
       ],
       "label": "",
@@ -2634,7 +2634,7 @@
     {
       "fillIndex": 174,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.are_you_currently_experiencing_any_physical_health_problems_note",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.are_you_currently_experiencing_any_physical_health_problems_note",
         "quicknotes.controls.174"
       ],
       "label": "",
@@ -2649,7 +2649,7 @@
     {
       "fillIndex": 175,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.175"
       ],
       "label": "Yes",
@@ -2664,7 +2664,7 @@
     {
       "fillIndex": 176,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.176"
       ],
       "label": "No",
@@ -2679,7 +2679,7 @@
     {
       "fillIndex": 177,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.where_do_you_experience_pain",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.where_do_you_experience_pain",
         "quicknotes.controls.177"
       ],
       "label": "",
@@ -2694,7 +2694,7 @@
     {
       "fillIndex": 178,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.when_did_your_pain_begin",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.when_did_your_pain_begin",
         "quicknotes.controls.178"
       ],
       "label": "",
@@ -2709,7 +2709,7 @@
     {
       "fillIndex": 179,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_helps_your_pain",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_helps_your_pain",
         "quicknotes.controls.179"
       ],
       "label": "",
@@ -2724,7 +2724,7 @@
     {
       "fillIndex": 180,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_does_your_pain_impact_your_functioning",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_does_your_pain_impact_your_functioning",
         "quicknotes.controls.180"
       ],
       "label": "",
@@ -2739,7 +2739,7 @@
     {
       "fillIndex": 181,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.have_you_ever_used_opiates_for_pain",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.have_you_ever_used_opiates_for_pain",
         "quicknotes.controls.181"
       ],
       "label": "",
@@ -2754,7 +2754,7 @@
     {
       "fillIndex": 182,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.if_so_were_these_opiates_prescribed",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.if_so_were_these_opiates_prescribed",
         "quicknotes.controls.182"
       ],
       "label": "",
@@ -2769,7 +2769,7 @@
     {
       "fillIndex": 183,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.did_you_ever_abuse_opiates",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.did_you_ever_abuse_opiates",
         "quicknotes.controls.183"
       ],
       "label": "",
@@ -2784,7 +2784,7 @@
     {
       "fillIndex": 184,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.do_you_have_a_primary_care_physician_or_a_primary_doctor",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.do_you_have_a_primary_care_physician_or_a_primary_doctor",
         "quicknotes.controls.184"
       ],
       "label": "",
@@ -2799,7 +2799,7 @@
     {
       "fillIndex": 185,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.if_so_what_clinic_do_you_go_through",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.if_so_what_clinic_do_you_go_through",
         "quicknotes.controls.185"
       ],
       "label": "",
@@ -2814,7 +2814,7 @@
     {
       "fillIndex": 186,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.if_they_are_in_private_practice_what_is_your_doctors_name",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.if_they_are_in_private_practice_what_is_your_doctors_name",
         "quicknotes.controls.186"
       ],
       "label": "",
@@ -2829,7 +2829,7 @@
     {
       "fillIndex": 187,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.when_was_the_last_time_you_saw_a_physician_and_had_a_full_physic",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.when_was_the_last_time_you_saw_a_physician_and_had_a_full_physic",
         "quicknotes.controls.187"
       ],
       "label": "",
@@ -2844,7 +2844,7 @@
     {
       "fillIndex": 188,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.188"
       ],
       "label": "Yes",
@@ -2859,7 +2859,7 @@
     {
       "fillIndex": 189,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.189"
       ],
       "label": "No",
@@ -2874,7 +2874,7 @@
     {
       "fillIndex": 190,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.190"
       ],
       "label": "Yes",
@@ -2889,7 +2889,7 @@
     {
       "fillIndex": 191,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.191"
       ],
       "label": "No",
@@ -2904,7 +2904,7 @@
     {
       "fillIndex": 192,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_occurs_when_you_have_an_allergic_reaction",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_occurs_when_you_have_an_allergic_reaction",
         "quicknotes.controls.192"
       ],
       "label": "",
@@ -2919,7 +2919,7 @@
     {
       "fillIndex": 193,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.do_you_have_or_need_an_epinephrine_pen",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.do_you_have_or_need_an_epinephrine_pen",
         "quicknotes.controls.193"
       ],
       "label": "",
@@ -2934,7 +2934,7 @@
     {
       "fillIndex": 194,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.194"
       ],
       "label": "Yes",
@@ -2949,7 +2949,7 @@
     {
       "fillIndex": 195,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.195"
       ],
       "label": "No",
@@ -2964,7 +2964,7 @@
     {
       "fillIndex": 196,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.when_do_you_plan_to_see_a_dentist_next",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.when_do_you_plan_to_see_a_dentist_next",
         "quicknotes.controls.196"
       ],
       "label": "",
@@ -2979,7 +2979,7 @@
     {
       "fillIndex": 197,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.medication_1_name",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.medication_1_name",
         "quicknotes.controls.197"
       ],
       "label": "",
@@ -2994,7 +2994,7 @@
     {
       "fillIndex": 198,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_the_dosage_and_frequency_of_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_the_dosage_and_frequency_of_use",
         "quicknotes.controls.198"
       ],
       "label": "",
@@ -3009,7 +3009,7 @@
     {
       "fillIndex": 199,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.are_you_experiencing_any_side_effects_if_so_indicate_what",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.are_you_experiencing_any_side_effects_if_so_indicate_what",
         "quicknotes.controls.199"
       ],
       "label": "",
@@ -3024,7 +3024,7 @@
     {
       "fillIndex": 200,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.200"
       ],
       "label": "Yes",
@@ -3039,7 +3039,7 @@
     {
       "fillIndex": 201,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.201"
       ],
       "label": "No",
@@ -3054,7 +3054,7 @@
     {
       "fillIndex": 202,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.202"
       ],
       "label": "Yes",
@@ -3069,7 +3069,7 @@
     {
       "fillIndex": 203,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.203"
       ],
       "label": "No",
@@ -3084,7 +3084,7 @@
     {
       "fillIndex": 204,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.medication_2_name",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.medication_2_name",
         "quicknotes.controls.204"
       ],
       "label": "",
@@ -3099,7 +3099,7 @@
     {
       "fillIndex": 205,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_the_dosage_and_frequency_of_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_the_dosage_and_frequency_of_use",
         "quicknotes.controls.205"
       ],
       "label": "",
@@ -3114,7 +3114,7 @@
     {
       "fillIndex": 206,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.are_you_experiencing_any_side_effects_if_so_indicate_what",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.are_you_experiencing_any_side_effects_if_so_indicate_what",
         "quicknotes.controls.206"
       ],
       "label": "",
@@ -3129,7 +3129,7 @@
     {
       "fillIndex": 207,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.207"
       ],
       "label": "Yes",
@@ -3144,7 +3144,7 @@
     {
       "fillIndex": 208,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.208"
       ],
       "label": "No",
@@ -3159,7 +3159,7 @@
     {
       "fillIndex": 209,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.209"
       ],
       "label": "Yes",
@@ -3174,7 +3174,7 @@
     {
       "fillIndex": 210,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.210"
       ],
       "label": "No",
@@ -3189,7 +3189,7 @@
     {
       "fillIndex": 211,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.medication_3_name",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.medication_3_name",
         "quicknotes.controls.211"
       ],
       "label": "",
@@ -3204,7 +3204,7 @@
     {
       "fillIndex": 212,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_the_dosage_and_frequency_of_use",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_the_dosage_and_frequency_of_use",
         "quicknotes.controls.212"
       ],
       "label": "",
@@ -3219,7 +3219,7 @@
     {
       "fillIndex": 213,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.are_you_experiencing_any_side_effects_if_so_indicate_what",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.are_you_experiencing_any_side_effects_if_so_indicate_what",
         "quicknotes.controls.213"
       ],
       "label": "",
@@ -3234,7 +3234,7 @@
     {
       "fillIndex": 214,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.214"
       ],
       "label": "Yes",
@@ -3249,7 +3249,7 @@
     {
       "fillIndex": 215,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.215"
       ],
       "label": "No",
@@ -3264,7 +3264,7 @@
     {
       "fillIndex": 216,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.216"
       ],
       "label": "Yes",
@@ -3279,7 +3279,7 @@
     {
       "fillIndex": 217,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.217"
       ],
       "label": "No",
@@ -3294,7 +3294,7 @@
     {
       "fillIndex": 218,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.218"
       ],
       "label": "Yes",
@@ -3309,7 +3309,7 @@
     {
       "fillIndex": 219,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.219"
       ],
       "label": "No",
@@ -3324,7 +3324,7 @@
     {
       "fillIndex": 220,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.sometimes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.sometimes",
         "quicknotes.controls.220"
       ],
       "label": "Sometimes",
@@ -3339,7 +3339,7 @@
     {
       "fillIndex": 221,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_many_partners_have_you_had_in_the_last_year",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_many_partners_have_you_had_in_the_last_year",
         "quicknotes.controls.221"
       ],
       "label": "",
@@ -3354,7 +3354,7 @@
     {
       "fillIndex": 222,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.222"
       ],
       "label": "Yes",
@@ -3369,7 +3369,7 @@
     {
       "fillIndex": 223,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.223"
       ],
       "label": "No",
@@ -3384,7 +3384,7 @@
     {
       "fillIndex": 224,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes_paid",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes_paid",
         "quicknotes.controls.224"
       ],
       "label": "Yes (Paid)",
@@ -3399,7 +3399,7 @@
     {
       "fillIndex": 225,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes_been_paid",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes_been_paid",
         "quicknotes.controls.225"
       ],
       "label": "Yes (Been Paid)",
@@ -3414,7 +3414,7 @@
     {
       "fillIndex": 226,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.never",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.never",
         "quicknotes.controls.226"
       ],
       "label": "Never",
@@ -3429,7 +3429,7 @@
     {
       "fillIndex": 227,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.has_your_use_of_drugs_or_alcohol_impacted_your_sex_life_if_so_ho",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.has_your_use_of_drugs_or_alcohol_impacted_your_sex_life_if_so_ho",
         "quicknotes.controls.227"
       ],
       "label": "",
@@ -3444,7 +3444,7 @@
     {
       "fillIndex": 228,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.228"
       ],
       "label": "Yes",
@@ -3459,7 +3459,7 @@
     {
       "fillIndex": 229,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.229"
       ],
       "label": "No",
@@ -3474,7 +3474,7 @@
     {
       "fillIndex": 230,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.230"
       ],
       "label": "Yes",
@@ -3489,7 +3489,7 @@
     {
       "fillIndex": 231,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.231"
       ],
       "label": "No",
@@ -3504,7 +3504,7 @@
     {
       "fillIndex": 232,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.additional_notes_as_needed",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.additional_notes_as_needed",
         "quicknotes.controls.232"
       ],
       "label": "",
@@ -3519,7 +3519,7 @@
     {
       "fillIndex": 233,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.233"
       ],
       "label": "Yes",
@@ -3534,7 +3534,7 @@
     {
       "fillIndex": 234,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.234"
       ],
       "label": "No",
@@ -3549,7 +3549,7 @@
     {
       "fillIndex": 235,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.when_did_you_start_working_there",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.when_did_you_start_working_there",
         "quicknotes.controls.235"
       ],
       "label": "",
@@ -3564,7 +3564,7 @@
     {
       "fillIndex": 236,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_your_hourly_wage_or_annual_income",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_your_hourly_wage_or_annual_income",
         "quicknotes.controls.236"
       ],
       "label": "",
@@ -3579,7 +3579,7 @@
     {
       "fillIndex": 237,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.are_you_full_time_or_part_time",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.are_you_full_time_or_part_time",
         "quicknotes.controls.237"
       ],
       "label": "",
@@ -3594,7 +3594,7 @@
     {
       "fillIndex": 238,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_many_persons_are_living_on_your_income",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_many_persons_are_living_on_your_income",
         "quicknotes.controls.238"
       ],
       "label": "",
@@ -3609,7 +3609,7 @@
     {
       "fillIndex": 239,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_would_you_describe_the_current_state_of_your_finances",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_would_you_describe_the_current_state_of_your_finances",
         "quicknotes.controls.239"
       ],
       "label": "",
@@ -3624,7 +3624,7 @@
     {
       "fillIndex": 240,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.have_you_ever_been_in_trouble_at_work_due_to_your_substance_use_",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.have_you_ever_been_in_trouble_at_work_due_to_your_substance_use_",
         "quicknotes.controls.240"
       ],
       "label": "",
@@ -3639,7 +3639,7 @@
     {
       "fillIndex": 241,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.did_you_like_school_when_you_were_younger",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.did_you_like_school_when_you_were_younger",
         "quicknotes.controls.241"
       ],
       "label": "",
@@ -3654,7 +3654,7 @@
     {
       "fillIndex": 242,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.do_you_have_any_diagnosed_learning_disabilities",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.do_you_have_any_diagnosed_learning_disabilities",
         "quicknotes.controls.242"
       ],
       "label": "",
@@ -3669,7 +3669,7 @@
     {
       "fillIndex": 243,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.were_you_involved_in_any_clubs_or_sports_when_you_were_younger",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.were_you_involved_in_any_clubs_or_sports_when_you_were_younger",
         "quicknotes.controls.243"
       ],
       "label": "",
@@ -3684,7 +3684,7 @@
     {
       "fillIndex": 244,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.did_your_use_of_drugs_or_alcohol_ever_interfere_with_school",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.did_your_use_of_drugs_or_alcohol_ever_interfere_with_school",
         "quicknotes.controls.244"
       ],
       "label": "",
@@ -3699,7 +3699,7 @@
     {
       "fillIndex": 245,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.were_you_on_active_duty",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.were_you_on_active_duty",
         "quicknotes.controls.245"
       ],
       "label": "",
@@ -3714,7 +3714,7 @@
     {
       "fillIndex": 246,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.were_you_deployed",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.were_you_deployed",
         "quicknotes.controls.246"
       ],
       "label": "",
@@ -3729,7 +3729,7 @@
     {
       "fillIndex": 247,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_the_highest_rank_you_achieved",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_the_highest_rank_you_achieved",
         "quicknotes.controls.247"
       ],
       "label": "",
@@ -3744,7 +3744,7 @@
     {
       "fillIndex": 248,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.what_is_your_discharge_status",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.what_is_your_discharge_status",
         "quicknotes.controls.248"
       ],
       "label": "",
@@ -3759,7 +3759,7 @@
     {
       "fillIndex": 249,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.did_your_use_of_substances_interfere_with_your_time_in_the_milit",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.did_your_use_of_substances_interfere_with_your_time_in_the_milit",
         "quicknotes.controls.249"
       ],
       "label": "",
@@ -3774,7 +3774,7 @@
     {
       "fillIndex": 250,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.if_in_a_relationship_or_married_how_long_have_you_been_married_i",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.if_in_a_relationship_or_married_how_long_have_you_been_married_i",
         "quicknotes.controls.250"
       ],
       "label": "",
@@ -3789,7 +3789,7 @@
     {
       "fillIndex": 251,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.how_would_you_describe_the_relationship",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.how_would_you_describe_the_relationship",
         "quicknotes.controls.251"
       ],
       "label": "",
@@ -3804,7 +3804,7 @@
     {
       "fillIndex": 252,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.has_your_use_of_substances_impacted_your_relationship_with_your_",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.has_your_use_of_substances_impacted_your_relationship_with_your_",
         "quicknotes.controls.252"
       ],
       "label": "",
@@ -3819,7 +3819,7 @@
     {
       "fillIndex": 253,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.does_your_partner_use_substances",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.does_your_partner_use_substances",
         "quicknotes.controls.253"
       ],
       "label": "",
@@ -3834,7 +3834,7 @@
     {
       "fillIndex": 254,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.are_there_any_substances_in_your_partners_living_space",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.are_there_any_substances_in_your_partners_living_space",
         "quicknotes.controls.254"
       ],
       "label": "",
@@ -3849,7 +3849,7 @@
     {
       "fillIndex": 255,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.where_are_they_currently_living",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.where_are_they_currently_living",
         "quicknotes.controls.255"
       ],
       "label": "",
@@ -3864,7 +3864,7 @@
     {
       "fillIndex": 256,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.is_there_current_involvement_with_child_protective_services_if_s",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.is_there_current_involvement_with_child_protective_services_if_s",
         "quicknotes.controls.256"
       ],
       "label": "",
@@ -3879,7 +3879,7 @@
     {
       "fillIndex": 257,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.any_other_relevant_information_about_cps_case",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.any_other_relevant_information_about_cps_case",
         "quicknotes.controls.257"
       ],
       "label": "",
@@ -3894,7 +3894,7 @@
     {
       "fillIndex": 258,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.who_are_the_people_who_support_you_in_your_recovery",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.who_are_the_people_who_support_you_in_your_recovery",
         "quicknotes.controls.258"
       ],
       "label": "",
@@ -3909,7 +3909,7 @@
     {
       "fillIndex": 259,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_260",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_260",
         "quicknotes.controls.259"
       ],
       "label": "",
@@ -3924,7 +3924,7 @@
     {
       "fillIndex": 260,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.yes",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.yes",
         "quicknotes.controls.260"
       ],
       "label": "Yes",
@@ -3939,7 +3939,7 @@
     {
       "fillIndex": 261,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.no",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.no",
         "quicknotes.controls.261"
       ],
       "label": "No",
@@ -3954,7 +3954,7 @@
     {
       "fillIndex": 262,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_263",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_263",
         "quicknotes.controls.262"
       ],
       "label": "",
@@ -3969,7 +3969,7 @@
     {
       "fillIndex": 263,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_264",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_264",
         "quicknotes.controls.263"
       ],
       "label": "",
@@ -3984,7 +3984,7 @@
     {
       "fillIndex": 264,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_265",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_265",
         "quicknotes.controls.264"
       ],
       "label": "",
@@ -3999,7 +3999,7 @@
     {
       "fillIndex": 265,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_266",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_266",
         "quicknotes.controls.265"
       ],
       "label": "",
@@ -4014,7 +4014,7 @@
     {
       "fillIndex": 266,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.textarea_267",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.textarea_267",
         "quicknotes.controls.266"
       ],
       "label": "",
@@ -4029,7 +4029,7 @@
     {
       "fillIndex": 267,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.all",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.all",
         "quicknotes.controls.267"
       ],
       "label": "All",
@@ -4044,7 +4044,7 @@
     {
       "fillIndex": 268,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.evaluation",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.evaluation",
         "quicknotes.controls.268"
       ],
       "label": "Evaluation",
@@ -4059,7 +4059,7 @@
     {
       "fillIndex": 269,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.session_note",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.session_note",
         "quicknotes.controls.269"
       ],
       "label": "Session Note",
@@ -4074,7 +4074,7 @@
     {
       "fillIndex": 270,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.treatment_plan",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.treatment_plan",
         "quicknotes.controls.270"
       ],
       "label": "Treatment Plan",
@@ -4089,7 +4089,7 @@
     {
       "fillIndex": 271,
       "paths": [
-        "quicknotes_session_notes_for_rosalee_harris_for_the_week_of_5_24.general_note",
+        "quicknotes_session_notes_for_provider_for_the_week_of_5_24.general_note",
         "quicknotes.controls.271"
       ],
       "label": "General Note",
@@ -4104,6 +4104,6 @@
   ],
   "defaultAnswers": [],
   "releaseNotes": [
-    "v0.1.0 adds Rose's 2026-05-25 QuickNotes / Group Notes 272-control discovery map from Gmail message 19e61d4c50642870."
+    "v0.1.0 adds Rose's 2026-05-25 QuickNotes / Group Notes 272-control discovery map from redacted source message."
   ]
 }
