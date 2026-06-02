@@ -14,7 +14,8 @@ const STORAGE_KEYS = {
   quicknotesResponse: 'roseQuickNotesResponse',
   mseResponse: 'roseMseResponse',
   asamResponse: 'roseAsamResponse',
-  diagnosticsResponse: 'roseDiagnosticsResponse'
+  diagnosticsResponse: 'roseDiagnosticsResponse',
+  diagnosticsPromptNote: 'roseDiagnosticsPromptNote'
 };
 
 const CONFIG_REPO_DATA_DIR = 'github-data';
@@ -32,6 +33,7 @@ let traceLog = [];
 let activeMode = 'bps';
 let discoveryReport = null;
 let visualMappingMode = 'off';
+let diagnosticsPromptPreviewBase = '';
 const $ = (id) => document.getElementById(id);
 
 const MSE_REQUIRED_ITEMS = [
@@ -487,14 +489,36 @@ function formatSavedPart3SupplementFromRaw(raw) {
   if (locText) lines.push('', 'Level of Care From Part 3 Response', locText);
   return lines.length > 1 ? lines.join('\n') : '';
 }
-function buildDiagnosticsPromptFromContext(context) {
+function diagnosticsPromptNoteText() {
+  return ($('diagnosticsPromptNote')?.value || '').trim();
+}
+function formatDiagnosticsPromptNote() {
+  const text = diagnosticsPromptNoteText();
+  if (!text) return '';
+  const punctuated = /[.!?]$/.test(text) ? text : `${text}.`;
+  return `NOTE: ${punctuated}`;
+}
+function applyDiagnosticsPromptNote(promptText) {
+  const prompt = String(promptText || '').trim();
+  const note = formatDiagnosticsPromptNote();
+  if (!note) return prompt;
+  return `${note}\n\n${prompt}\n\n${note}`;
+}
+function resetDiagnosticsPromptPreviewBase() {
+  diagnosticsPromptPreviewBase = '';
+}
+function diagnosticsPromptPreviewFallback(source) {
+  return (source.body || '').replace(DIAGNOSTICS_CONTEXT_PLACEHOLDER, '[Click Refresh from active page or Copy prompt to pull Part 3 page context.]');
+}
+function buildDiagnosticsPromptFromContext(context, { includePromptNote = true } = {}) {
   const source = workflowMode('diagnostics').sourcePrompt;
   if (!source?.body) throw new Error('No Diagnostics Part 4 prompt loaded.');
   const supplement = formatSavedPart3SupplementFromRaw($('asamResp')?.value || '');
   const contextBlock = formatDiagnosticsPart3Context(context, supplement);
-  return source.body.includes(DIAGNOSTICS_CONTEXT_PLACEHOLDER)
+  const basePrompt = source.body.includes(DIAGNOSTICS_CONTEXT_PLACEHOLDER)
     ? source.body.replace(DIAGNOSTICS_CONTEXT_PLACEHOLDER, contextBlock)
     : `${source.body}\n\n${contextBlock}`;
+  return includePromptNote ? applyDiagnosticsPromptNote(basePrompt) : basePrompt;
 }
 function renderDiagnosticsPrompt(promptText = '') {
   const source = workflowMode('diagnostics').sourcePrompt;
@@ -505,7 +529,9 @@ function renderDiagnosticsPrompt(promptText = '') {
     return;
   }
   $('diagnosticsPromptMeta').textContent = `${source.title} | ${source.source}`;
-  $('diagnosticsPromptPreview').textContent = promptText || (source.body || '').replace(DIAGNOSTICS_CONTEXT_PLACEHOLDER, '[Click Refresh from active page or Copy prompt to pull Part 3 page context.]');
+  if (promptText) diagnosticsPromptPreviewBase = promptText;
+  const previewBase = diagnosticsPromptPreviewBase || diagnosticsPromptPreviewFallback(source);
+  $('diagnosticsPromptPreview').textContent = applyDiagnosticsPromptNote(previewBase);
 }
 function renderMseDefaults() {
   renderReadOnlyDefaultRows('mseDefaultsBody', 'mseDefaultCount', getWorkflowDefaultRows('mse'));
@@ -675,6 +701,7 @@ async function loadRemoteWorkflowConfig(url = DEFAULT_WORKFLOW_CONFIG_URL) {
   const cfg = normalizeWorkflowConfigUrls(await fetchRemoteJson(normalizedUrl), normalizedUrl);
   if (!cfg?.modes || typeof cfg.modes !== 'object') throw new Error('Workflow config is missing modes.');
   workflowConfig = cfg;
+  resetDiagnosticsPromptPreviewBase();
   await chrome.storage.local.set({ [STORAGE_KEYS.workflowConfig]: cfg });
   renderMode();
 }
@@ -714,7 +741,8 @@ async function loadState() {
     STORAGE_KEYS.quicknotesResponse,
     STORAGE_KEYS.mseResponse,
     STORAGE_KEYS.asamResponse,
-    STORAGE_KEYS.diagnosticsResponse
+    STORAGE_KEYS.diagnosticsResponse,
+    STORAGE_KEYS.diagnosticsPromptNote
   ]);
   activeConfig = data[STORAGE_KEYS.config] || window.DEFAULT_ROSE_BPS_CONFIG;
   workflowConfig = normalizeWorkflowConfigUrls(data[STORAGE_KEYS.workflowConfig] || window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig);
@@ -744,6 +772,7 @@ async function loadState() {
   if ($('mseResp')) $('mseResp').value = data[STORAGE_KEYS.mseResponse] || '';
   if ($('asamResp')) $('asamResp').value = data[STORAGE_KEYS.asamResponse] || '';
   if ($('diagnosticsResp')) $('diagnosticsResp').value = data[STORAGE_KEYS.diagnosticsResponse] || '';
+  if ($('diagnosticsPromptNote')) $('diagnosticsPromptNote').value = data[STORAGE_KEYS.diagnosticsPromptNote] || '';
   (data[STORAGE_KEYS.responses] || []).forEach((v, i) => { if ($(`resp${i+1}`)) $(`resp${i+1}`).value = v || ''; });
   renderTraceLog();
   renderDiscoveryReport();
@@ -3455,6 +3484,9 @@ function assertDiagnosticsResponseComplete(summary) {
 async function saveDiagnosticsResponse() {
   await chrome.storage.local.set({ [STORAGE_KEYS.diagnosticsResponse]: $('diagnosticsResp')?.value || '' });
 }
+async function saveDiagnosticsPromptNote() {
+  await chrome.storage.local.set({ [STORAGE_KEYS.diagnosticsPromptNote]: $('diagnosticsPromptNote')?.value || '' });
+}
 
 $('loadRemote').onclick = async () => {
   try {
@@ -3470,6 +3502,7 @@ $('useBundled').onclick = async () => {
   workflowConfig = normalizeWorkflowConfigUrls(window.DEFAULT_ROSE_WORKFLOW_CONFIG || {});
   activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG || {};
   defaultRows = getConfigDefaultRows(activeConfig);
+  resetDiagnosticsPromptPreviewBase();
   await chrome.storage.local.set({
     [STORAGE_KEYS.config]: activeConfig,
     [STORAGE_KEYS.workflowConfig]: workflowConfig,
@@ -3759,8 +3792,9 @@ $('fillAsamPage').onclick = async () => {
 };
 async function refreshDiagnosticsPromptFromPage() {
   const context = await runInActiveTab(pageExtractDiagnosticsPart3Context, []);
-  const prompt = buildDiagnosticsPromptFromContext(context);
-  renderDiagnosticsPrompt(prompt);
+  const basePrompt = buildDiagnosticsPromptFromContext(context, { includePromptNote: false });
+  const prompt = applyDiagnosticsPromptNote(basePrompt);
+  renderDiagnosticsPrompt(basePrompt);
   logTo('diagnosticsFillResults', {
     event: context.event,
     extractedFunctioning: context.functioning?.length || 0,
@@ -3851,7 +3885,8 @@ $('copyModeSourcePrompt').onclick = async () => {
     setStatus('No source prompt for this mode');
     return;
   }
-  await navigator.clipboard.writeText(source.body || '');
+  const body = activeMode === 'diagnostics' ? applyDiagnosticsPromptNote(source.body || '') : (source.body || '');
+  await navigator.clipboard.writeText(body);
   setStatus(`Copied ${source.title}`);
 };
 $('copyModeSourceNotes').onclick = async () => {
@@ -3860,7 +3895,8 @@ $('copyModeSourceNotes').onclick = async () => {
     setStatus('No source notes for this mode');
     return;
   }
-  await navigator.clipboard.writeText(`${source.title}\n${source.source}\n\n${source.body || ''}`);
+  const body = activeMode === 'diagnostics' ? applyDiagnosticsPromptNote(source.body || '') : (source.body || '');
+  await navigator.clipboard.writeText(`${source.title}\n${source.source}\n\n${body}`);
   setStatus(`Copied ${source.title} notes`);
 };
 $('copyTraceLog').onclick = async () => {
@@ -3949,4 +3985,8 @@ $('quicknotesResp')?.addEventListener('input', saveQuickNotesResponse);
 $('mseResp')?.addEventListener('input', saveMseResponse);
 $('asamResp')?.addEventListener('input', saveAsamResponse);
 $('diagnosticsResp')?.addEventListener('input', saveDiagnosticsResponse);
+$('diagnosticsPromptNote')?.addEventListener('input', async () => {
+  await saveDiagnosticsPromptNote();
+  renderDiagnosticsPrompt();
+});
 loadState();
