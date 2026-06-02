@@ -13,7 +13,8 @@ const STORAGE_KEYS = {
   discoveryPrefix: 'roseBpsDiscoveryPrefix',
   quicknotesResponse: 'roseQuickNotesResponse',
   mseResponse: 'roseMseResponse',
-  asamResponse: 'roseAsamResponse'
+  asamResponse: 'roseAsamResponse',
+  diagnosticsResponse: 'roseDiagnosticsResponse'
 };
 
 const CONFIG_REPO_DATA_DIR = 'github-data';
@@ -77,6 +78,23 @@ const ASAM_FUNCTIONING_ITEMS = [
 ];
 const ASAM_FUNCTIONING_LABELS = ['None', 'Mild', 'Moderate', 'Severe'];
 const ASAM_DIMENSION_LABELS = ['None', 'Mild', 'Moderate', 'High', 'Severe'];
+const DIAGNOSTICS_CONTEXT_PLACEHOLDER = '{{PART3_CONTEXT_FROM_ACTIVE_PAGE}}';
+const DIAGNOSTICS_SCREENING_FIELDS = [
+  { key: 'alcohol_screening_mast', label: 'Alcohol Screening MAST', aliases: ['mast', 'alcohol_screening_mast', 'alcohol screening mast'] },
+  { key: 'drug_abuse_screening_dast_10', label: 'Drug Abuse Screening DAST 10', aliases: ['dast_10', 'dast10', 'drug_abuse_screening_dast_10', 'drug abuse screening dast 10'] },
+  { key: 'depression_screening_phq_9', label: 'Depression Screening PHQ-9', aliases: ['phq_9', 'phq9', 'depression_screening_phq_9', 'depression screening phq 9'] },
+  { key: 'anxiety_screening_gad_7', label: 'Anxiety Screening GAD 7', aliases: ['gad_7', 'gad7', 'anxiety_screening_gad_7', 'anxiety screening gad 7'] }
+];
+const DIAGNOSTICS_RECOMMENDATION_ITEMS = [
+  { key: 'group', label: 'Group' },
+  { key: 'individual', label: 'Individual' },
+  { key: 'mental_health', label: 'Mental Health' },
+  { key: 'medical', label: 'Medical' },
+  { key: 'case_management', label: 'Case Management' },
+  { key: 'peer_coaching', label: 'Peer Coaching' },
+  { key: 'coordination_with_other_providers', label: 'Coordination with Other Providers' },
+  { key: 'other_services', label: 'Other Services' }
+];
 
 function setStatus(msg) { $('status').textContent = msg; }
 function logTo(id, value) { $(id).textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2); }
@@ -351,6 +369,144 @@ function renderAsamPrompt() {
   $('asamPromptMeta').textContent = `${source.title} | ${source.source}`;
   $('asamPromptPreview').textContent = source.body || '';
 }
+function selectedFunctioningText(item) {
+  const score = Number.isInteger(item?.score) ? item.score : '';
+  const severity = item?.severity || '';
+  if (score !== '' && severity) return `${score} ${severity}`;
+  return severity || String(score);
+}
+function formatDiagnosticsPart3Context(context, supplementalText = '') {
+  const lines = [
+    'PART 3 CASE MANAGEMENT AND ASAM CONTEXT FROM ACTIVE RELIATRAX PAGE',
+    '',
+    'Use the following Case Management Assessment and ASAM Part 3 information as clinical context for Diagnostics Part 4. The ASAM dimension textbox values below were pulled verbatim from the active ReliaTrax page.'
+  ];
+  const functioning = context?.functioning || [];
+  if (functioning.length) {
+    lines.push('', 'Case Management Functioning Scores');
+    functioning.forEach(item => {
+      lines.push(`${item.label}: ${selectedFunctioningText(item) || ''}`);
+    });
+  }
+  const dimensions = context?.dimensions || [];
+  if (dimensions.length) {
+    lines.push('', 'ASAM Criteria Textboxes');
+    dimensions.forEach(item => {
+      lines.push('', `Dimension ${item.dimension} - ${item.title}`, item.text || '');
+    });
+  }
+  const safety = context?.safety_planning || {};
+  lines.push(
+    '',
+    'Safety Planning',
+    'Is additional safety planning needed?',
+    safety.additional_safety_planning_needed || '',
+    '',
+    'Why or why not?',
+    safety.why_or_why_not || ''
+  );
+  if (supplementalText) {
+    lines.push('', supplementalText);
+  }
+  if ((context?.warnings || []).length) {
+    lines.push('', 'Context extraction warnings');
+    context.warnings.forEach(warning => lines.push(`- ${warning}`));
+  }
+  return lines.join('\n');
+}
+function textFromDiagnosticsValue(value) {
+  if (value === undefined || value === null) return '';
+  if (Array.isArray(value)) return value.map(textFromDiagnosticsValue).filter(Boolean).join('\n');
+  if (typeof value === 'object') {
+    const ordered = [
+      value.narrative,
+      value.text,
+      value.summary,
+      value.rationale,
+      value.diagnostic_rationale,
+      value.asam_rationale,
+      value.why_lower_level_is_not_indicated,
+      value.why_higher_level_is_not_indicated
+    ].map(textFromDiagnosticsValue).filter(Boolean);
+    if (ordered.length) return ordered.join('\n\n');
+    return Object.values(value).map(textFromDiagnosticsValue).filter(Boolean).join('\n\n');
+  }
+  return String(value || '').trim();
+}
+function joinAssessmentParagraphs(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return textFromDiagnosticsValue(value);
+  return Object.entries(value)
+    .filter(([key]) => /^paragraph/i.test(key) || /summary|narrative/i.test(key))
+    .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+    .map(([, paragraph]) => textFromDiagnosticsValue(paragraph))
+    .filter(Boolean)
+    .join('\n\n');
+}
+function formatSavedPart3SupplementFromRaw(raw) {
+  const text = String(raw || '').trim();
+  if (!text) return '';
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return 'Saved Part 3 response supplement was not included because the saved Part 3 response is not valid JSON.';
+  }
+  const normalized = normalizeAsamResponseForFill(parsed);
+  const lines = ['SAVED PART 3 RESPONSE SUPPLEMENT'];
+  const items = normalized?.case_management?.items || {};
+  const itemLines = ASAM_FUNCTIONING_ITEMS.map(item => {
+    const value = items[item.key] || {};
+    const score = Number.isInteger(value.score) ? `${value.score} ${value.severity || ASAM_FUNCTIONING_LABELS[value.score] || ''}`.trim() : '';
+    const rationale = textFromDiagnosticsValue(value.rationale || value.reason || value.clinical_rationale);
+    return [item.label, [score, rationale].filter(Boolean).join(' - ')].filter(Boolean).join(': ');
+  }).filter(line => /: ./i.test(line));
+  if (itemLines.length) lines.push('', 'Case Management Functioning Details', ...itemLines);
+  const assessmentSummary = joinAssessmentParagraphs(normalized.assessment_summary || parsed.assessment_summary || parsed?.case_management?.assessment_summary);
+  if (assessmentSummary) lines.push('', 'Assessment Summary From Part 3 Response', assessmentSummary);
+  const recommendations = normalized.clinical_recommendations || parsed.clinical_recommendations || parsed?.case_management?.clinical_recommendations || {};
+  const recommendationLines = DIAGNOSTICS_RECOMMENDATION_ITEMS.map(item => {
+    const value = getObjectValueByAliases(recommendations, [item.key, item.label]) ?? {};
+    const selected = value?.selected === true || value === true ? 'selected' : value?.selected === false || value === false ? 'not selected' : '';
+    const detail = item.key === 'other_services'
+      ? textFromDiagnosticsValue(value.services || value.rationale || value)
+      : textFromDiagnosticsValue(value.rationale || value.reason || '');
+    return [item.label, [selected, detail].filter(Boolean).join(' - ')].filter(Boolean).join(': ');
+  }).filter(line => /: ./i.test(line));
+  if (recommendationLines.length) lines.push('', 'Clinical Recommendations From Part 3 Response', ...recommendationLines);
+  const dsm = textFromDiagnosticsValue(normalized.dsm_v?.sud_diagnoses_only || normalized.dsm_v || parsed.dsm_v);
+  if (dsm) lines.push('', 'DSM V From Part 3 Response', dsm);
+  const loc = normalized.level_of_care || parsed.level_of_care || {};
+  const locText = [
+    loc.recommended_level ? `Recommended level: ${textFromDiagnosticsValue(loc.recommended_level)}` : '',
+    loc.asam_rationale ? `ASAM rationale: ${textFromDiagnosticsValue(loc.asam_rationale)}` : '',
+    loc.why_lower_level_is_not_indicated ? `Why lower level is not indicated: ${textFromDiagnosticsValue(loc.why_lower_level_is_not_indicated)}` : '',
+    loc.why_higher_level_is_not_indicated ? `Why higher level is not indicated: ${textFromDiagnosticsValue(loc.why_higher_level_is_not_indicated)}` : '',
+    loc.estimated_length_of_time_at_this_level ? `Estimated length: ${textFromDiagnosticsValue(loc.estimated_length_of_time_at_this_level)}` : '',
+    loc.estimated_date_of_discharge ? `Estimated discharge: ${textFromDiagnosticsValue(loc.estimated_date_of_discharge)}` : ''
+  ].filter(Boolean).join('\n');
+  if (locText) lines.push('', 'Level of Care From Part 3 Response', locText);
+  return lines.length > 1 ? lines.join('\n') : '';
+}
+function buildDiagnosticsPromptFromContext(context) {
+  const source = workflowMode('diagnostics').sourcePrompt;
+  if (!source?.body) throw new Error('No Diagnostics Part 4 prompt loaded.');
+  const supplement = formatSavedPart3SupplementFromRaw($('asamResp')?.value || '');
+  const contextBlock = formatDiagnosticsPart3Context(context, supplement);
+  return source.body.includes(DIAGNOSTICS_CONTEXT_PLACEHOLDER)
+    ? source.body.replace(DIAGNOSTICS_CONTEXT_PLACEHOLDER, contextBlock)
+    : `${source.body}\n\n${contextBlock}`;
+}
+function renderDiagnosticsPrompt(promptText = '') {
+  const source = workflowMode('diagnostics').sourcePrompt;
+  if (!$('diagnosticsPromptPreview')) return;
+  if (!source) {
+    $('diagnosticsPromptMeta').textContent = 'No Diagnostics Part 4 source prompt is loaded.';
+    $('diagnosticsPromptPreview').textContent = '';
+    return;
+  }
+  $('diagnosticsPromptMeta').textContent = `${source.title} | ${source.source}`;
+  $('diagnosticsPromptPreview').textContent = promptText || (source.body || '').replace(DIAGNOSTICS_CONTEXT_PLACEHOLDER, '[Click Refresh from active page or Copy prompt to pull Part 3 page context.]');
+}
 function renderMseDefaults() {
   renderReadOnlyDefaultRows('mseDefaultsBody', 'mseDefaultCount', getWorkflowDefaultRows('mse'));
 }
@@ -364,12 +520,13 @@ function renderMode() {
     const visible = classes.includes(`mode-${activeMode}`);
     panel.classList.toggle('hidden', !visible);
   });
-  if (['diagnostics', 'treatment'].includes(activeMode)) {
+  if (activeMode === 'treatment') {
     $('plannedModeTitle').textContent = modeTitle(activeMode);
     $('plannedModeBody').textContent = modeDescription(activeMode);
   }
   renderMsePrompt();
   renderAsamPrompt();
+  renderDiagnosticsPrompt();
   renderMseDefaults();
   renderPlannedModeSource();
 }
@@ -556,7 +713,8 @@ async function loadState() {
     STORAGE_KEYS.discoveryPrefix,
     STORAGE_KEYS.quicknotesResponse,
     STORAGE_KEYS.mseResponse,
-    STORAGE_KEYS.asamResponse
+    STORAGE_KEYS.asamResponse,
+    STORAGE_KEYS.diagnosticsResponse
   ]);
   activeConfig = data[STORAGE_KEYS.config] || window.DEFAULT_ROSE_BPS_CONFIG;
   workflowConfig = normalizeWorkflowConfigUrls(data[STORAGE_KEYS.workflowConfig] || window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig);
@@ -585,6 +743,7 @@ async function loadState() {
   if ($('quicknotesResp')) $('quicknotesResp').value = data[STORAGE_KEYS.quicknotesResponse] || '';
   if ($('mseResp')) $('mseResp').value = data[STORAGE_KEYS.mseResponse] || '';
   if ($('asamResp')) $('asamResp').value = data[STORAGE_KEYS.asamResponse] || '';
+  if ($('diagnosticsResp')) $('diagnosticsResp').value = data[STORAGE_KEYS.diagnosticsResponse] || '';
   (data[STORAGE_KEYS.responses] || []).forEach((v, i) => { if ($(`resp${i+1}`)) $(`resp${i+1}`).value = v || ''; });
   renderTraceLog();
   renderDiscoveryReport();
@@ -643,6 +802,94 @@ function pageScan(config) {
       expected: config.expectedFieldCount,
       first: fields.slice(0, 5).map((el, i) => describe(el, i)),
       last: fields.slice(-5).map((el, offset) => describe(el, fields.length - 5 + offset))
+    };
+  } catch (err) { return { error: err.message }; }
+}
+function pageExtractDiagnosticsPart3Context() {
+  try {
+    const functioningRows = [
+      { key: 'housing', label: 'Housing', firstFieldId: 10451 },
+      { key: 'financial_stressors', label: 'Financial Stressors', firstFieldId: 10455 },
+      { key: 'legal', label: 'Legal', firstFieldId: 10459 },
+      { key: 'employment', label: 'Employment', firstFieldId: 10463 },
+      { key: 'education_vocation', label: 'Education/Vocation', firstFieldId: 10467 },
+      { key: 'independent_living', label: 'Independent Living', firstFieldId: 10471 },
+      { key: 'medical', label: 'Medical', firstFieldId: 10475 },
+      { key: 'social_natural_supports', label: 'Social/Natural Supports', firstFieldId: 10479 }
+    ];
+    const functioningLabels = ['None', 'Mild', 'Moderate', 'Severe'];
+    const dimensionTitles = [
+      'Acute Intoxication And/or Withdrawal Potential',
+      'Biomedical Conditions and Complications',
+      'Emotional, Behavioral, or Cognitive Conditions and Complications',
+      'Readiness to Change',
+      'Relapse, Continued Use, or Continued Problem Potential',
+      'Recovery/Living Environment'
+    ];
+    const dimensionFieldIds = [10483, 10484, 10485, 10486, 10487, 10488];
+    const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const controlByFieldId = (fieldId) => {
+      const holder = document.querySelector(`[data-qn-field-id="${fieldId}"]`);
+      if (!holder) return null;
+      if (holder.matches('textarea, select, input, [contenteditable="true"]')) return holder;
+      return holder.querySelector('textarea, select, input, [contenteditable="true"]');
+    };
+    const valueByFieldId = (fieldId) => {
+      const el = controlByFieldId(fieldId);
+      if (!el) return '';
+      if (el.getAttribute('contenteditable') === 'true') return String(el.textContent || '');
+      if ((el.type || '').toLowerCase() === 'checkbox') return el.checked ? 'checked' : '';
+      return String(el.value || '');
+    };
+    const warnings = [];
+    const functioning = functioningRows.map(row => {
+      const selected = functioningLabels.map((severity, index) => {
+        const fieldId = String(row.firstFieldId + index);
+        const el = controlByFieldId(fieldId);
+        if (!el) warnings.push(`Missing Functioning control ${row.label} ${severity} (${fieldId})`);
+        return { score: index, severity, fieldId, checked: Boolean(el?.checked) };
+      }).filter(item => item.checked);
+      const firstSelected = selected[0] || null;
+      return {
+        key: row.key,
+        label: row.label,
+        score: firstSelected?.score ?? '',
+        severity: firstSelected?.severity || '',
+        selectedCount: selected.length,
+        selectedFieldIds: selected.map(item => item.fieldId)
+      };
+    });
+    const dimensions = dimensionFieldIds.map((fieldId, index) => {
+      const text = valueByFieldId(String(fieldId));
+      if (!controlByFieldId(String(fieldId))) warnings.push(`Missing ASAM Dimension ${index + 1} textbox (${fieldId})`);
+      return {
+        dimension: index + 1,
+        title: dimensionTitles[index],
+        fieldId: String(fieldId),
+        text
+      };
+    });
+    const safetyNeeded = valueByFieldId('10489');
+    const safetyWhy = valueByFieldId('10490');
+    if (!controlByFieldId('10489')) warnings.push('Missing safety planning needed textbox (10489)');
+    if (!controlByFieldId('10490')) warnings.push('Missing safety planning why textbox (10490)');
+    return {
+      event: 'diagnostics_part3_context',
+      timestamp: new Date().toISOString(),
+      url: location.href,
+      title: document.title,
+      functioning,
+      dimensions,
+      safety_planning: {
+        additional_safety_planning_needed: safetyNeeded,
+        why_or_why_not: safetyWhy
+      },
+      warnings: [
+        ...warnings,
+        ...functioning.filter(item => item.selectedCount > 1).map(item => `${item.label} has multiple Functioning selections checked.`),
+        ...functioning.filter(item => item.selectedCount === 0).map(item => `${item.label} has no Functioning selection checked.`),
+        ...dimensions.filter(item => !normalize(item.text)).map(item => `Dimension ${item.dimension} textbox is blank.`)
+      ]
     };
   } catch (err) { return { error: err.message }; }
 }
@@ -2652,6 +2899,19 @@ function buildAsamRuntimeConfig() {
     defaultAnswersObject: defaultRowsToObject(rows)
   };
 }
+function buildDiagnosticsRuntimeConfig() {
+  const mode = workflowMode('diagnostics');
+  const rows = getWorkflowDefaultRows('diagnostics');
+  return {
+    workflowMode: 'diagnostics',
+    selector: mode.selector || 'textarea, select, input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), [contenteditable="true"]',
+    onlyVisibleControls: mode.onlyVisibleControls ?? false,
+    expectedFieldCount: mode.expectedFieldCount,
+    fieldMap: mode.fieldMap || [],
+    defaultAnswers: rows,
+    defaultAnswersObject: defaultRowsToObject(rows)
+  };
+}
 function validateQuickNotesResponse() {
   const raw = $('quicknotesResp')?.value.trim() || '';
   if (!raw) return {};
@@ -3035,6 +3295,166 @@ function assertAsamResponseComplete(summary) {
 async function saveAsamResponse() {
   await chrome.storage.local.set({ [STORAGE_KEYS.asamResponse]: $('asamResp')?.value || '' });
 }
+function getDiagnosticsPath(obj, path) {
+  return String(path || '').split('.').reduce((cur, part) => cur == null ? undefined : cur[part], obj);
+}
+function firstDiagnosticsValue(root, paths) {
+  for (const path of paths || []) {
+    const value = getDiagnosticsPath(root, path);
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return undefined;
+}
+function diagnosticsText(value) {
+  if (value === undefined || value === null) return '';
+  if (Array.isArray(value)) return value.map(diagnosticsText).filter(Boolean).join('\n');
+  if (typeof value === 'object') {
+    if ('selected' in value && Object.keys(value).length === 1) return '';
+    return Object.entries(value)
+      .filter(([key]) => !['selected', 'checked'].includes(key))
+      .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true }))
+      .map(([, item]) => diagnosticsText(item))
+      .filter(Boolean)
+      .join('\n\n');
+  }
+  return String(value || '').trim();
+}
+function diagnosticsSelected(value) {
+  if (typeof value === 'boolean') return value;
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    if ('selected' in value) return diagnosticsSelected(value.selected);
+    if ('checked' in value) return diagnosticsSelected(value.checked);
+    if ('value' in value) return diagnosticsSelected(value.value);
+    return Boolean(diagnosticsText(value));
+  }
+  const text = String(value ?? '').trim().toLowerCase();
+  if (!text) return false;
+  if (['true', 'yes', 'checked', 'selected', 'x', '1'].includes(text)) return true;
+  if (['false', 'no', 'unchecked', 'not selected', '0'].includes(text)) return false;
+  return false;
+}
+function normalizeDiagnosticsResponseForFill(parsed) {
+  const root = firstAsamObject(parsed?.diagnostics, parsed?.part4, parsed?.diagnostics_part4, parsed) || {};
+  const normalized = {
+    screening_results: {},
+    assessment_summary: {},
+    clinical_recommendations: {},
+    dsm_v: {},
+    level_of_care: {}
+  };
+  DIAGNOSTICS_SCREENING_FIELDS.forEach(field => {
+    normalized.screening_results[field.key] = diagnosticsText(firstDiagnosticsValue(root, [
+      `screening_results.${field.key}`,
+      `screening_results.${field.aliases[0]}`,
+      `screening_results.${field.aliases[1]}`,
+      field.key,
+      field.aliases[0],
+      field.aliases[1]
+    ]));
+  });
+  normalized.assessment_summary.narrative = diagnosticsText(firstDiagnosticsValue(root, [
+    'assessment_summary.narrative',
+    'assessment_summary.text',
+    'assessment_summary.summary',
+    'assessment_summary',
+    'narrative'
+  ]));
+  const recommendations = firstAsamObject(root.clinical_recommendations, root.recommendations, {}) || {};
+  DIAGNOSTICS_RECOMMENDATION_ITEMS.forEach(item => {
+    const raw = getObjectValueByAliases(recommendations, [item.key, item.label]) ?? firstDiagnosticsValue(root, [
+      `clinical_recommendations.${item.key}`,
+      `recommendations.${item.key}`,
+      item.key
+    ]);
+    if (item.key === 'other_services') {
+      const servicesSource = raw && typeof raw === 'object' && !Array.isArray(raw)
+        ? (raw.services ?? raw.service_list ?? raw.text ?? raw.rationale)
+        : (typeof raw === 'string' ? raw : '');
+      const services = diagnosticsText(servicesSource);
+      normalized.clinical_recommendations.other_services = {
+        selected: diagnosticsSelected(raw) || Boolean(services),
+        services,
+        rationale: diagnosticsText(raw?.rationale || '')
+      };
+      return;
+    }
+    normalized.clinical_recommendations[item.key] = {
+      selected: diagnosticsSelected(raw),
+      rationale: diagnosticsText(raw?.rationale || raw?.reason || '')
+    };
+  });
+  const dsmValue = firstDiagnosticsValue(root, [
+    'dsm_v.text',
+    'dsm_v.diagnoses',
+    'dsm_v.sud_diagnoses_only',
+    'dsm_v',
+    'dsmv',
+    'diagnoses'
+  ]);
+  normalized.dsm_v.text = diagnosticsText(dsmValue);
+  const loc = firstAsamObject(root.level_of_care, root.levelOfCare, {}) || {};
+  normalized.level_of_care.recommended_level = diagnosticsText(loc.recommended_level ?? loc.level ?? loc.level_of_care ?? root.level_of_care_recommended);
+  normalized.level_of_care.rationale = diagnosticsText(loc.rationale ?? loc.asam_rationale ?? loc.clinical_rationale ?? loc.why_recommended);
+  normalized.level_of_care.recommended_level_text = [
+    normalized.level_of_care.recommended_level,
+    normalized.level_of_care.rationale
+  ].filter(Boolean).join('\n\n');
+  normalized.level_of_care.estimated_length_of_time_at_this_level = diagnosticsText(
+    loc.estimated_length_of_time_at_this_level ?? loc.estimated_length ?? loc.length_of_time ?? root.estimated_length_of_time_at_this_level
+  );
+  normalized.level_of_care.estimated_date_of_discharge = diagnosticsText(
+    loc.estimated_date_of_discharge ?? loc.estimated_discharge ?? loc.discharge_date ?? root.estimated_date_of_discharge
+  );
+  return normalized;
+}
+function validateDiagnosticsResponse() {
+  const response = $('diagnosticsResp')?.value.trim() || '';
+  if (!response) throw new Error('Paste the Diagnostics Part 4 response first.');
+  const parsed = JSON.parse(response);
+  const normalized = normalizeDiagnosticsResponseForFill(parsed);
+  const missingScreening = DIAGNOSTICS_SCREENING_FIELDS
+    .filter(field => !String(normalized.screening_results[field.key] || '').trim())
+    .map(field => field.label);
+  const selectedRecommendations = DIAGNOSTICS_RECOMMENDATION_ITEMS
+    .filter(item => normalized.clinical_recommendations[item.key]?.selected === true)
+    .map(item => item.label);
+  const missingRequiredText = [
+    !normalized.assessment_summary.narrative ? 'Assessment Summary narrative' : '',
+    !normalized.dsm_v.text ? 'DSM V' : '',
+    !normalized.level_of_care.recommended_level_text ? 'Level of Care Recommended' : '',
+    !normalized.level_of_care.estimated_length_of_time_at_this_level ? 'Estimated length of time at this level' : '',
+    !normalized.level_of_care.estimated_date_of_discharge ? 'Estimated date of discharge' : ''
+  ].filter(Boolean);
+  const other = normalized.clinical_recommendations.other_services || {};
+  const warnings = [
+    ...(missingScreening.length ? [`Missing screening values: ${missingScreening.join(', ')}`] : []),
+    ...(missingRequiredText.length ? [`Missing required Part 4 text fields: ${missingRequiredText.join(', ')}`] : []),
+    ...(!selectedRecommendations.length ? ['No clinical recommendations are selected.'] : []),
+    ...(other.selected && !String(other.services || '').trim() ? ['Other Services is selected but no services text is present.'] : [])
+  ];
+  return {
+    characterCount: response.length,
+    parsedJson: true,
+    topLevelKeys: Object.keys(parsed),
+    selectedRecommendations,
+    missingScreening,
+    missingRequiredText,
+    warnings,
+    normalized
+  };
+}
+function assertDiagnosticsResponseComplete(summary) {
+  const blocking = [
+    ...(summary.missingScreening || []).map(item => `Screening: ${item}`),
+    ...(summary.missingRequiredText || [])
+  ];
+  if (blocking.length) {
+    throw new Error(`Diagnostics Part 4 response is incomplete. Fix these before filling:\n${blocking.join('\n')}`);
+  }
+}
+async function saveDiagnosticsResponse() {
+  await chrome.storage.local.set({ [STORAGE_KEYS.diagnosticsResponse]: $('diagnosticsResp')?.value || '' });
+}
 
 $('loadRemote').onclick = async () => {
   try {
@@ -3337,6 +3757,94 @@ $('fillAsamPage').onclick = async () => {
     setStatus(result?.warnings?.length ? 'Part 3 filled with warnings' : 'Part 3 fill complete');
   } catch (err) { logTo('asamFillResults', err.message); setStatus('Part 3 fill failed'); }
 };
+async function refreshDiagnosticsPromptFromPage() {
+  const context = await runInActiveTab(pageExtractDiagnosticsPart3Context, []);
+  const prompt = buildDiagnosticsPromptFromContext(context);
+  renderDiagnosticsPrompt(prompt);
+  logTo('diagnosticsFillResults', {
+    event: context.event,
+    extractedFunctioning: context.functioning?.length || 0,
+    extractedDimensions: context.dimensions?.length || 0,
+    warnings: context.warnings || []
+  });
+  return { prompt, context };
+}
+$('refreshDiagnosticsPrompt').onclick = async () => {
+  try {
+    const { context } = await refreshDiagnosticsPromptFromPage();
+    setStatus((context.warnings || []).length ? 'Diagnostics prompt refreshed with warnings' : 'Diagnostics prompt refreshed');
+  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics prompt refresh failed'); }
+};
+$('copyDiagnosticsPrompt').onclick = async () => {
+  try {
+    const { prompt, context } = await refreshDiagnosticsPromptFromPage();
+    await navigator.clipboard.writeText(prompt);
+    setStatus((context.warnings || []).length ? 'Copied Diagnostics prompt with warnings' : 'Copied Diagnostics prompt');
+  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics prompt copy failed'); }
+};
+$('copyDiagnosticsPromptNotes').onclick = async () => {
+  try {
+    const source = workflowMode('diagnostics').sourcePrompt;
+    const { prompt, context } = await refreshDiagnosticsPromptFromPage();
+    await navigator.clipboard.writeText(`${source?.title || 'Diagnostics Part 4 prompt'}\n${source?.source || ''}\n\n${prompt}`);
+    setStatus((context.warnings || []).length ? 'Copied Diagnostics prompt notes with warnings' : 'Copied Diagnostics prompt notes');
+  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics prompt notes copy failed'); }
+};
+$('validateDiagnosticsResponse').onclick = async () => {
+  try {
+    const summary = validateDiagnosticsResponse();
+    await saveDiagnosticsResponse();
+    logTo('diagnosticsValidation', { ok: !summary.warnings.length, ...summary });
+    setStatus(summary.warnings.length ? 'Diagnostics response saved with warnings' : 'Diagnostics response saved');
+  } catch (err) { logTo('diagnosticsValidation', err.message); setStatus('Diagnostics validation failed'); }
+};
+$('copyDiagnosticsResponse').onclick = async () => {
+  try {
+    validateDiagnosticsResponse();
+    await saveDiagnosticsResponse();
+    await navigator.clipboard.writeText($('diagnosticsResp').value);
+    setStatus('Copied Diagnostics response');
+  } catch (err) { logTo('diagnosticsValidation', err.message); setStatus('Diagnostics copy failed'); }
+};
+$('clearDiagnosticsResponse').onclick = async () => {
+  $('diagnosticsResp').value = '';
+  await chrome.storage.local.remove([STORAGE_KEYS.diagnosticsResponse]);
+  logTo('diagnosticsValidation', 'Diagnostics response cleared.');
+  setStatus('Cleared Diagnostics response');
+};
+$('scanDiagnosticsPage').onclick = async () => {
+  try {
+    const result = await runInActiveTab(pageScan, [buildDiagnosticsRuntimeConfig()]);
+    logTo('diagnosticsFillResults', result);
+    await appendTrace({ ...result, mode: 'diagnostics' });
+    setStatus('Diagnostics scan complete');
+  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics scan failed'); }
+};
+$('fillDiagnosticsPage').onclick = async () => {
+  try {
+    const summary = validateDiagnosticsResponse();
+    assertDiagnosticsResponseComplete(summary);
+    await saveDiagnosticsResponse();
+    const config = buildDiagnosticsRuntimeConfig();
+    if (!config.fieldMap?.length) {
+      const result = {
+        event: 'fill',
+        mode: 'diagnostics',
+        dryRun: $('diagnosticsDryRun').checked,
+        written: 0,
+        warnings: ['Diagnostics Part 4 field map is not loaded yet. Use bundled or remote workflow config before filling.']
+      };
+      logTo('diagnosticsFillResults', result);
+      await appendTrace(result);
+      setStatus('Diagnostics field map needed');
+      return;
+    }
+    const result = await runInActiveTab(pageFill, [config, summary.normalized, $('diagnosticsDryRun').checked]);
+    logTo('diagnosticsFillResults', result);
+    await appendTrace({ ...result, mode: 'diagnostics' });
+    setStatus(result?.warnings?.length ? 'Diagnostics filled with warnings' : 'Diagnostics fill complete');
+  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics fill failed'); }
+};
 $('copyModeSourcePrompt').onclick = async () => {
   const source = modeSourcePrompt(activeMode);
   if (!source) {
@@ -3440,4 +3948,5 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
 $('quicknotesResp')?.addEventListener('input', saveQuickNotesResponse);
 $('mseResp')?.addEventListener('input', saveMseResponse);
 $('asamResp')?.addEventListener('input', saveAsamResponse);
+$('diagnosticsResp')?.addEventListener('input', saveDiagnosticsResponse);
 loadState();

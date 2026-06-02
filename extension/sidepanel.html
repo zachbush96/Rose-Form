@@ -176,6 +176,40 @@
     <pre id="asamFillResults"></pre>
   </section>
 
+  <section class="card mode-panel mode-diagnostics hidden">
+    <h2>Diagnostics Part 4 prompt</h2>
+    <p class="small" id="diagnosticsPromptMeta"></p>
+    <div class="row wrap">
+      <button id="refreshDiagnosticsPrompt">Refresh from active page</button>
+      <button id="copyDiagnosticsPrompt">Copy prompt</button>
+      <button id="copyDiagnosticsPromptNotes">Copy prompt with notes</button>
+    </div>
+    <pre id="diagnosticsPromptPreview"></pre>
+  </section>
+
+  <section class="card mode-panel mode-diagnostics hidden">
+    <h2>Part 4 response</h2>
+    <p class="small">Paste the BastionGPT Diagnostics Part 4 JSON response here. This autosaves locally and validates screening results, assessment summary, recommendations, DSM V, and level of care fields.</p>
+    <textarea id="diagnosticsResp" placeholder="Diagnostics Part 4 JSON response"></textarea>
+    <div class="row wrap">
+      <button id="validateDiagnosticsResponse">Validate response</button>
+      <button id="copyDiagnosticsResponse">Copy response</button>
+      <button id="clearDiagnosticsResponse" class="danger">Clear saved response</button>
+    </div>
+    <pre id="diagnosticsValidation"></pre>
+  </section>
+
+  <section class="card mode-panel mode-diagnostics hidden">
+    <h2>Fill ReliaTrax</h2>
+    <div class="row wrap">
+      <button id="scanDiagnosticsPage">Scan active page</button>
+      <button id="fillDiagnosticsPage" class="primary">Fill active page</button>
+    </div>
+    <label class="check"><input type="checkbox" id="diagnosticsDryRun"> Dry run, do not write</label>
+    <p class="small">Part 4 fills Screening Results, Assessment Summary, Clinical Recommendations, DSM V, and Level of Care Recommended using the mapped Diagnostics/Clinical Impressions controls.</p>
+    <pre id="diagnosticsFillResults"></pre>
+  </section>
+
   <section class="card mode-panel mode-discovery hidden">
     <h2>Discovery and Mapping</h2>
     <p class="small">Scan the active page to inventory controls, hidden/collapsed sections, page source, section toggles, labels, options, and suggested JSON paths. Copy the report when Rose needs to email unknown page details for mapping.</p>
@@ -217,7 +251,7 @@
     <pre id="quicknotesResults"></pre>
   </section>
 
-  <section class="card mode-panel mode-diagnostics mode-treatment hidden">
+  <section class="card mode-panel mode-treatment hidden">
     <h2 id="plannedModeTitle">Mode setup</h2>
     <p class="small" id="plannedModeBody">This mode is reserved for the next mapped section. Use Discovery and Mapping first to capture the form controls and labels needed to build a reliable field map.</p>
     <div class="row wrap">

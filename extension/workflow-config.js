@@ -1,7 +1,7 @@
 window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
   "project": "Rose ReliaTrax Workflow Modes",
-  "version": "0.1.9",
-  "updated": "2026-06-01",
+  "version": "0.1.10",
+  "updated": "2026-06-02",
   "modes": {
     "bps": {
       "title": "BPS Part 1",
@@ -2477,13 +2477,240 @@ window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
     },
     "diagnostics": {
       "title": "Diagnostics Part 4",
-      "description": "Rose emailed the current Diagnostics / Clinical Impressions source prompt on 2026-05-25. Field mapping is still pending.",
-      "mappingStatus": "pending",
-      "fieldMap": [],
+      "description": "Mapped Diagnostics / Clinical Impressions workflow. The prompt is built dynamically from the active ReliaTrax Part 3 Case Management and ASAM controls before copying, and the response fills Screening Results through Level of Care Recommended.",
+      "mappingStatus": "mapped",
+      "fieldMap": [
+        {
+          "fillIndex": 495,
+          "dataQnFieldId": "10491",
+          "paths": [
+            "screening_results.alcohol_screening_mast",
+            "screening_results.mast",
+            "diagnostics.screening_results.alcohol_screening_mast"
+          ],
+          "section": "Diagnostics/Clinical Impressions",
+          "label": "Alcohol Screening MAST",
+          "type": "textarea"
+        },
+        {
+          "fillIndex": 496,
+          "dataQnFieldId": "10492",
+          "paths": [
+            "screening_results.drug_abuse_screening_dast_10",
+            "screening_results.dast_10",
+            "screening_results.dast10",
+            "diagnostics.screening_results.drug_abuse_screening_dast_10"
+          ],
+          "section": "Diagnostics/Clinical Impressions",
+          "label": "Drug Abuse Screening DAST 10",
+          "type": "textarea"
+        },
+        {
+          "fillIndex": 497,
+          "dataQnFieldId": "10493",
+          "paths": [
+            "screening_results.depression_screening_phq_9",
+            "screening_results.phq_9",
+            "screening_results.phq9",
+            "diagnostics.screening_results.depression_screening_phq_9"
+          ],
+          "section": "Diagnostics/Clinical Impressions",
+          "label": "Depression Screening PHQ-9",
+          "type": "textarea"
+        },
+        {
+          "fillIndex": 498,
+          "dataQnFieldId": "10494",
+          "paths": [
+            "screening_results.anxiety_screening_gad_7",
+            "screening_results.gad_7",
+            "screening_results.gad7",
+            "diagnostics.screening_results.anxiety_screening_gad_7"
+          ],
+          "section": "Diagnostics/Clinical Impressions",
+          "label": "Anxiety Screening GAD 7",
+          "type": "textarea"
+        },
+        {
+          "fillIndex": 499,
+          "dataQnFieldId": "10495",
+          "paths": [
+            "assessment_summary.narrative",
+            "assessment_summary.text",
+            "assessment_summary.summary",
+            "diagnostics.assessment_summary.narrative"
+          ],
+          "section": "Assessment Summary",
+          "label": "Narrative",
+          "type": "textarea"
+        },
+        {
+          "fillIndex": 500,
+          "dataQnFieldId": "10496",
+          "paths": [
+            "clinical_recommendations.group.selected",
+            "clinical_recommendations.group",
+            "diagnostics.clinical_recommendations.group.selected"
+          ],
+          "section": "Clinical Recommendations",
+          "label": "Group",
+          "type": "checkbox"
+        },
+        {
+          "fillIndex": 501,
+          "dataQnFieldId": "10497",
+          "paths": [
+            "clinical_recommendations.individual.selected",
+            "clinical_recommendations.individual",
+            "diagnostics.clinical_recommendations.individual.selected"
+          ],
+          "section": "Clinical Recommendations",
+          "label": "Individual",
+          "type": "checkbox"
+        },
+        {
+          "fillIndex": 502,
+          "dataQnFieldId": "10498",
+          "paths": [
+            "clinical_recommendations.mental_health.selected",
+            "clinical_recommendations.mental_health",
+            "diagnostics.clinical_recommendations.mental_health.selected"
+          ],
+          "section": "Clinical Recommendations",
+          "label": "Mental Health",
+          "type": "checkbox"
+        },
+        {
+          "fillIndex": 503,
+          "dataQnFieldId": "10499",
+          "paths": [
+            "clinical_recommendations.medical.selected",
+            "clinical_recommendations.medical",
+            "diagnostics.clinical_recommendations.medical.selected"
+          ],
+          "section": "Clinical Recommendations",
+          "label": "Medical",
+          "type": "checkbox"
+        },
+        {
+          "fillIndex": 504,
+          "dataQnFieldId": "10500",
+          "paths": [
+            "clinical_recommendations.case_management.selected",
+            "clinical_recommendations.case_management",
+            "diagnostics.clinical_recommendations.case_management.selected"
+          ],
+          "section": "Clinical Recommendations",
+          "label": "Case Management",
+          "type": "checkbox"
+        },
+        {
+          "fillIndex": 505,
+          "dataQnFieldId": "10501",
+          "paths": [
+            "clinical_recommendations.peer_coaching.selected",
+            "clinical_recommendations.peer_coaching",
+            "diagnostics.clinical_recommendations.peer_coaching.selected"
+          ],
+          "section": "Clinical Recommendations",
+          "label": "Peer Coaching",
+          "type": "checkbox"
+        },
+        {
+          "fillIndex": 506,
+          "dataQnFieldId": "10502",
+          "paths": [
+            "clinical_recommendations.coordination_with_other_providers.selected",
+            "clinical_recommendations.coordination_with_other_providers",
+            "diagnostics.clinical_recommendations.coordination_with_other_providers.selected"
+          ],
+          "section": "Clinical Recommendations",
+          "label": "Coordination with Other Providers",
+          "type": "checkbox"
+        },
+        {
+          "fillIndex": 507,
+          "dataQnFieldId": "10503",
+          "paths": [
+            "clinical_recommendations.other_services.selected",
+            "clinical_recommendations.other_services",
+            "diagnostics.clinical_recommendations.other_services.selected"
+          ],
+          "section": "Clinical Recommendations",
+          "label": "Other Services",
+          "type": "checkbox"
+        },
+        {
+          "fillIndex": 508,
+          "dataQnFieldId": "10504",
+          "paths": [
+            "clinical_recommendations.other_services.services",
+            "clinical_recommendations.other_services.text",
+            "clinical_recommendations.other_services.rationale",
+            "diagnostics.clinical_recommendations.other_services.services"
+          ],
+          "section": "Clinical Recommendations",
+          "label": "Other Services text",
+          "type": "textarea"
+        },
+        {
+          "fillIndex": 509,
+          "dataQnFieldId": "10505",
+          "paths": [
+            "dsm_v.text",
+            "dsm_v.sud_diagnoses_only",
+            "dsm_v.diagnoses",
+            "diagnostics.dsm_v.text"
+          ],
+          "section": "DSM V",
+          "label": "DSM V",
+          "type": "textarea"
+        },
+        {
+          "fillIndex": 510,
+          "dataQnFieldId": "10506",
+          "paths": [
+            "level_of_care.recommended_level_text",
+            "level_of_care.recommended_level",
+            "level_of_care.level",
+            "diagnostics.level_of_care.recommended_level_text"
+          ],
+          "section": "Level of Care Recommended",
+          "label": "Level of Care Recommended",
+          "type": "textarea"
+        },
+        {
+          "fillIndex": 511,
+          "dataQnFieldId": "10507",
+          "paths": [
+            "level_of_care.estimated_length_of_time_at_this_level",
+            "level_of_care.estimated_length",
+            "diagnostics.level_of_care.estimated_length_of_time_at_this_level"
+          ],
+          "section": "Level of Care Recommended",
+          "label": "Estimated length of time at this level",
+          "type": "textarea"
+        },
+        {
+          "fillIndex": 512,
+          "dataQnFieldId": "10508",
+          "paths": [
+            "level_of_care.estimated_date_of_discharge",
+            "level_of_care.estimated_discharge",
+            "diagnostics.level_of_care.estimated_date_of_discharge"
+          ],
+          "section": "Level of Care Recommended",
+          "label": "Estimated date of discharge",
+          "type": "textarea"
+        }
+      ],
+      "expectedFieldCount": 536,
+      "selector": "textarea, select, input:not([type=\"hidden\"]):not([type=\"submit\"]):not([type=\"button\"]):not([type=\"reset\"]):not([type=\"image\"]), [contenteditable=\"true\"]",
+      "onlyVisibleControls": false,
       "sourcePrompt": {
-        "title": "Part 4 Diagnostics / Clinical Impressions source prompt",
-        "source": "Redacted source prompt, 2026-05-25 9:40 PM Central",
-        "body": "You are completing a Biopsychosocial Assessment (BPS) Part 2, Part 3, and Part 4 based on the transcript provided.\n\nEach section header must appear exactly as written and on its own line. The content for that section must begin after exactly one blank line. Use single line breaks, clean clinical formatting, third person, client first name, and no em dashes.\n\nComplete all six ASAM dimensions with severity number/label, clinical justification, functional impact, and risk implications. Use 0 None, 1 Mild, 2 Moderate, 3 High, 4 Severe.\n\nSafety planning must answer whether additional safety planning is needed and why. If no additional safety planning is needed, the Why or why not section must be exactly \"<Client first name> denies being a suicide risk\" with the client's first name and no other wording. Do not write \"<Client> is not a suicide risk.\" If additional safety planning is needed, describe the active concern and reference SI/HI, withdrawal risk, medical concerns, self-harm, violence, relapse risk, psychiatric instability, environmental concerns, or the clinically relevant concern requiring safety planning.\n\nAssessment Summary must be 4-5 individualized clinical paragraphs. It must align with ASAM severity, DSM V, clinical recommendations, and level of care. Do not use bullets or mini-headers.\n\nClinical Recommendations must select only appropriate options from Group, Individual, Mental Health, Medical, Case Management, Peer Coaching, Coordination with Other Providers, and Other Services. Other Services must be concise phrases separated by semicolons when selected.\n\nDSM V is strict: include only Substance Use Disorder diagnoses supported by the transcript, with DSM-5 wording and F codes when possible. Do not include PTSD, depression, anxiety, bipolar disorder, adjustment disorder, personality disorders, medical diagnoses, grief, housing, legal, or psychosocial stressors.\n\nLevel of Care must match ASAM severity and use the least restrictive appropriate level. Sober living is not level of care. Outpatient or IOP uses 90 days and an estimated discharge month/year approximately 3 months from assessment. Detox uses 7-10 days plus follow-up outpatient/IOP. Higher LOC uses TBD. No SUD uses referral-out and 30 days."
+        "title": "Part 4 Diagnostics / Clinical Impressions dynamic JSON prompt",
+        "source": "Rebuilt from notes/06-01-2026/prompt_and_repsonse.txt and Diagnostics screenshots; dynamic context is pulled from active Part 3 ReliaTrax controls 10451-10490",
+        "body": "You are creating structured JSON for Rose's ReliaTrax Diagnostics / Clinical Impressions Part 4 based on the transcript provided and the Part 3 Case Management / ASAM context block appended by the extension.\n\nReturn one valid JSON object only. Do not include markdown, comments, prose outside JSON, trailing commas, or keys outside the requested JSON shape.\n\nThis output will be used to fill the Diagnostics/Clinical Impressions form. Preserve clinical depth, ASAM alignment, DSM V SUD logic, recommendation rationale, medical necessity, and level of care reasoning. Use professional clinical language. Write in third person. Use the client's first name when known. Do not use em dashes.\n\nUse the Part 3 context block as the source of truth for Case Management Functioning selections, ASAM Criteria dimensions, and safety planning. The six ASAM dimension textbox values in that block are pulled verbatim from the ReliaTrax page. Do not contradict them. Do not invent a different ASAM profile. Use the Case Management, ASAM, safety planning, saved Part 3 assessment summary, saved Part 3 clinical recommendations, saved Part 3 DSM V, and saved Part 3 level of care context when present.\n\nThe Diagnostics Part 4 form fields are:\n\nScreening Results:\n- Alcohol Screening MAST\n- Drug Abuse Screening DAST 10\n- Depression Screening PHQ-9\n- Anxiety Screening GAD 7\n\nAssessment Summary narrative\n\nClinical Recommendations:\n- Group\n- Individual\n- Mental Health\n- Medical\n- Case Management\n- Peer Coaching\n- Coordination with Other Providers\n- Other Services\n- Other Services text when selected\n\nDSM V\n\nLevel of Care Recommended\nEstimated length of time at this level\nEstimated date of discharge\n\nUse this exact top level JSON shape:\n\n{\n  \"screening_results\": {\n    \"alcohol_screening_mast\": \"\",\n    \"drug_abuse_screening_dast_10\": \"\",\n    \"depression_screening_phq_9\": \"\",\n    \"anxiety_screening_gad_7\": \"\"\n  },\n  \"assessment_summary\": {\n    \"narrative\": \"\"\n  },\n  \"clinical_recommendations\": {\n    \"group\": { \"selected\": false, \"rationale\": \"\" },\n    \"individual\": { \"selected\": false, \"rationale\": \"\" },\n    \"mental_health\": { \"selected\": false, \"rationale\": \"\" },\n    \"medical\": { \"selected\": false, \"rationale\": \"\" },\n    \"case_management\": { \"selected\": false, \"rationale\": \"\" },\n    \"peer_coaching\": { \"selected\": false, \"rationale\": \"\" },\n    \"coordination_with_other_providers\": { \"selected\": false, \"rationale\": \"\" },\n    \"other_services\": { \"selected\": false, \"services\": \"\", \"rationale\": \"\" }\n  },\n  \"dsm_v\": {\n    \"sud_diagnoses_only\": [],\n    \"diagnostic_rationale\": \"\"\n  },\n  \"level_of_care\": {\n    \"recommended_level\": \"\",\n    \"rationale\": \"\",\n    \"estimated_length_of_time_at_this_level\": \"\",\n    \"estimated_date_of_discharge\": \"\"\n  },\n  \"quality_check\": {\n    \"part3_context_used\": true,\n    \"asam_alignment_confirmed\": true,\n    \"case_management_alignment_confirmed\": true,\n    \"dsm_level_of_care_alignment_confirmed\": true,\n    \"recommendations_alignment_confirmed\": true,\n    \"notes\": \"\"\n  }\n}\n\nScreening Results rules:\n\nUse transcript-supported screening values when available. If a screening was not completed or is unavailable, write a concise copy-ready value such as \"n/a\" or \"Assessment unavailable\". Do not leave screening fields blank.\n\nAssessment Summary rules:\n\nWrite one copy/paste-ready clinical narrative for the Assessment Summary field. The narrative should usually be 4 to 5 paragraphs. Do not use bullets. Do not use mini headers. Include substance use history, treatment history, current mental health symptoms, medical concerns, support systems, strengths, current engagement in treatment, risk factors, ASAM pattern, level of care rationale, and why sober living and/or recovery coaching is or is not a good fit at this time.\n\nClinical Recommendations rules:\n\nSelect only clinically appropriate recommendations. Do not select every box automatically. Group and Peer Coaching should be selected only when SUD services or recovery supports are clinically indicated. Mental Health should be selected when psychiatric symptoms, trauma, grief, poor coping, or therapy needs are clinically relevant. Medical should be selected when withdrawal, biomedical concerns, medication needs, chronic illness, dental care, pain, pregnancy, recent hospitalization, or medical follow up are relevant. Case Management should be selected when housing, benefits, legal, employment, education, transportation, insurance, appointments, or community-resource linkage is needed. Coordination with Other Providers should be selected when PCP, psychiatry, MAT, probation, sober living, hospital, detox, residential, therapist, case manager, or another provider is involved or clinically needed. Other Services should be selected only when additional concise service text is needed.\n\nDSM V rules:\n\nThe DSM V field must include only Substance Use Disorder diagnoses supported by the transcript and Part 3 context. Use DSM V wording and F codes when supported. Do not include PTSD, depression, anxiety, bipolar disorder, adjustment disorder, personality disorders, medical diagnoses, grief, housing, legal, or psychosocial stressors. If no SUD is supported, write exactly: No Substance Use Disorder diagnosis indicated based on available information.\n\nLevel of Care rules:\n\nThe recommended level must align with ASAM severity, DSM V, clinical recommendations, safety planning, current behavior, support availability, and medical necessity. Sober living is not a clinical level of care. If sober living or recovery housing is recommended, include it as support context, not as the clinical level of care unless the form wording requires a combined phrase. Use the least restrictive clinically appropriate level without minimizing risk.\n\nEstimated length rules:\n\nIf Outpatient 1.0 or IOP 2.1 is recommended, estimated length is usually 90 days and estimated discharge is approximately 3 months from the assessment date, month and year only. If Detox is recommended, estimated length is 7 to 10 days plus follow up outpatient or IOP when appropriate. If Residential, Inpatient, or Partial Hospitalization is recommended and a standard timeframe is not available, use TBD or clinically appropriate program language. If no SUD is supported and Referral out is recommended, use 30 days and an estimated discharge approximately 30 days from assessment, month and year only.\n\nBefore finalizing, verify JSON is valid, all fields are complete, recommendations match the clinical picture, DSM V includes only SUD diagnoses, and Level of Care aligns with ASAM.\n\n{{PART3_CONTEXT_FROM_ACTIVE_PAGE}}"
       }
     },
     "treatment": {
@@ -2509,6 +2736,7 @@ window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
     }
   },
   "releaseNotes": [
+    "v0.1.10 maps Diagnostics Part 4, adds dynamic Part 3 Case Management / ASAM prompt context from live ReliaTrax textboxes, and enables Part 4 response validation plus fill.",
     "v0.1.9 recalibrates Part 3 ASAM severity guidance from the attached ASAM crosswalk, level-of-care checklist, and severity matrix so ratings err on the side of clinically supported caution, especially for current/recent homelessness and recovery-environment risk.",
     "v0.1.7 makes Part 3 safety planning denial wording exact: \"<Client first name> denies being a suicide risk\" for No additional safety planning, and syncs the bundled fallback.",
     "v0.1.6 maps Case Management and ASAM Part 3, adds the structured JSON source prompt, and enables Functioning, ASAM Criteria, and safety planning fill.",
