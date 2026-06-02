@@ -2494,11 +2494,55 @@ function pageFill(config, merged, dryRun) {
     if (config.expectedFieldCount && fields.length !== config.expectedFieldCount) {
       result.warnings.push(`Expected ${config.expectedFieldCount} fields, found ${fields.length}. Review mapping before using on a live record.`);
     }
-    for (const item of (config.fieldMap || [])) {
+    const normalizeFieldLabelText = (value) => String(value || '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase()
+      .replace(/[?:]+$/g, '');
+    const nearbyRowText = (row, direction, maxDepth = 6) => {
+      const chunks = [];
+      for (let next = row?.[direction], depth = 0; next && depth < maxDepth; next = next[direction], depth++) {
+        const text = String(next.innerText || next.textContent || '').replace(/\s+/g, ' ').trim();
+        if (text) chunks.push(text);
+      }
+      return chunks.join(' ');
+    };
+    const findAsamSafetyPlanningControlByLabel = (item) => {
+      if (config.workflowMode !== 'asam') return null;
+      const paths = item.paths || [];
+      if (!paths.some(path => /^case_management\.safety_planning\./.test(String(path || '')))) return null;
+      const label = normalizeFieldLabelText(item.label);
+      if (!label) return null;
+      const rows = [...document.querySelectorAll('tr')].map((row, order) => {
+        const cells = [...row.children].filter(child => ['TD', 'TH'].includes(child.tagName));
+        const labelCell = cells.find(cell => !cell.querySelector(selector));
+        const labelText = normalizeFieldLabelText(labelCell?.innerText || labelCell?.textContent || '');
+        if (labelText !== label) return null;
+        const controls = [...row.querySelectorAll(selector)].filter(isVisible);
+        if (!controls.length) return null;
+        const beforeText = nearbyRowText(row, 'previousElementSibling');
+        const afterText = nearbyRowText(row, 'nextElementSibling', 2);
+        const context = `${beforeText} ${afterText}`.toLowerCase();
+        let score = order;
+        if (/is additional safety planning needed/i.test(context)) score += 10000;
+        if (/dimension\s+6|recovery\/living environment|asam/i.test(context)) score += 1000;
+        return { el: controls[controls.length - 1], score };
+      }).filter(Boolean);
+      rows.sort((a, b) => b.score - a.score);
+      return rows[0]?.el || null;
+    };
+    const resolveMappedField = (item) => {
       const mappedDataQnFieldId = String(item.dataQnFieldId || '').trim();
-      const el = mappedDataQnFieldId && fieldsByDataQnFieldId.has(mappedDataQnFieldId)
-        ? fieldsByDataQnFieldId.get(mappedDataQnFieldId)
-        : fields[item.fillIndex];
+      if (mappedDataQnFieldId && fieldsByDataQnFieldId.has(mappedDataQnFieldId)) {
+        return { el: fieldsByDataQnFieldId.get(mappedDataQnFieldId), strategy: 'data-qn-field-id' };
+      }
+      const byAsamSafetyLabel = findAsamSafetyPlanningControlByLabel(item);
+      if (byAsamSafetyLabel) return { el: byAsamSafetyLabel, strategy: 'asam-safety-label-row' };
+      return { el: fields[item.fillIndex], strategy: 'fill-index' };
+    };
+    for (const item of (config.fieldMap || [])) {
+      const resolvedField = resolveMappedField(item);
+      const el = resolvedField.el;
       if (!el) {
         const missing = { action: 'missing_field', fillIndex: item.fillIndex, paths: item.paths || [] };
         result.missing.push(missing);
@@ -2511,6 +2555,7 @@ function pageFill(config, merged, dryRun) {
       const base = {
         ...describeElement(el, resolvedFillIndex >= 0 ? resolvedFillIndex : item.fillIndex),
         mappedFillIndex: item.fillIndex,
+        resolutionStrategy: resolvedField.strategy,
         paths: item.paths || [],
         matchedPath: foundValue.matchedPath,
         source: foundValue.source,
