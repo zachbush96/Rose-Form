@@ -1782,17 +1782,17 @@ function pageFill(config, merged, dryRun) {
       .trim();
     if (forceAmbiguousUse || genericSmokingOnly || ambiguousCurrentUse) {
       const frequency = tobaccoFrequencyMissing(detail) ? '' : tobaccoFrequencyDetail(detail);
-      return `${clientSubject()} reports smoking and vaping${frequency ? ` ${frequency}` : ', frequency not specified'}.`;
+      return `${clientSubject()} reports smoking and vaping${frequency ? ` ${frequency}` : ''}.`;
     }
     const normalizedDetail = normalizeAction(detail);
     if (hasVaping && !hasSpecificNonVape) {
       const frequency = tobaccoFrequencyDetail(normalizedDetail);
-      return `${clientSubject()} reports vaping${frequency ? ` ${frequency}` : ', frequency not specified'}.`;
+      return `${clientSubject()} reports vaping${frequency ? ` ${frequency}` : ''}.`;
     }
     if (hasSpecificNonVape && tobaccoFrequencyMissing(detail)) {
-      return `${clientSubject()} reports ${normalizedDetail || 'tobacco use'}, frequency not specified.`;
+      return `${clientSubject()} reports ${withPeriod(normalizedDetail || 'tobacco use')}`;
     }
-    return `${clientSubject()} reports ${withPeriod(normalizedDetail || 'smoking and vaping, frequency not specified')}`;
+    return `${clientSubject()} reports ${withPeriod(normalizedDetail || 'smoking and vaping')}`;
   };
   const currentProviderDetails = (data) => firstSpecificPathValue(data, [
     'mental_health_treatment.mental_health_professionals_contact',
