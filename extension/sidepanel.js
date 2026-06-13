@@ -100,7 +100,111 @@ const DIAGNOSTICS_RECOMMENDATION_ITEMS = [
 
 function setStatus(msg) { $('status').textContent = msg; }
 function logTo(id, value) { $(id).textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2); }
+function logErrorTo(id, err) {
+  logTo(id, err?.diagnostic || {
+    ok: false,
+    source: 'Extension runtime',
+    stage: 'unexpected_error',
+    category: 'unexpected_error',
+    blocking: true,
+    message: err?.message || String(err)
+  });
+}
 function isBlank(value) { return value === undefined || value === null || value === ''; }
+function jsonLineColumnFromPosition(raw, position) {
+  const before = String(raw || '').slice(0, Math.max(0, position));
+  const lines = before.split(/\r\n|\r|\n/);
+  return { line: lines.length, column: lines[lines.length - 1].length + 1 };
+}
+function jsonParseLocation(err, raw) {
+  const message = String(err?.message || '');
+  const positionMatch = message.match(/\bposition\s+(\d+)\b/i);
+  const lineColumnMatch = message.match(/\bline\s+(\d+)\s+column\s+(\d+)\b/i);
+  const position = positionMatch ? Number(positionMatch[1]) : undefined;
+  const computed = Number.isInteger(position) ? jsonLineColumnFromPosition(raw, position) : {};
+  return {
+    position,
+    line: lineColumnMatch ? Number(lineColumnMatch[1]) : computed.line,
+    column: lineColumnMatch ? Number(lineColumnMatch[2]) : computed.column
+  };
+}
+function visibleJsonSnippetText(value) {
+  return String(value || '')
+    .replace(/\t/g, '\\t')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, ch => `\\u${ch.charCodeAt(0).toString(16).padStart(4, '0')}`);
+}
+function jsonErrorSnippet(raw, location) {
+  const line = Number(location?.line || 0);
+  const column = Number(location?.column || 0);
+  if (!line || !column) return '';
+  const lines = String(raw || '').split(/\r\n|\r|\n/);
+  const lineText = lines[line - 1] || '';
+  const start = Math.max(0, column - 81);
+  const end = Math.min(lineText.length, column + 80);
+  const snippet = visibleJsonSnippetText(lineText.slice(start, end));
+  const caretOffset = Math.max(0, column - 1 - start);
+  return [
+    `line ${line}, column ${column}`,
+    snippet,
+    `${' '.repeat(caretOffset)}^`
+  ].join('\n');
+}
+function likelyJsonParseCause(err) {
+  const message = String(err?.message || '');
+  if (/bad control character|unterminated string/i.test(message)) {
+    return 'A raw line break, tab, or other control character is inside a JSON string. BastionGPT likely returned malformed JSON or the copied response inserted an illegal character.';
+  }
+  if (/unexpected non-whitespace character|after json data/i.test(message)) {
+    return 'Extra text appears before or after the JSON object. The response should contain one JSON object only.';
+  }
+  if (/unexpected token|expected property name|property names/i.test(message)) {
+    return 'The response has JSON syntax that JavaScript cannot parse, such as missing quotes, a trailing comma, or pasted prose.';
+  }
+  return 'The response is not valid JSON.';
+}
+function jsonParseDiagnostic(raw, label, err) {
+  const location = jsonParseLocation(err, raw);
+  return {
+    ok: false,
+    source: 'BastionGPT response',
+    stage: 'parse',
+    category: 'invalid_json',
+    blocking: true,
+    workflow: label,
+    message: `${label} is not valid JSON. Nothing was filled.`,
+    parserMessage: err?.message || String(err),
+    likelyCause: likelyJsonParseCause(err),
+    position: location.position,
+    line: location.line,
+    column: location.column,
+    snippet: jsonErrorSnippet(raw, location),
+    nextAction: 'Regenerate or repair the BastionGPT response so it is one valid JSON object, then validate again before filling.'
+  };
+}
+function parseJsonWithDiagnostic(raw, label) {
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    const wrapped = new Error(`${label} is not valid JSON.`);
+    wrapped.diagnostic = jsonParseDiagnostic(raw, label, err);
+    throw wrapped;
+  }
+}
+function blockingDiagnostic({ source, stage, category, workflow, message, details, nextAction }) {
+  const err = new Error(message);
+  err.diagnostic = {
+    ok: false,
+    source,
+    stage,
+    category,
+    blocking: true,
+    workflow,
+    message,
+    details,
+    nextAction
+  };
+  return err;
+}
 function deepMerge(target, source) {
   for (const [k, v] of Object.entries(source || {})) {
     if (v && typeof v === 'object' && !Array.isArray(v)) target[k] = deepMerge(target[k] || {}, v);
@@ -3439,7 +3543,7 @@ function normalizeDiagnosticsResponseForFill(parsed) {
 function validateDiagnosticsResponse() {
   const response = $('diagnosticsResp')?.value.trim() || '';
   if (!response) throw new Error('Paste the Diagnostics Part 4 response first.');
-  const parsed = JSON.parse(response);
+  const parsed = parseJsonWithDiagnostic(response, 'Diagnostics Part 4 response');
   const normalized = normalizeDiagnosticsResponseForFill(parsed);
   const missingScreening = DIAGNOSTICS_SCREENING_FIELDS
     .filter(field => !String(normalized.screening_results[field.key] || '').trim())
@@ -3478,8 +3582,69 @@ function assertDiagnosticsResponseComplete(summary) {
     ...(summary.missingRequiredText || [])
   ];
   if (blocking.length) {
-    throw new Error(`Diagnostics Part 4 response is incomplete. Fix these before filling:\n${blocking.join('\n')}`);
+    throw blockingDiagnostic({
+      source: 'BastionGPT response',
+      stage: 'schema_validation',
+      category: 'missing_required_part4_data',
+      workflow: 'Diagnostics Part 4',
+      message: 'Diagnostics Part 4 response parsed as JSON, but required Part 4 data is missing. Nothing was filled.',
+      details: blocking,
+      nextAction: 'Regenerate or edit the BastionGPT response so the missing Screening, Assessment Summary, DSM V, and Level of Care fields are present.'
+    });
   }
+}
+function annotateDiagnosticsFillResult(result, config) {
+  if (!result || typeof result !== 'object') return result;
+  const annotations = [];
+  if (result.error) {
+    annotations.push({
+      source: 'ReliaTrax form fields',
+      stage: 'fill_runtime',
+      category: 'form_write_error',
+      blocking: true,
+      workflow: 'Diagnostics Part 4',
+      message: 'The Diagnostics Part 4 JSON parsed successfully, but the extension hit an error while scanning or writing the active ReliaTrax page.',
+      details: result.error,
+      nextAction: 'Use Scan active page, confirm the active tab is the Diagnostics / Clinical Impressions page, and copy the troubleshooting trace.'
+    });
+  }
+  if (config?.expectedFieldCount && result.found !== undefined && result.found !== config.expectedFieldCount) {
+    annotations.push({
+      source: 'ReliaTrax form fields',
+      stage: 'field_scan',
+      category: 'field_count_mismatch',
+      blocking: false,
+      workflow: 'Diagnostics Part 4',
+      message: `The active page has ${result.found} fillable controls, but the loaded Part 4 map expects ${config.expectedFieldCount}.`,
+      details: result.warnings || [],
+      nextAction: 'Open the correct Part 4 page or refresh the page/map before filling a live record.'
+    });
+  }
+  if (Array.isArray(result.missing) && result.missing.length) {
+    annotations.push({
+      source: 'ReliaTrax form fields',
+      stage: 'field_resolution',
+      category: 'mapped_fields_missing',
+      blocking: true,
+      workflow: 'Diagnostics Part 4',
+      message: `${result.missing.length} mapped Part 4 field${result.missing.length === 1 ? '' : 's'} could not be found on the active page.`,
+      details: result.missing,
+      nextAction: 'Run Discovery and Mapping on the active Part 4 page so the field map can be updated.'
+    });
+  }
+  if (result.checkboxWriteFailures) {
+    annotations.push({
+      source: 'ReliaTrax form fields',
+      stage: 'field_write',
+      category: 'checkbox_write_failed',
+      blocking: false,
+      workflow: 'Diagnostics Part 4',
+      message: `${result.checkboxWriteFailures} Part 4 checkbox write${result.checkboxWriteFailures === 1 ? '' : 's'} did not stick after the extension attempted to set them.`,
+      details: (result.trace || []).filter(item => item.checkboxSetSucceeded === false),
+      nextAction: 'Review the highlighted fields and trace log; the ReliaTrax page may have disabled controls or changed checkbox behavior.'
+    });
+  }
+  return annotations.length ? { ...result, diagnosticAnnotations: annotations } : result;
 }
 async function saveDiagnosticsResponse() {
   await chrome.storage.local.set({ [STORAGE_KEYS.diagnosticsResponse]: $('diagnosticsResp')?.value || '' });
@@ -3830,7 +3995,7 @@ $('validateDiagnosticsResponse').onclick = async () => {
     await saveDiagnosticsResponse();
     logTo('diagnosticsValidation', { ok: !summary.warnings.length, ...summary });
     setStatus(summary.warnings.length ? 'Diagnostics response saved with warnings' : 'Diagnostics response saved');
-  } catch (err) { logTo('diagnosticsValidation', err.message); setStatus('Diagnostics validation failed'); }
+  } catch (err) { logErrorTo('diagnosticsValidation', err); setStatus(err?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics validation failed'); }
 };
 $('copyDiagnosticsResponse').onclick = async () => {
   try {
@@ -3838,7 +4003,7 @@ $('copyDiagnosticsResponse').onclick = async () => {
     await saveDiagnosticsResponse();
     await navigator.clipboard.writeText($('diagnosticsResp').value);
     setStatus('Copied Diagnostics response');
-  } catch (err) { logTo('diagnosticsValidation', err.message); setStatus('Diagnostics copy failed'); }
+  } catch (err) { logErrorTo('diagnosticsValidation', err); setStatus(err?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics copy failed'); }
 };
 $('clearDiagnosticsResponse').onclick = async () => {
   $('diagnosticsResp').value = '';
@@ -3866,7 +4031,16 @@ $('fillDiagnosticsPage').onclick = async () => {
         mode: 'diagnostics',
         dryRun: $('diagnosticsDryRun').checked,
         written: 0,
-        warnings: ['Diagnostics Part 4 field map is not loaded yet. Use bundled or remote workflow config before filling.']
+        warnings: ['Diagnostics Part 4 field map is not loaded yet. Use bundled or remote workflow config before filling.'],
+        diagnosticAnnotations: [{
+          source: 'ReliaTrax form fields',
+          stage: 'pre_fill',
+          category: 'field_map_not_loaded',
+          blocking: true,
+          workflow: 'Diagnostics Part 4',
+          message: 'The Diagnostics Part 4 JSON parsed successfully, but no Part 4 field map is loaded.',
+          nextAction: 'Load the bundled or remote workflow config, then scan the active Part 4 page before filling.'
+        }]
       };
       logTo('diagnosticsFillResults', result);
       await appendTrace(result);
@@ -3874,10 +4048,15 @@ $('fillDiagnosticsPage').onclick = async () => {
       return;
     }
     const result = await runInActiveTab(pageFill, [config, summary.normalized, $('diagnosticsDryRun').checked]);
-    logTo('diagnosticsFillResults', result);
-    await appendTrace({ ...result, mode: 'diagnostics' });
-    setStatus(result?.warnings?.length ? 'Diagnostics filled with warnings' : 'Diagnostics fill complete');
-  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics fill failed'); }
+    const annotatedResult = annotateDiagnosticsFillResult(result, config);
+    logTo('diagnosticsFillResults', annotatedResult);
+    await appendTrace({ ...annotatedResult, mode: 'diagnostics' });
+    if (result?.error) {
+      setStatus('Diagnostics form field error');
+      return;
+    }
+    setStatus(annotatedResult?.diagnosticAnnotations?.length || annotatedResult?.warnings?.length ? 'Diagnostics filled with warnings' : 'Diagnostics fill complete');
+  } catch (err) { logErrorTo('diagnosticsFillResults', err); setStatus(err?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics fill failed'); }
 };
 $('copyModeSourcePrompt').onclick = async () => {
   const source = modeSourcePrompt(activeMode);
