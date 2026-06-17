@@ -101,6 +101,9 @@ pre {
   overflow: auto;
   font-size: 12px;
 }
+pre.config-results {
+  max-height: 160px;
+}
 .check { display: flex; align-items: center; gap: 8px; font-weight: 600; }
 .check input { width: auto; }
 code { background: #f3f4f6; border-radius: 6px; padding: 1px 4px; }

@@ -110,6 +110,31 @@ function logErrorTo(id, err) {
     message: err?.message || String(err)
   });
 }
+function ensureDiagnostic(err, { workflow = 'Extension workflow', stage = 'runtime', category = 'unexpected_error', nextAction = '' } = {}) {
+  if (err?.diagnostic) return err;
+  const wrapped = err instanceof Error ? err : new Error(String(err));
+  wrapped.diagnostic = {
+    ok: false,
+    source: 'Extension runtime',
+    stage,
+    category,
+    blocking: true,
+    workflow,
+    message: `We don't know exactly what went wrong, but ${wrapped.message || 'the extension stopped before this step could finish'}.`,
+    details: wrapped.stack ? String(wrapped.stack).split('\n').slice(0, 3).join('\n') : '',
+    nextAction: nextAction || 'Run Scan active page, copy the troubleshooting report, and include a screenshot of the active ReliaTrax page.'
+  };
+  return wrapped;
+}
+function redactUrlForReport(url) {
+  try {
+    const parsed = new URL(url || '');
+    if (!['http:', 'https:'].includes(parsed.protocol)) return `${parsed.protocol}${parsed.pathname || ''}`;
+    return `${parsed.origin}${parsed.pathname}`;
+  } catch {
+    return String(url || '');
+  }
+}
 function isBlank(value) { return value === undefined || value === null || value === ''; }
 function jsonLineColumnFromPosition(raw, position) {
   const before = String(raw || '').slice(0, Math.max(0, position));
@@ -399,6 +424,42 @@ function renderTraceLog() {
 }
 function workflowMode(mode) {
   return workflowConfig?.modes?.[mode] || {};
+}
+function workflowModeSummary(mode) {
+  const cfg = workflowMode(mode);
+  return {
+    mode,
+    title: cfg.title || '',
+    mappingStatus: cfg.mappingStatus || '',
+    fieldMapCount: Array.isArray(cfg.fieldMap) ? cfg.fieldMap.length : 0,
+    expectedFieldCount: cfg.expectedFieldCount ?? null,
+    selector: cfg.selector || '',
+    onlyVisibleControls: cfg.onlyVisibleControls ?? null
+  };
+}
+function configSummary() {
+  return {
+    bpsFieldMapCount: Array.isArray(activeConfig?.fieldMap) ? activeConfig.fieldMap.length : 0,
+    workflowVersion: workflowConfig?.version || '',
+    diagnostics: workflowModeSummary('diagnostics'),
+    mse: workflowModeSummary('mse'),
+    asam: workflowModeSummary('asam'),
+    quicknotesFieldMapCount: Array.isArray(activeQuickNotesConfig?.fieldMap) ? activeQuickNotesConfig.fieldMap.length : 0
+  };
+}
+function renderConfigMeta(message = '') {
+  const summary = configSummary();
+  const diagnostics = summary.diagnostics;
+  const parts = [
+    message,
+    summary.workflowVersion ? `Workflow ${summary.workflowVersion}` : 'Workflow version unavailable',
+    `Diagnostics map ${diagnostics.fieldMapCount}${diagnostics.expectedFieldCount ? ` / ${diagnostics.expectedFieldCount} fields expected` : ''}`
+  ].filter(Boolean);
+  if ($('configMeta')) $('configMeta').textContent = parts.join(' | ');
+}
+function logConfigResult(value, message = '') {
+  renderConfigMeta(message);
+  if ($('configResults')) logTo('configResults', value);
 }
 function migrateLegacyConfigUrl(url) {
   if (typeof url !== 'string') return url;
@@ -787,6 +848,7 @@ function renderConfigState() {
   renderQuestionPathOptions();
   renderDefaultRows();
   renderMode();
+  renderConfigMeta();
 }
 async function loadRemoteConfig(url, { preserveDefaultRows = false } = {}) {
   const normalizedUrl = migrateLegacyConfigUrl(url);
@@ -885,23 +947,70 @@ async function loadState() {
   try {
     setStatus('Loading remote config...');
     await loadRemoteConfig(configUrl, { preserveDefaultRows: Array.isArray(data[STORAGE_KEYS.defaultRows]) });
+    logConfigResult({ ok: true, event: 'startup_remote_config_loaded', configUrl, ...configSummary() }, 'Remote config loaded');
     setStatus('Remote config loaded');
   } catch (err) {
     renderConfigState();
+    logConfigResult({
+      ok: false,
+      event: 'startup_remote_config_unavailable',
+      configUrl,
+      message: err.message,
+      fallback: 'Using bundled config and any already saved workflow config.'
+    }, 'Remote config unavailable');
     setStatus('Remote config unavailable');
     logTo('validation', err.message);
   }
 }
-async function getActiveTabId() {
+async function getActiveTab() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) throw new Error('No active tab found.');
-  return tab.id;
+  return tab;
+}
+async function getActiveTabId() {
+  return (await getActiveTab()).id;
+}
+function activeTabScriptDiagnostic(tab, err, workflow = 'Active page') {
+  const url = tab?.url || '';
+  const message = String(err?.message || err || '');
+  const isRestrictedPage = /^(chrome|chrome-extension|edge|about):/i.test(url) || /cannot access contents|chrome:\/\/|extensions gallery/i.test(message);
+  const isPermissionIssue = /permission|Cannot access|not allowed|host/i.test(message);
+  const isReliaTraxLike = /reliatrax|localhost|127\.0\.0\.1/i.test(url);
+  const likelyCause = isRestrictedPage
+    ? 'Chrome will not let extensions run fill scripts on this kind of tab.'
+    : isPermissionIssue
+      ? 'Chrome blocked the extension from running on the active tab.'
+      : !isReliaTraxLike
+        ? 'The active tab does not look like a ReliaTrax form page.'
+        : 'The active ReliaTrax page changed or was not ready when the extension tried to scan or fill it.';
+  const wrapped = new Error(message);
+  wrapped.diagnostic = {
+    ok: false,
+    source: 'Active Chrome tab',
+    stage: 'active_tab_script',
+    category: isRestrictedPage ? 'restricted_page' : isPermissionIssue ? 'extension_permission_or_access' : 'active_page_script_error',
+    blocking: true,
+    workflow,
+    message: `We don't know exactly what went wrong, but ${likelyCause}`,
+    chromeMessage: message,
+    activeTab: {
+      title: tab?.title || '',
+      url: redactUrlForReport(url),
+      rawUrlWasRedacted: Boolean(url && redactUrlForReport(url) !== url)
+    },
+    nextAction: 'Make the Diagnostics / Clinical Impressions Part 4 ReliaTrax page the active tab, wait for it to finish loading, then click Scan active page before filling.'
+  };
+  return wrapped;
 }
 async function runInActiveTab(func, args) {
-  const tabId = await getActiveTabId();
-  const [result] = await chrome.scripting.executeScript({ target: { tabId }, func, args });
-  if (result?.result?.error) throw new Error(result.result.error);
-  return result?.result;
+  const tab = await getActiveTab();
+  try {
+    const [result] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func, args });
+    if (result?.result?.error) throw new Error(result.result.error);
+    return result?.result;
+  } catch (err) {
+    throw activeTabScriptDiagnostic(tab, err, activeMode === 'diagnostics' ? 'Diagnostics Part 4' : modeTitle(activeMode));
+  }
 }
 function pageScan(config) {
   try {
@@ -925,6 +1034,7 @@ function pageScan(config) {
       valuePreview: (el.type || '').toLowerCase() === 'checkbox' ? Boolean(el.checked) : String(el.value || '').slice(0, 120),
       contextText: String((el.closest('tr, .question, .form-group, label, div') || el.parentElement || el).innerText || '').replace(/\s+/g, ' ').slice(0, 220)
     });
+    const dataQnFieldIdForElement = (el) => el?.getAttribute?.('data-qn-field-id') || el?.closest?.('[data-qn-field-id]')?.getAttribute('data-qn-field-id') || '';
     return {
       event: 'scan',
       timestamp: new Date().toISOString(),
@@ -933,6 +1043,15 @@ function pageScan(config) {
       selector,
       found: fields.length,
       expected: config.expectedFieldCount,
+      mappedFieldCount: Array.isArray(config.fieldMap) ? config.fieldMap.length : 0,
+      mappedDataQnFieldIdsFound: (config.fieldMap || [])
+        .map(item => String(item.dataQnFieldId || '').trim())
+        .filter(Boolean)
+        .filter(id => fields.some(field => dataQnFieldIdForElement(field) === id)).length,
+      missingMappedDataQnFieldIds: (config.fieldMap || [])
+        .map(item => String(item.dataQnFieldId || '').trim())
+        .filter(Boolean)
+        .filter(id => !fields.some(field => dataQnFieldIdForElement(field) === id)),
       first: fields.slice(0, 5).map((el, i) => describe(el, i)),
       last: fields.slice(-5).map((el, offset) => describe(el, fields.length - 5 + offset))
     };
@@ -2916,6 +3035,9 @@ function pageFill(config, merged, dryRun) {
       if (mappedDataQnFieldId && fieldsByDataQnFieldId.has(mappedDataQnFieldId)) {
         return { el: fieldsByDataQnFieldId.get(mappedDataQnFieldId), strategy: 'data-qn-field-id' };
       }
+      if (mappedDataQnFieldId && config.workflowMode === 'diagnostics') {
+        return { el: null, strategy: 'missing-data-qn-field-id' };
+      }
       const byAsamSafetyLabel = findAsamSafetyPlanningControlByLabel(item);
       if (byAsamSafetyLabel) return { el: byAsamSafetyLabel, strategy: 'asam-safety-label-row' };
       return { el: fields[item.fillIndex], strategy: 'fill-index' };
@@ -2924,7 +3046,15 @@ function pageFill(config, merged, dryRun) {
       const resolvedField = resolveMappedField(item);
       const el = resolvedField.el;
       if (!el) {
-        const missing = { action: 'missing_field', fillIndex: item.fillIndex, paths: item.paths || [] };
+        const missing = {
+          action: 'missing_field',
+          fillIndex: item.fillIndex,
+          dataQnFieldId: item.dataQnFieldId || '',
+          label: item.label || '',
+          section: item.section || '',
+          resolutionStrategy: resolvedField.strategy,
+          paths: item.paths || []
+        };
         result.missing.push(missing);
         result.trace.push(missing);
         continue;
@@ -3620,6 +3750,21 @@ function annotateDiagnosticsFillResult(result, config) {
       nextAction: 'Open the correct Part 4 page or refresh the page/map before filling a live record.'
     });
   }
+  if (result.found === 0) {
+    annotations.push({
+      source: 'ReliaTrax form fields',
+      stage: 'field_scan',
+      category: 'no_fillable_controls_found',
+      blocking: true,
+      workflow: 'Diagnostics Part 4',
+      message: 'The active page did not expose any fillable ReliaTrax controls to the extension.',
+      details: {
+        selector: result.selector || config?.selector || '',
+        activePage: redactUrlForReport(result.url || '')
+      },
+      nextAction: 'Make sure the active tab is the loaded Diagnostics / Clinical Impressions Part 4 form, then click Scan active page.'
+    });
+  }
   if (Array.isArray(result.missing) && result.missing.length) {
     annotations.push({
       source: 'ReliaTrax form fields',
@@ -3630,6 +3775,18 @@ function annotateDiagnosticsFillResult(result, config) {
       message: `${result.missing.length} mapped Part 4 field${result.missing.length === 1 ? '' : 's'} could not be found on the active page.`,
       details: result.missing,
       nextAction: 'Run Discovery and Mapping on the active Part 4 page so the field map can be updated.'
+    });
+  }
+  if (Array.isArray(result.missingMappedDataQnFieldIds) && result.missingMappedDataQnFieldIds.length) {
+    annotations.push({
+      source: 'ReliaTrax form fields',
+      stage: 'field_scan',
+      category: 'mapped_field_ids_missing',
+      blocking: true,
+      workflow: 'Diagnostics Part 4',
+      message: `${result.missingMappedDataQnFieldIds.length} mapped Part 4 field id${result.missingMappedDataQnFieldIds.length === 1 ? '' : 's'} were not present on the active page.`,
+      details: result.missingMappedDataQnFieldIds,
+      nextAction: 'Confirm the active tab is the Diagnostics / Clinical Impressions Part 4 page. If it is, run Discovery and Mapping so the field map can be refreshed.'
     });
   }
   if (result.checkboxWriteFailures) {
@@ -3644,7 +3801,179 @@ function annotateDiagnosticsFillResult(result, config) {
       nextAction: 'Review the highlighted fields and trace log; the ReliaTrax page may have disabled controls or changed checkbox behavior.'
     });
   }
+  if (!annotations.length && result.event === 'fill' && !result.dryRun && !Number(result.written || 0)) {
+    annotations.push({
+      source: 'Extension runtime',
+      stage: 'fill_summary',
+      category: 'no_fields_written',
+      blocking: true,
+      workflow: 'Diagnostics Part 4',
+      message: 'We don\'t know exactly what went wrong, but the fill command finished without writing any Part 4 fields.',
+      details: {
+        found: result.found,
+        expected: result.expected,
+        skipped: result.skipped,
+        missingCount: result.missing?.length || 0,
+        warningCount: result.warnings?.length || 0
+      },
+      nextAction: 'Run Part 4 preflight and copy the troubleshooting report before trying again.'
+    });
+  }
   return annotations.length ? { ...result, diagnosticAnnotations: annotations } : result;
+}
+function compactDiagnosticForReport(diagnostic) {
+  if (!diagnostic) return null;
+  return {
+    ok: diagnostic.ok === true,
+    source: diagnostic.source || '',
+    stage: diagnostic.stage || '',
+    category: diagnostic.category || '',
+    blocking: Boolean(diagnostic.blocking),
+    workflow: diagnostic.workflow || '',
+    message: diagnostic.message || '',
+    parserMessage: diagnostic.parserMessage || '',
+    likelyCause: diagnostic.likelyCause || '',
+    line: diagnostic.line,
+    column: diagnostic.column,
+    chromeMessage: diagnostic.chromeMessage || '',
+    activeTab: diagnostic.activeTab || undefined,
+    details: diagnostic.details || undefined,
+    nextAction: diagnostic.nextAction || ''
+  };
+}
+function summarizeDiagnosticsResponseForReport() {
+  const response = $('diagnosticsResp')?.value || '';
+  const trimmed = response.trim();
+  const base = {
+    present: Boolean(trimmed),
+    characterCount: response.length,
+    nonBlankLineCount: response.split(/\r?\n/).filter(line => line.trim()).length,
+    startsWithJsonObject: trimmed.startsWith('{'),
+    startsWithCodeFence: /^```/.test(trimmed),
+    hasCodeFence: /```/.test(trimmed)
+  };
+  if (!trimmed) {
+    return {
+      ...base,
+      ok: false,
+      diagnostic: {
+        category: 'missing_response',
+        message: 'No Diagnostics Part 4 response is pasted.',
+        nextAction: 'Paste the BastionGPT Part 4 JSON response before filling.'
+      }
+    };
+  }
+  try {
+    const summary = validateDiagnosticsResponse();
+    return {
+      ...base,
+      ok: !summary.warnings.length,
+      parsedJson: true,
+      topLevelKeys: summary.topLevelKeys,
+      selectedRecommendations: summary.selectedRecommendations,
+      missingScreening: summary.missingScreening,
+      missingRequiredText: summary.missingRequiredText,
+      warnings: summary.warnings
+    };
+  } catch (err) {
+    const diagnostic = compactDiagnosticForReport(ensureDiagnostic(err, {
+      workflow: 'Diagnostics Part 4',
+      stage: 'response_validation',
+      nextAction: 'Regenerate or repair the BastionGPT response so it is one valid JSON object.'
+    }).diagnostic);
+    if (diagnostic) delete diagnostic.details;
+    return {
+      ...base,
+      ok: false,
+      parsedJson: false,
+      diagnostic
+    };
+  }
+}
+function sanitizeDiagnosticsResultForReport(result) {
+  if (!result || typeof result !== 'object') return result || null;
+  return {
+    event: result.event || '',
+    timestamp: result.timestamp || '',
+    mode: result.mode || 'diagnostics',
+    title: result.title || '',
+    url: redactUrlForReport(result.url || ''),
+    found: result.found,
+    expected: result.expected,
+    mappedFieldCount: result.mappedFieldCount,
+    mappedDataQnFieldIdsFound: result.mappedDataQnFieldIdsFound,
+    missingMappedDataQnFieldIds: result.missingMappedDataQnFieldIds,
+    dryRun: result.dryRun,
+    written: result.written,
+    responseWritten: result.responseWritten,
+    defaultWritten: result.defaultWritten,
+    checkboxWritten: result.checkboxWritten,
+    checkboxTrueWritten: result.checkboxTrueWritten,
+    checkboxFalseWritten: result.checkboxFalseWritten,
+    checkboxWriteFailures: result.checkboxWriteFailures,
+    skipped: result.skipped,
+    missing: Array.isArray(result.missing)
+      ? result.missing.map(item => ({
+          fillIndex: item.fillIndex,
+          dataQnFieldId: item.dataQnFieldId,
+          label: item.label,
+          section: item.section,
+          resolutionStrategy: item.resolutionStrategy,
+          paths: item.paths
+        }))
+      : undefined,
+    warnings: result.warnings || [],
+    diagnosticAnnotations: result.diagnosticAnnotations || []
+  };
+}
+function latestDiagnosticsTraceSummary() {
+  const latest = [...(traceLog || [])].reverse().find(entry => entry?.mode === 'diagnostics' || entry?.event === 'diagnostics_part3_context');
+  return sanitizeDiagnosticsResultForReport(latest);
+}
+async function buildDiagnosticsTroubleshootingReport({ scanActivePage = true } = {}) {
+  const report = {
+    event: 'diagnostics_part4_troubleshooting_report',
+    timestamp: new Date().toISOString(),
+    activeMode,
+    statusText: $('status')?.textContent || '',
+    config: configSummary(),
+    response: summarizeDiagnosticsResponseForReport(),
+    activeTab: null,
+    activePageScan: null,
+    lastDiagnosticsTrace: latestDiagnosticsTraceSummary(),
+    whatToSend: [
+      'This copied report.',
+      'A screenshot of the Diagnostics / Clinical Impressions Part 4 ReliaTrax page after clicking Fill active page.',
+      'A screenshot of the Rose BPS Helper Part 4 response and Fill ReliaTrax result panels, with client details redacted.',
+      'Whether Use bundled config changes the result.'
+    ]
+  };
+  try {
+    const tab = await getActiveTab();
+    report.activeTab = {
+      title: tab.title || '',
+      url: redactUrlForReport(tab.url || ''),
+      rawUrlWasRedacted: Boolean(tab.url && redactUrlForReport(tab.url) !== tab.url)
+    };
+  } catch (err) {
+    report.activeTab = compactDiagnosticForReport(ensureDiagnostic(err, {
+      workflow: 'Diagnostics Part 4',
+      stage: 'active_tab_lookup'
+    }).diagnostic);
+  }
+  if (scanActivePage) {
+    try {
+      const scan = await runInActiveTab(pageScan, [buildDiagnosticsRuntimeConfig()]);
+      report.activePageScan = sanitizeDiagnosticsResultForReport(annotateDiagnosticsFillResult(scan, buildDiagnosticsRuntimeConfig()));
+    } catch (err) {
+      report.activePageScan = compactDiagnosticForReport(ensureDiagnostic(err, {
+        workflow: 'Diagnostics Part 4',
+        stage: 'preflight_scan',
+        nextAction: 'Make the Diagnostics / Clinical Impressions Part 4 page the active tab and run preflight again.'
+      }).diagnostic);
+    }
+  }
+  return report;
 }
 async function saveDiagnosticsResponse() {
   await chrome.storage.local.set({ [STORAGE_KEYS.diagnosticsResponse]: $('diagnosticsResp')?.value || '' });
@@ -3658,9 +3987,21 @@ $('loadRemote').onclick = async () => {
     const url = migrateLegacyConfigUrl($('configUrl').value.trim());
     $('configUrl').value = url;
     const warnings = await loadRemoteConfigBundle(url);
+    const result = { ok: !warnings.length, event: 'remote_config_loaded', configUrl: url, warnings, ...configSummary() };
+    logConfigResult(result, warnings.length ? 'Remote config loaded with warnings' : 'Remote configs loaded');
     if (warnings.length) logTo('validation', { warnings });
     setStatus(warnings.length ? 'Remote config loaded with warnings' : 'Remote configs loaded');
-  } catch (err) { setStatus('Config error'); logTo('validation', err.message); }
+  } catch (err) {
+    setStatus('Config error');
+    logConfigResult({
+      ok: false,
+      event: 'remote_config_error',
+      configUrl: $('configUrl').value.trim(),
+      message: err.message,
+      nextAction: 'Open the raw GitHub URL in this same Chrome profile. If it does not load as JSON, use bundled config and check network or GitHub access.'
+    }, 'Remote config error');
+    logTo('validation', err.message);
+  }
 };
 $('useBundled').onclick = async () => {
   activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
@@ -3675,6 +4016,7 @@ $('useBundled').onclick = async () => {
     [STORAGE_KEYS.defaultRows]: defaultRows
   });
   renderConfigState();
+  logConfigResult({ ok: true, event: 'bundled_config_loaded', ...configSummary() }, 'Bundled config loaded');
   setStatus('Bundled config loaded');
 };
 $('addDefault').onclick = async () => {
@@ -3972,14 +4314,14 @@ $('refreshDiagnosticsPrompt').onclick = async () => {
   try {
     const { context } = await refreshDiagnosticsPromptFromPage();
     setStatus((context.warnings || []).length ? 'Diagnostics prompt refreshed with warnings' : 'Diagnostics prompt refreshed');
-  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics prompt refresh failed'); }
+  } catch (err) { logErrorTo('diagnosticsFillResults', ensureDiagnostic(err, { workflow: 'Diagnostics Part 4', stage: 'prompt_context_refresh', nextAction: 'Make the completed Part 3 Case Management and ASAM page active, then refresh the Part 4 prompt again.' })); setStatus('Diagnostics prompt refresh failed'); }
 };
 $('copyDiagnosticsPrompt').onclick = async () => {
   try {
     const { prompt, context } = await refreshDiagnosticsPromptFromPage();
     await navigator.clipboard.writeText(prompt);
     setStatus((context.warnings || []).length ? 'Copied Diagnostics prompt with warnings' : 'Copied Diagnostics prompt');
-  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics prompt copy failed'); }
+  } catch (err) { logErrorTo('diagnosticsFillResults', ensureDiagnostic(err, { workflow: 'Diagnostics Part 4', stage: 'prompt_copy', nextAction: 'Make the completed Part 3 Case Management and ASAM page active, then copy the Part 4 prompt again.' })); setStatus('Diagnostics prompt copy failed'); }
 };
 $('copyDiagnosticsPromptNotes').onclick = async () => {
   try {
@@ -3987,7 +4329,7 @@ $('copyDiagnosticsPromptNotes').onclick = async () => {
     const { prompt, context } = await refreshDiagnosticsPromptFromPage();
     await navigator.clipboard.writeText(`${source?.title || 'Diagnostics Part 4 prompt'}\n${source?.source || ''}\n\n${prompt}`);
     setStatus((context.warnings || []).length ? 'Copied Diagnostics prompt notes with warnings' : 'Copied Diagnostics prompt notes');
-  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics prompt notes copy failed'); }
+  } catch (err) { logErrorTo('diagnosticsFillResults', ensureDiagnostic(err, { workflow: 'Diagnostics Part 4', stage: 'prompt_notes_copy', nextAction: 'Make the completed Part 3 Case Management and ASAM page active, then copy the Part 4 prompt notes again.' })); setStatus('Diagnostics prompt notes copy failed'); }
 };
 $('validateDiagnosticsResponse').onclick = async () => {
   try {
@@ -3995,7 +4337,11 @@ $('validateDiagnosticsResponse').onclick = async () => {
     await saveDiagnosticsResponse();
     logTo('diagnosticsValidation', { ok: !summary.warnings.length, ...summary });
     setStatus(summary.warnings.length ? 'Diagnostics response saved with warnings' : 'Diagnostics response saved');
-  } catch (err) { logErrorTo('diagnosticsValidation', err); setStatus(err?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics validation failed'); }
+  } catch (err) {
+    const diagnosticError = ensureDiagnostic(err, { workflow: 'Diagnostics Part 4', stage: 'response_validation', nextAction: 'Paste one valid Diagnostics Part 4 JSON object, then validate again before filling.' });
+    logErrorTo('diagnosticsValidation', diagnosticError);
+    setStatus(diagnosticError?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics validation failed');
+  }
 };
 $('copyDiagnosticsResponse').onclick = async () => {
   try {
@@ -4003,7 +4349,11 @@ $('copyDiagnosticsResponse').onclick = async () => {
     await saveDiagnosticsResponse();
     await navigator.clipboard.writeText($('diagnosticsResp').value);
     setStatus('Copied Diagnostics response');
-  } catch (err) { logErrorTo('diagnosticsValidation', err); setStatus(err?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics copy failed'); }
+  } catch (err) {
+    const diagnosticError = ensureDiagnostic(err, { workflow: 'Diagnostics Part 4', stage: 'response_copy', nextAction: 'Validate the Diagnostics Part 4 response, then copy it again.' });
+    logErrorTo('diagnosticsValidation', diagnosticError);
+    setStatus(diagnosticError?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics copy failed');
+  }
 };
 $('clearDiagnosticsResponse').onclick = async () => {
   $('diagnosticsResp').value = '';
@@ -4011,16 +4361,54 @@ $('clearDiagnosticsResponse').onclick = async () => {
   logTo('diagnosticsValidation', 'Diagnostics response cleared.');
   setStatus('Cleared Diagnostics response');
 };
+$('runDiagnosticsPreflight').onclick = async () => {
+  try {
+    setStatus('Running Part 4 preflight...');
+    const report = await buildDiagnosticsTroubleshootingReport({ scanActivePage: true });
+    logTo('diagnosticsTroubleshooting', report);
+    setStatus(report.activePageScan?.diagnosticAnnotations?.length || report.activePageScan?.category ? 'Part 4 preflight found issues' : 'Part 4 preflight complete');
+  } catch (err) {
+    logErrorTo('diagnosticsTroubleshooting', ensureDiagnostic(err, {
+      workflow: 'Diagnostics Part 4',
+      stage: 'preflight',
+      nextAction: 'Copy the visible error and include a screenshot of the active ReliaTrax page.'
+    }));
+    setStatus('Part 4 preflight failed');
+  }
+};
+$('copyDiagnosticsTroubleshooting').onclick = async () => {
+  try {
+    setStatus('Building Part 4 troubleshooting report...');
+    const report = await buildDiagnosticsTroubleshootingReport({ scanActivePage: true });
+    logTo('diagnosticsTroubleshooting', report);
+    await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
+    setStatus('Copied Part 4 troubleshooting report');
+  } catch (err) {
+    logErrorTo('diagnosticsTroubleshooting', ensureDiagnostic(err, {
+      workflow: 'Diagnostics Part 4',
+      stage: 'copy_troubleshooting_report',
+      nextAction: 'Run Part 4 preflight and manually copy the visible report.'
+    }));
+    setStatus('Part 4 report copy failed');
+  }
+};
 $('scanDiagnosticsPage').onclick = async () => {
   try {
     const result = await runInActiveTab(pageScan, [buildDiagnosticsRuntimeConfig()]);
-    logTo('diagnosticsFillResults', result);
-    await appendTrace({ ...result, mode: 'diagnostics' });
-    setStatus('Diagnostics scan complete');
-  } catch (err) { logTo('diagnosticsFillResults', err.message); setStatus('Diagnostics scan failed'); }
+    const annotatedResult = annotateDiagnosticsFillResult(result, buildDiagnosticsRuntimeConfig());
+    logTo('diagnosticsFillResults', annotatedResult);
+    await appendTrace({ ...annotatedResult, mode: 'diagnostics' });
+    setStatus(annotatedResult?.diagnosticAnnotations?.length ? 'Diagnostics scan has warnings' : 'Diagnostics scan complete');
+  } catch (err) { logErrorTo('diagnosticsFillResults', ensureDiagnostic(err, { workflow: 'Diagnostics Part 4', stage: 'scan', nextAction: 'Make the Diagnostics / Clinical Impressions page active, then run Scan active page again.' })); setStatus('Diagnostics scan failed'); }
 };
 $('fillDiagnosticsPage').onclick = async () => {
   try {
+    setStatus('Diagnostics fill starting...');
+    logTo('diagnosticsFillResults', {
+      event: 'diagnostics_fill_starting',
+      timestamp: new Date().toISOString(),
+      message: 'Validating the pasted Part 4 JSON and checking the active ReliaTrax tab before writing.'
+    });
     const summary = validateDiagnosticsResponse();
     assertDiagnosticsResponseComplete(summary);
     await saveDiagnosticsResponse();
@@ -4056,7 +4444,15 @@ $('fillDiagnosticsPage').onclick = async () => {
       return;
     }
     setStatus(annotatedResult?.diagnosticAnnotations?.length || annotatedResult?.warnings?.length ? 'Diagnostics filled with warnings' : 'Diagnostics fill complete');
-  } catch (err) { logErrorTo('diagnosticsFillResults', err); setStatus(err?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics fill failed'); }
+  } catch (err) {
+    const diagnosticError = ensureDiagnostic(err, {
+      workflow: 'Diagnostics Part 4',
+      stage: 'fill',
+      nextAction: 'Run Part 4 preflight, copy the troubleshooting report, and confirm the active tab is the Diagnostics / Clinical Impressions page.'
+    });
+    logErrorTo('diagnosticsFillResults', diagnosticError);
+    setStatus(diagnosticError?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics fill failed');
+  }
 };
 $('copyModeSourcePrompt').onclick = async () => {
   const source = modeSourcePrompt(activeMode);

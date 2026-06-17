@@ -212,6 +212,16 @@
     <pre id="diagnosticsFillResults"></pre>
   </section>
 
+  <section class="card mode-panel mode-diagnostics hidden">
+    <h2>Part 4 troubleshooting</h2>
+    <div class="row wrap">
+      <button id="runDiagnosticsPreflight">Run preflight</button>
+      <button id="copyDiagnosticsTroubleshooting">Copy troubleshooting report</button>
+    </div>
+    <p class="small">Use this when Fill Active Page does not visibly change the Diagnostics / Clinical Impressions page. The report avoids the raw client response text.</p>
+    <pre id="diagnosticsTroubleshooting">No Part 4 troubleshooting report yet.</pre>
+  </section>
+
   <section class="card mode-panel mode-discovery hidden">
     <h2>Discovery and Mapping</h2>
     <p class="small">Scan the active page to inventory controls, hidden/collapsed sections, page source, section toggles, labels, options, and suggested JSON paths. Copy the report when Rose needs to email unknown page details for mapping.</p>
@@ -286,6 +296,7 @@
     </div>
     <p class="small">Loads the BPS config, workflow prompts, workflow mapping metadata, and QuickNotes mapping from GitHub.</p>
     <p class="small" id="configMeta"></p>
+    <pre id="configResults" class="config-results">No config action yet.</pre>
   </section>
 
   <script src="default-config.js"></script>
