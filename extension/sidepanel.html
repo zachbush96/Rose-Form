@@ -286,6 +286,19 @@
     <pre id="traceLog"></pre>
   </details>
 
+  <section class="card troubleshooting" id="n8nTroubleshootingPane">
+    <h2>n8n troubleshooting</h2>
+    <div class="discovery-options compact-options">
+      <label class="check"><input id="n8nIncludePrompt" type="checkbox" checked> Prompt</label>
+      <label class="check"><input id="n8nIncludeJson" type="checkbox" checked> JSON data</label>
+      <label class="check"><input id="n8nIncludeWebpage" type="checkbox" checked> Webpage data</label>
+    </div>
+    <div class="row wrap">
+      <button id="sendTroubleshootingInfo" class="primary">Automatically send information</button>
+    </div>
+    <pre id="n8nSendResults">No troubleshooting information sent yet.</pre>
+  </section>
+
   <section class="card">
     <h2>Remote config</h2>
     <label for="configUrl">GitHub raw config URL</label>
@@ -302,6 +315,7 @@
   <script src="default-config.js"></script>
   <script src="workflow-config.js"></script>
   <script src="quicknotes-config.js"></script>
+  <script src="n8n-config.js"></script>
   <script src="sidepanel.js"></script>
 </body>
 </html>

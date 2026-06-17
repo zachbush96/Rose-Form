@@ -24,6 +24,7 @@ const CONFIG_REPO_RAW_BASE_URL = 'https://raw.githubusercontent.com/zachbush96/R
 const DEFAULT_REMOTE_CONFIG_URL = `${CONFIG_REPO_RAW_BASE_URL}rose-reliatrax-bps-config.json`;
 const DEFAULT_WORKFLOW_CONFIG_URL = `${CONFIG_REPO_RAW_BASE_URL}rose-reliatrax-workflows-config.json`;
 const REMOTE_CONFIG_TIMEOUT_MS = 10000;
+const N8N_LOGGING_CONFIG = window.ROSE_N8N_LOGGING_CONFIG || {};
 
 let activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
 let activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG;
@@ -816,6 +817,293 @@ async function appendTrace(entry) {
     bastionGptResponses: getBastionGptResponsesForTrace()
   });
   await saveTraceLog();
+}
+function extensionVersion() {
+  try {
+    return chrome.runtime.getManifest().version || '';
+  } catch {
+    return '';
+  }
+}
+function n8nUrlFor(kind) {
+  if (!N8N_LOGGING_CONFIG.enabled) return '';
+  return kind === 'issue' ? N8N_LOGGING_CONFIG.issueUrl : N8N_LOGGING_CONFIG.successUrl;
+}
+function makeN8nEventId(kind) {
+  const suffix = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  return `rose-${kind}-${suffix}`;
+}
+async function postN8nLog(kind, payload) {
+  const url = n8nUrlFor(kind);
+  if (!url) throw new Error(`n8n ${kind} endpoint is not configured.`);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), N8N_LOGGING_CONFIG.requestTimeoutMs || 12000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    const text = await res.text();
+    let body = text;
+    try { body = text ? JSON.parse(text) : null; } catch {}
+    if (!res.ok) throw new Error(`n8n ${kind} endpoint returned ${res.status}: ${text.slice(0, 300)}`);
+    return body;
+  } catch (err) {
+    if (err?.name === 'AbortError') throw new Error(`n8n ${kind} request timed out.`);
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+function workflowNameForMode(mode = activeMode) {
+  if (mode === 'bps') return 'BPS Part 1';
+  if (mode === 'quicknotes') return 'QuickNotes / Group Notes';
+  return modeTitle(mode);
+}
+async function activeTabForN8n() {
+  try {
+    const tab = await getActiveTab();
+    return {
+      title: tab.title || '',
+      url: redactUrlForReport(tab.url || ''),
+      rawUrlWasRedacted: Boolean(tab.url && redactUrlForReport(tab.url) !== tab.url)
+    };
+  } catch (err) {
+    return compactDiagnosticForReport(ensureDiagnostic(err, {
+      workflow: workflowNameForMode(activeMode),
+      stage: 'active_tab_lookup'
+    }).diagnostic);
+  }
+}
+function summarizeFillResultForN8n(result = {}) {
+  return {
+    event: result.event || 'fill',
+    mode: result.mode || result.workflowMode || activeMode,
+    timestamp: result.timestamp || new Date().toISOString(),
+    dryRun: Boolean(result.dryRun),
+    found: Number(result.found || 0),
+    expected: Number(result.expected || 0),
+    written: Number(result.written || 0),
+    responseWritten: Number(result.responseWritten || 0),
+    defaultWritten: Number(result.defaultWritten || 0),
+    checkboxWritten: Number(result.checkboxWritten || 0),
+    checkboxTrueWritten: Number(result.checkboxTrueWritten || 0),
+    checkboxFalseWritten: Number(result.checkboxFalseWritten || 0),
+    checkboxWriteFailures: Number(result.checkboxWriteFailures || 0),
+    skipped: Number(result.skipped || 0),
+    missingCount: Array.isArray(result.missing) ? result.missing.length : Number(result.missingCount || 0),
+    warnings: result.warnings || [],
+    diagnosticAnnotations: result.diagnosticAnnotations || []
+  };
+}
+function shouldSendSuccessLog(result = {}) {
+  if (!N8N_LOGGING_CONFIG.enabled || !N8N_LOGGING_CONFIG.successUrl) return false;
+  if (result.error || result.dryRun) return false;
+  return Number(result.written || 0) > 0;
+}
+function recordN8nLoggingError(kind, err) {
+  if (!$('n8nSendResults')) return;
+  logTo('n8nSendResults', {
+    ok: false,
+    event: `${kind}_log_failed`,
+    timestamp: new Date().toISOString(),
+    message: err?.message || String(err)
+  });
+}
+async function sendN8nSuccessLogForFill(mode, result) {
+  if (!shouldSendSuccessLog(result)) return null;
+  const fill = summarizeFillResultForN8n({ ...result, mode });
+  const response = await postN8nLog('success', {
+    event_id: makeN8nEventId('success'),
+    event_type: 'success',
+    timestamp: new Date().toISOString(),
+    mode,
+    workflowName: workflowNameForMode(mode),
+    extensionVersion: extensionVersion(),
+    activeTab: await activeTabForN8n(),
+    fill,
+    warnings: fill.warnings,
+    config: configSummary()
+  });
+  if ($('n8nSendResults')) {
+    logTo('n8nSendResults', {
+      ok: true,
+      event: 'success_logged',
+      mode,
+      written: fill.written,
+      n8n: response
+    });
+  }
+  return response;
+}
+function queueN8nSuccessLog(mode, result) {
+  sendN8nSuccessLogForFill(mode, result).catch(err => recordN8nLoggingError('success', err));
+}
+function promptForN8n(mode = activeMode) {
+  if (mode === 'bps') {
+    const prompts = (activeConfig.prompts || []).map((prompt, index) => ({
+      index: index + 1,
+      id: prompt.id || '',
+      title: prompt.title || `Prompt ${index + 1}`,
+      text: promptBodyForCopy(prompt.body || '')
+    }));
+    return {
+      mode,
+      title: 'BPS Part 1 prompts',
+      prompts,
+      text: prompts.map(prompt => `${prompt.title}\n\n${prompt.text}`).join('\n\n---\n\n')
+    };
+  }
+  if (mode === 'quicknotes') {
+    const prompt = activeQuickNotesConfig?.prompts?.[0] || {};
+    return { mode, title: prompt.title || 'QuickNotes prompt', source: prompt.source || '', text: prompt.body || '' };
+  }
+  const source = modeSourcePrompt(mode);
+  if (!source) return { mode, title: workflowNameForMode(mode), text: '' };
+  const text = mode === 'diagnostics'
+    ? applyDiagnosticsPromptNote(diagnosticsPromptPreviewBase || diagnosticsPromptPreviewFallback(source))
+    : (source.body || '');
+  return { mode, title: source.title || workflowNameForMode(mode), source: source.source || '', text };
+}
+function parseJsonTextForN8n(raw, label) {
+  const text = String(raw || '').trim();
+  if (!text) return { raw: '', parsed: null, parseError: '' };
+  try {
+    return { raw: text, parsed: JSON.parse(text), parseError: '' };
+  } catch (err) {
+    return { raw: text, parsed: null, parseError: `${label}: ${err.message}` };
+  }
+}
+function visiblePanelsForN8n() {
+  return Array.from(document.querySelectorAll('pre[id]'))
+    .filter(node => node.id !== 'n8nSendResults' && !node.closest('.hidden') && String(node.textContent || '').trim())
+    .map(node => ({ id: node.id, text: node.textContent || '' }));
+}
+function jsonDataForN8n(mode = activeMode) {
+  const data = {
+    mode,
+    traceLog,
+    visiblePanels: visiblePanelsForN8n()
+  };
+  if (mode === 'bps') {
+    data.responses = getBastionGptResponsesForTrace();
+    try { data.merged = validateAndMerge(); } catch (err) { data.validationError = err.message; }
+    return data;
+  }
+  if (mode === 'quicknotes') {
+    data.quicknotes = parseJsonTextForN8n($('quicknotesResp')?.value || '', 'QuickNotes response');
+    return data;
+  }
+  if (mode === 'mse') {
+    data.mse = parseJsonTextForN8n($('mseResp')?.value || '', 'MSE Part 2 response');
+    try { data.validation = validateMseResponse(); } catch (err) { data.validationError = err.message; }
+    return data;
+  }
+  if (mode === 'asam') {
+    data.asam = parseJsonTextForN8n($('asamResp')?.value || '', 'Part 3 response');
+    try { data.validation = validateAsamResponse(); } catch (err) { data.validationError = err.message; }
+    return data;
+  }
+  if (mode === 'diagnostics') {
+    data.diagnostics = parseJsonTextForN8n($('diagnosticsResp')?.value || '', 'Diagnostics Part 4 response');
+    try { data.validation = validateDiagnosticsResponse(); } catch (err) { data.validationError = ensureDiagnostic(err, { workflow: 'Diagnostics Part 4', stage: 'response_validation' }).diagnostic; }
+    return data;
+  }
+  return data;
+}
+function runtimeConfigForMode(mode = activeMode) {
+  if (mode === 'quicknotes') return buildQuickNotesRuntimeConfig();
+  if (mode === 'mse') return buildMseRuntimeConfig();
+  if (mode === 'asam') return buildAsamRuntimeConfig();
+  if (mode === 'diagnostics') return buildDiagnosticsRuntimeConfig();
+  return buildRuntimeConfig();
+}
+async function webpageDataForN8n(mode = activeMode) {
+  const report = {
+    activeTab: await activeTabForN8n(),
+    scan: null,
+    discovery: null
+  };
+  try {
+    report.scan = await runInActiveTab(pageScan, [runtimeConfigForMode(mode)]);
+  } catch (err) {
+    report.scan = compactDiagnosticForReport(ensureDiagnostic(err, {
+      workflow: workflowNameForMode(mode),
+      stage: 'page_scan'
+    }).diagnostic);
+  }
+  try {
+    report.discovery = await runInActiveTab(pageDiscover, [{
+      pathPrefix: mode,
+      includeHiddenControls: true,
+      capturePageSource: true,
+      expandInteractiveSections: false
+    }]);
+  } catch (err) {
+    report.discovery = compactDiagnosticForReport(ensureDiagnostic(err, {
+      workflow: workflowNameForMode(mode),
+      stage: 'page_discovery'
+    }).diagnostic);
+  }
+  return report;
+}
+async function buildN8nIssuePayload({ includePrompt, includeJson, includeWebpage }) {
+  const payload = {
+    event_id: makeN8nEventId('issue'),
+    event_type: 'issue',
+    timestamp: new Date().toISOString(),
+    mode: activeMode,
+    workflowName: workflowNameForMode(activeMode),
+    extensionVersion: extensionVersion(),
+    statusText: $('status')?.textContent || '',
+    activeTab: await activeTabForN8n(),
+    config: configSummary(),
+    issue: {
+      category: 'manual_troubleshooting_submission',
+      message: $('status')?.textContent || 'Troubleshooting information submitted from the extension.',
+      workflow: workflowNameForMode(activeMode)
+    },
+    included: {
+      prompt: Boolean(includePrompt),
+      jsonData: Boolean(includeJson),
+      webpageData: Boolean(includeWebpage)
+    }
+  };
+  if (includePrompt) payload.prompt = promptForN8n(activeMode);
+  if (includeJson) payload.jsonData = jsonDataForN8n(activeMode);
+  if (includeWebpage) payload.webpageData = await webpageDataForN8n(activeMode);
+  return payload;
+}
+async function sendN8nTroubleshootingInfo() {
+  const button = $('sendTroubleshootingInfo');
+  if (button) button.disabled = true;
+  try {
+    setStatus('Sending troubleshooting information...');
+    const payload = await buildN8nIssuePayload({
+      includePrompt: Boolean($('n8nIncludePrompt')?.checked),
+      includeJson: Boolean($('n8nIncludeJson')?.checked),
+      includeWebpage: Boolean($('n8nIncludeWebpage')?.checked)
+    });
+    const response = await postN8nLog('issue', payload);
+    logTo('n8nSendResults', {
+      ok: true,
+      event: 'troubleshooting_sent',
+      sent: payload.included,
+      n8n: response
+    });
+    setStatus('Troubleshooting information sent');
+  } catch (err) {
+    logTo('n8nSendResults', {
+      ok: false,
+      event: 'troubleshooting_send_failed',
+      message: err?.message || String(err)
+    });
+    setStatus('Troubleshooting send failed');
+  } finally {
+    if (button) button.disabled = false;
+  }
 }
 async function fetchRemoteJson(url) {
   let parsedUrl;
@@ -4085,6 +4373,7 @@ $('fillPage').onclick = async () => {
     logTo('fillResults', summary);
     await appendTrace(result);
     setStatus(result?.warnings?.length ? 'Filled with warnings' : 'Fill complete');
+    queueN8nSuccessLog('bps', result);
   } catch (err) { logTo('fillResults', err.message); setStatus('Fill failed'); }
 };
 $('copyQuickNotesPrompt').onclick = async () => {
@@ -4145,6 +4434,7 @@ $('fillQuickNotesPage').onclick = async () => {
     logTo('quicknotesResults', summary);
     await appendTrace(result);
     setStatus(result?.warnings?.length ? 'QuickNotes filled with warnings' : 'QuickNotes fill complete');
+    queueN8nSuccessLog('quicknotes', { ...result, mode: 'quicknotes' });
   } catch (err) { logTo('quicknotesResults', err.message); setStatus('QuickNotes fill failed'); }
 };
 $('copyMsePrompt').onclick = async () => {
@@ -4222,6 +4512,7 @@ $('fillMsePage').onclick = async () => {
     logTo('mseFillResults', result);
     await appendTrace({ ...result, mode: 'mse' });
     setStatus(result?.warnings?.length ? 'MSE filled with warnings' : 'MSE fill complete');
+    queueN8nSuccessLog('mse', { ...result, mode: 'mse' });
   } catch (err) { logTo('mseFillResults', err.message); setStatus('MSE fill failed'); }
 };
 $('copyAsamPrompt').onclick = async () => {
@@ -4295,6 +4586,7 @@ $('fillAsamPage').onclick = async () => {
     logTo('asamFillResults', result);
     await appendTrace({ ...result, mode: 'asam' });
     setStatus(result?.warnings?.length ? 'Part 3 filled with warnings' : 'Part 3 fill complete');
+    queueN8nSuccessLog('asam', { ...result, mode: 'asam' });
   } catch (err) { logTo('asamFillResults', err.message); setStatus('Part 3 fill failed'); }
 };
 async function refreshDiagnosticsPromptFromPage() {
@@ -4444,6 +4736,7 @@ $('fillDiagnosticsPage').onclick = async () => {
       return;
     }
     setStatus(annotatedResult?.diagnosticAnnotations?.length || annotatedResult?.warnings?.length ? 'Diagnostics filled with warnings' : 'Diagnostics fill complete');
+    queueN8nSuccessLog('diagnostics', { ...annotatedResult, mode: 'diagnostics' });
   } catch (err) {
     const diagnosticError = ensureDiagnostic(err, {
       workflow: 'Diagnostics Part 4',
@@ -4564,4 +4857,7 @@ $('diagnosticsPromptNote')?.addEventListener('input', async () => {
   await saveDiagnosticsPromptNote();
   renderDiagnosticsPrompt();
 });
+if ($('sendTroubleshootingInfo')) {
+  $('sendTroubleshootingInfo').onclick = sendN8nTroubleshootingInfo;
+}
 loadState();

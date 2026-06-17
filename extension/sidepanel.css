@@ -84,6 +84,7 @@ button.active-toggle { background: #047857; color: #fff; }
 .row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
 .wrap { flex-wrap: wrap; }
 .discovery-options { display: grid; gap: 6px; margin-top: 10px; }
+.compact-options { margin-top: 0; }
 .visual-map-controls {
   border-top: 1px solid #e5e7eb;
   padding-top: 10px;
