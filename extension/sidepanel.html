@@ -264,13 +264,48 @@
   </section>
 
   <section class="card mode-panel mode-treatment hidden">
-    <h2 id="plannedModeTitle">Mode setup</h2>
-    <p class="small" id="plannedModeBody">This mode is reserved for the next mapped section. Use Discovery and Mapping first to capture the form controls and labels needed to build a reliable field map.</p>
+    <h2>Treatment Plan prompt</h2>
+    <p class="small" id="treatmentPromptMeta"></p>
+    <label for="treatmentScenario">Clinical scenario</label>
+    <select id="treatmentScenario"></select>
     <div class="row wrap">
-      <button id="copyModeSourcePrompt">Copy source prompt</button>
-      <button id="copyModeSourceNotes">Copy source notes</button>
+      <button id="copyTreatmentPrompt">Copy selected prompt</button>
+      <button id="copyTreatmentPromptNotes">Copy prompt with source notes</button>
     </div>
-    <pre id="plannedModeSource"></pre>
+    <pre id="treatmentPromptPreview"></pre>
+  </section>
+
+  <section class="card mode-panel mode-treatment hidden">
+    <h2>Treatment Plan response</h2>
+    <p class="small">Paste Rose's copy-ready Treatment Plan output. The extension parses the headers, numbered objectives, interventions, dates, safety planning, and all three problems before filling.</p>
+    <textarea id="treatmentResp" placeholder="Paste the Treatment Plan output here"></textarea>
+    <div class="row wrap">
+      <button id="validateTreatmentResponse">Validate and parse</button>
+      <button id="copyTreatmentJson">Copy parsed JSON</button>
+      <button id="clearTreatmentResponse" class="danger">Clear saved response</button>
+    </div>
+    <pre id="treatmentValidation">No Treatment Plan response validated yet.</pre>
+  </section>
+
+  <section class="card mode-panel mode-treatment hidden">
+    <h2>Fill ReliaTrax</h2>
+    <div class="row wrap">
+      <button id="scanTreatmentPage">Scan active page</button>
+      <button id="fillTreatmentPage" class="primary">Fill active page</button>
+    </div>
+    <label class="check"><input type="checkbox" id="treatmentDryRun" checked> Dry run, do not write</label>
+    <p class="small">Treatment Plan uses label- and section-aware matching until tomorrow's live capture supplies stable field IDs. Review the dry-run trace before turning this off.</p>
+    <pre id="treatmentFillResults">No Treatment Plan scan or fill yet.</pre>
+  </section>
+
+  <section class="card mode-panel mode-treatment hidden">
+    <h2>Treatment Plan support capture</h2>
+    <div class="row wrap">
+      <button id="captureTreatmentSupport">Capture page and preflight</button>
+      <button id="copyTreatmentSupport">Copy support bundle</button>
+    </div>
+    <p class="small">Captures the active URL/title, all visible and hidden controls, field labels and DOM hints, page HTML metadata, parsed-response coverage, runtime config, and recent Treatment Plan traces. Raw page HTML is included in the copied/sent bundle for mapping tomorrow.</p>
+    <pre id="treatmentTroubleshooting">No Treatment Plan support bundle yet.</pre>
   </section>
 
   <details class="card collapsible troubleshooting" id="troubleshootingPane">
@@ -314,6 +349,7 @@
 
   <script src="default-config.js"></script>
   <script src="workflow-config.js"></script>
+  <script src="treatment-config.js"></script>
   <script src="quicknotes-config.js"></script>
   <script src="n8n-config.js"></script>
   <script src="sidepanel.js"></script>

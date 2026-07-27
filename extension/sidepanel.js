@@ -8,6 +8,7 @@ const STORAGE_KEYS = {
   traceLog: 'roseBpsTraceLog',
   mode: 'roseBpsActiveMode',
   workflowConfig: 'roseWorkflowConfig',
+  treatmentConfig: 'roseTreatmentConfig',
   quicknotesConfig: 'roseQuickNotesConfig',
   discoveryReport: 'roseBpsDiscoveryReport',
   discoveryPrefix: 'roseBpsDiscoveryPrefix',
@@ -15,7 +16,10 @@ const STORAGE_KEYS = {
   mseResponse: 'roseMseResponse',
   asamResponse: 'roseAsamResponse',
   diagnosticsResponse: 'roseDiagnosticsResponse',
-  diagnosticsPromptNote: 'roseDiagnosticsPromptNote'
+  diagnosticsPromptNote: 'roseDiagnosticsPromptNote',
+  treatmentResponse: 'roseTreatmentResponse',
+  treatmentScenario: 'roseTreatmentScenario',
+  treatmentSupportBundle: 'roseTreatmentSupportBundle'
 };
 
 const CONFIG_REPO_DATA_DIR = 'github-data';
@@ -23,18 +27,22 @@ const CONFIG_FILE_RE = /(rose-reliatrax-bps-config\.json|rose-reliatrax-workflow
 const CONFIG_REPO_RAW_BASE_URL = 'https://raw.githubusercontent.com/zachbush96/Rose-Form/main/github-data/';
 const DEFAULT_REMOTE_CONFIG_URL = `${CONFIG_REPO_RAW_BASE_URL}rose-reliatrax-bps-config.json`;
 const DEFAULT_WORKFLOW_CONFIG_URL = `${CONFIG_REPO_RAW_BASE_URL}rose-reliatrax-workflows-config.json`;
+const DEFAULT_TREATMENT_CONFIG_URL = `${CONFIG_REPO_RAW_BASE_URL}rose-treatment-plan-config.json`;
 const REMOTE_CONFIG_TIMEOUT_MS = 10000;
 const N8N_LOGGING_CONFIG = window.ROSE_N8N_LOGGING_CONFIG || {};
 
 let activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
 let activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG;
 let workflowConfig = window.DEFAULT_ROSE_WORKFLOW_CONFIG || {};
+let treatmentConfig = window.DEFAULT_ROSE_TREATMENT_CONFIG || { prompts: [] };
 let defaultRows = [];
 let traceLog = [];
 let activeMode = 'bps';
 let discoveryReport = null;
 let visualMappingMode = 'off';
 let diagnosticsPromptPreviewBase = '';
+let treatmentSupportBundle = null;
+let activeTreatmentScenario = '';
 const $ = (id) => document.getElementById(id);
 
 const MSE_REQUIRED_ITEMS = [
@@ -445,6 +453,9 @@ function configSummary() {
     diagnostics: workflowModeSummary('diagnostics'),
     mse: workflowModeSummary('mse'),
     asam: workflowModeSummary('asam'),
+    treatment: workflowModeSummary('treatment'),
+    treatmentPromptVersion: treatmentConfig?.version || '',
+    treatmentPromptCount: Array.isArray(treatmentConfig?.prompts) ? treatmentConfig.prompts.length : 0,
     quicknotesFieldMapCount: Array.isArray(activeQuickNotesConfig?.fieldMap) ? activeQuickNotesConfig.fieldMap.length : 0
   };
 }
@@ -505,15 +516,40 @@ function modeTitle(mode) {
 function modeSourcePrompt(mode) {
   return workflowMode(mode).sourcePrompt || null;
 }
-function renderPlannedModeSource() {
-  const source = modeSourcePrompt(activeMode);
-  const sourceBox = $('plannedModeSource');
-  if (!sourceBox) return;
-  if (!source) {
-    sourceBox.textContent = '';
+function treatmentPrompts() {
+  return Array.isArray(treatmentConfig?.prompts) ? treatmentConfig.prompts : [];
+}
+function selectedTreatmentPrompt() {
+  const prompts = treatmentPrompts();
+  const selectedId = $('treatmentScenario')?.value || activeTreatmentScenario || '';
+  return prompts.find(prompt => prompt.id === selectedId) || prompts[0] || null;
+}
+function renderTreatmentPrompt() {
+  const select = $('treatmentScenario');
+  const preview = $('treatmentPromptPreview');
+  if (!select || !preview) return;
+  const prompts = treatmentPrompts();
+  const current = select.value;
+  select.innerHTML = '';
+  prompts.forEach(prompt => {
+    const option = document.createElement('option');
+    option.value = prompt.id;
+    option.textContent = `${prompt.number}. ${prompt.title}`;
+    select.appendChild(option);
+  });
+  const desired = prompts.some(prompt => prompt.id === current)
+    ? current
+    : (prompts.some(prompt => prompt.id === activeTreatmentScenario) ? activeTreatmentScenario : prompts[0]?.id);
+  if (desired) select.value = desired;
+  activeTreatmentScenario = select.value || '';
+  const selected = selectedTreatmentPrompt();
+  if (!selected) {
+    $('treatmentPromptMeta').textContent = 'No Treatment Plan prompts are loaded.';
+    preview.textContent = '';
     return;
   }
-  sourceBox.textContent = `${source.title}\n${source.source}\n\n${source.body}`;
+  $('treatmentPromptMeta').textContent = `${treatmentConfig?.source?.subject || 'Treatment Plan Prompts (4)'} | received ${treatmentConfig?.source?.receivedAt || ''}`;
+  preview.textContent = selected.body || '';
 }
 function renderMsePrompt() {
   const source = workflowMode('mse').sourcePrompt;
@@ -712,15 +748,11 @@ function renderMode() {
     const visible = classes.includes(`mode-${activeMode}`);
     panel.classList.toggle('hidden', !visible);
   });
-  if (activeMode === 'treatment') {
-    $('plannedModeTitle').textContent = modeTitle(activeMode);
-    $('plannedModeBody').textContent = modeDescription(activeMode);
-  }
   renderMsePrompt();
   renderAsamPrompt();
   renderDiagnosticsPrompt();
+  renderTreatmentPrompt();
   renderMseDefaults();
-  renderPlannedModeSource();
 }
 async function saveMode(mode) {
   activeMode = mode || 'bps';
@@ -960,6 +992,16 @@ function promptForN8n(mode = activeMode) {
     const prompt = activeQuickNotesConfig?.prompts?.[0] || {};
     return { mode, title: prompt.title || 'QuickNotes prompt', source: prompt.source || '', text: prompt.body || '' };
   }
+  if (mode === 'treatment') {
+    const prompt = selectedTreatmentPrompt();
+    return {
+      mode,
+      title: prompt?.title || 'Treatment Plan prompt',
+      scenario: prompt?.id || '',
+      source: treatmentConfig?.source || {},
+      text: prompt?.body || ''
+    };
+  }
   const source = modeSourcePrompt(mode);
   if (!source) return { mode, title: workflowNameForMode(mode), text: '' };
   const text = mode === 'diagnostics'
@@ -1011,6 +1053,13 @@ function jsonDataForN8n(mode = activeMode) {
     try { data.validation = validateDiagnosticsResponse(); } catch (err) { data.validationError = ensureDiagnostic(err, { workflow: 'Diagnostics Part 4', stage: 'response_validation' }).diagnostic; }
     return data;
   }
+  if (mode === 'treatment') {
+    data.treatment = { raw: $('treatmentResp')?.value || '', scenario: selectedTreatmentPrompt()?.id || '' };
+    try { data.validation = validateTreatmentResponse(); }
+    catch (err) { data.validationError = ensureDiagnostic(err, { workflow: 'Treatment Plan', stage: 'response_validation' }).diagnostic; }
+    data.supportBundle = treatmentSupportBundle;
+    return data;
+  }
   return data;
 }
 function runtimeConfigForMode(mode = activeMode) {
@@ -1018,6 +1067,7 @@ function runtimeConfigForMode(mode = activeMode) {
   if (mode === 'mse') return buildMseRuntimeConfig();
   if (mode === 'asam') return buildAsamRuntimeConfig();
   if (mode === 'diagnostics') return buildDiagnosticsRuntimeConfig();
+  if (mode === 'treatment') return buildTreatmentRuntimeConfig();
   return buildRuntimeConfig();
 }
 async function webpageDataForN8n(mode = activeMode) {
@@ -1165,6 +1215,20 @@ async function loadRemoteQuickNotesConfig() {
   activeQuickNotesConfig = await fetchRemoteConfig(url);
   await chrome.storage.local.set({ [STORAGE_KEYS.quicknotesConfig]: activeQuickNotesConfig });
 }
+async function loadRemoteTreatmentConfig(baseUrl = DEFAULT_WORKFLOW_CONFIG_URL) {
+  const configured = workflowMode('treatment').promptConfigUrl;
+  const url = resolveConfigUrl(configured, baseUrl) || DEFAULT_TREATMENT_CONFIG_URL;
+  const config = await fetchRemoteJson(url);
+  if (!Array.isArray(config?.prompts) || config.prompts.length !== 4) {
+    throw new Error('Treatment Plan prompt config must contain Rose\'s four prompts.');
+  }
+  treatmentConfig = config;
+  activeTreatmentScenario = treatmentPrompts().some(prompt => prompt.id === activeTreatmentScenario)
+    ? activeTreatmentScenario
+    : treatmentPrompts()[0]?.id || '';
+  await chrome.storage.local.set({ [STORAGE_KEYS.treatmentConfig]: config });
+  renderTreatmentPrompt();
+}
 async function loadRemoteConfigBundle(url, options = {}) {
   const warnings = [];
   try {
@@ -1176,6 +1240,11 @@ async function loadRemoteConfigBundle(url, options = {}) {
     await loadRemoteQuickNotesConfig();
   } catch (err) {
     warnings.push(`QuickNotes config: ${err.message}`);
+  }
+  try {
+    await loadRemoteTreatmentConfig(workflowConfigUrlFromConfigUrl(url));
+  } catch (err) {
+    warnings.push(`Treatment Plan prompts: ${err.message}`);
   }
   await loadRemoteConfig(url, options);
   return warnings;
@@ -1189,6 +1258,7 @@ async function loadState() {
     STORAGE_KEYS.traceLog,
     STORAGE_KEYS.mode,
     STORAGE_KEYS.workflowConfig,
+    STORAGE_KEYS.treatmentConfig,
     STORAGE_KEYS.quicknotesConfig,
     STORAGE_KEYS.discoveryReport,
     STORAGE_KEYS.discoveryPrefix,
@@ -1196,15 +1266,21 @@ async function loadState() {
     STORAGE_KEYS.mseResponse,
     STORAGE_KEYS.asamResponse,
     STORAGE_KEYS.diagnosticsResponse,
-    STORAGE_KEYS.diagnosticsPromptNote
+    STORAGE_KEYS.diagnosticsPromptNote,
+    STORAGE_KEYS.treatmentResponse,
+    STORAGE_KEYS.treatmentScenario,
+    STORAGE_KEYS.treatmentSupportBundle
   ]);
   activeConfig = data[STORAGE_KEYS.config] || window.DEFAULT_ROSE_BPS_CONFIG;
   workflowConfig = normalizeWorkflowConfigUrls(data[STORAGE_KEYS.workflowConfig] || window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig);
+  treatmentConfig = data[STORAGE_KEYS.treatmentConfig] || window.DEFAULT_ROSE_TREATMENT_CONFIG || treatmentConfig;
   activeQuickNotesConfig = data[STORAGE_KEYS.quicknotesConfig] || window.DEFAULT_ROSE_QUICKNOTES_CONFIG || activeQuickNotesConfig;
   defaultRows = Array.isArray(data[STORAGE_KEYS.defaultRows]) ? data[STORAGE_KEYS.defaultRows] : getConfigDefaultRows(activeConfig);
   traceLog = Array.isArray(data[STORAGE_KEYS.traceLog]) ? data[STORAGE_KEYS.traceLog] : [];
   activeMode = data[STORAGE_KEYS.mode] || 'bps';
   discoveryReport = data[STORAGE_KEYS.discoveryReport] || null;
+  activeTreatmentScenario = data[STORAGE_KEYS.treatmentScenario] || treatmentPrompts()[0]?.id || '';
+  treatmentSupportBundle = data[STORAGE_KEYS.treatmentSupportBundle] || null;
   const storedConfigUrl = data[STORAGE_KEYS.configUrl];
   const configUrl = migrateLegacyConfigUrl(storedConfigUrl || workflowMode('bps').configUrl || DEFAULT_REMOTE_CONFIG_URL);
   try {
@@ -1217,6 +1293,11 @@ async function loadState() {
   } catch {
     activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG || activeQuickNotesConfig;
   }
+  try {
+    await loadRemoteTreatmentConfig(workflowConfigUrlFromConfigUrl(configUrl));
+  } catch {
+    treatmentConfig = window.DEFAULT_ROSE_TREATMENT_CONFIG || treatmentConfig;
+  }
   if (storedConfigUrl && configUrl !== storedConfigUrl) {
     await chrome.storage.local.set({ [STORAGE_KEYS.configUrl]: configUrl });
   }
@@ -1227,6 +1308,8 @@ async function loadState() {
   if ($('asamResp')) $('asamResp').value = data[STORAGE_KEYS.asamResponse] || '';
   if ($('diagnosticsResp')) $('diagnosticsResp').value = data[STORAGE_KEYS.diagnosticsResponse] || '';
   if ($('diagnosticsPromptNote')) $('diagnosticsPromptNote').value = data[STORAGE_KEYS.diagnosticsPromptNote] || '';
+  if ($('treatmentResp')) $('treatmentResp').value = data[STORAGE_KEYS.treatmentResponse] || '';
+  if ($('treatmentTroubleshooting')) logTo('treatmentTroubleshooting', treatmentSupportBundle || 'No Treatment Plan support bundle yet.');
   (data[STORAGE_KEYS.responses] || []).forEach((v, i) => { if ($(`resp${i+1}`)) $(`resp${i+1}`).value = v || ''; });
   renderTraceLog();
   renderDiscoveryReport();
@@ -1429,6 +1512,69 @@ function pageExtractDiagnosticsPart3Context() {
         ...functioning.filter(item => item.selectedCount > 1).map(item => `${item.label} has multiple Functioning selections checked.`),
         ...functioning.filter(item => item.selectedCount === 0).map(item => `${item.label} has no Functioning selection checked.`),
         ...dimensions.filter(item => !normalize(item.text)).map(item => `Dimension ${item.dimension} textbox is blank.`)
+      ]
+    };
+  } catch (err) { return { error: err.message }; }
+}
+function pageExtractTreatmentPlanContext() {
+  try {
+    const selector = 'textarea, select, input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), [contenteditable="true"]';
+    const controls = [...document.querySelectorAll(selector)];
+    const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const valueOf = (el) => {
+      if (!el) return '';
+      if (el.getAttribute('contenteditable') === 'true') return String(el.textContent || '').trim();
+      if (['checkbox', 'radio'].includes(String(el.type || '').toLowerCase())) return el.checked ? 'checked' : '';
+      return String(el.value || '').trim();
+    };
+    const controlSummary = (el, index) => {
+      const row = el.closest('tr');
+      const cell = el.closest('td, th');
+      const precedingCells = [];
+      for (let previous = cell?.previousElementSibling; previous; previous = previous.previousElementSibling) {
+        const text = normalize(previous.innerText || previous.textContent || '');
+        if (text) precedingCells.unshift(text);
+      }
+      return {
+        index,
+        tag: el.tagName,
+        type: el.type || '',
+        id: el.id || '',
+        name: el.name || '',
+        dataQnFieldId: el.getAttribute('data-qn-field-id') || el.closest('[data-qn-field-id]')?.getAttribute('data-qn-field-id') || '',
+        value: valueOf(el),
+        precedingCellText: precedingCells.join(' | '),
+        rowText: normalize(row?.innerText || row?.textContent || ''),
+        contextText: normalize((row || el.closest('.question, .form-group, label, div') || el.parentElement || el).innerText || '')
+      };
+    };
+    const summaries = controls.map(controlSummary);
+    const scoredDate = (kind) => summaries.map(item => {
+      const local = `${item.precedingCellText} ${item.rowText}`.toLowerCase();
+      let score = 0;
+      if (kind === 'assessment' && /\bassessment date\b/.test(local)) score += 100;
+      if (kind === 'service' && /\bdate of service plan\b/.test(local)) score += 100;
+      if (kind === 'assessment' && /\bdate of service plan\b/.test(item.precedingCellText.toLowerCase()) && !/\bassessment date\b/.test(item.precedingCellText.toLowerCase())) score -= 200;
+      if (kind === 'service' && /\bassessment date\b/.test(item.precedingCellText.toLowerCase()) && !/\bdate of service plan\b/.test(item.precedingCellText.toLowerCase())) score -= 200;
+      return { item, score };
+    }).filter(candidate => candidate.score > 0).sort((a, b) => b.score - a.score || a.item.index - b.item.index)[0]?.item;
+    const assessment = scoredDate('assessment');
+    const service = scoredDate('service');
+    return {
+      event: 'treatment_plan_context',
+      timestamp: new Date().toISOString(),
+      url: location.href,
+      title: document.title,
+      controlCount: controls.length,
+      assessmentDate: assessment?.value || '',
+      dateOfServicePlan: service?.value || '',
+      assessmentDateControl: assessment || null,
+      dateOfServicePlanControl: service || null,
+      treatmentTextPresent: /treatment plan|problem\s*#\s*1|safety planning/i.test(normalize(document.body?.innerText || '')),
+      warnings: [
+        ...(!assessment ? ['Assessment Date control was not identified.'] : []),
+        ...(!service ? ['Date of Service Plan control was not identified.'] : []),
+        ...(service && !service.value ? ['Date of Service Plan is blank.'] : [])
       ]
     };
   } catch (err) { return { error: err.message }; }
@@ -3318,6 +3464,80 @@ function pageFill(config, merged, dryRun) {
       rows.sort((a, b) => b.score - a.score);
       return rows[0]?.el || null;
     };
+    const findTreatmentPlanControlByLabel = (item) => {
+      if (config.workflowMode !== 'treatment') return null;
+      const semantic = String(item.treatmentField || '').trim();
+      if (!semantic) return null;
+      const rows = [...document.querySelectorAll('tr')];
+      const rowIndex = (row) => rows.indexOf(row);
+      const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim().toLowerCase();
+      const problemNumberForRow = (row) => {
+        const start = rowIndex(row);
+        for (let index = start; index >= 0; index--) {
+          const match = normalize(rows[index]?.innerText || rows[index]?.textContent || '').match(/\bproblem\s*#\s*([1-3])\b/);
+          if (match) return Number(match[1]);
+        }
+        return 0;
+      };
+      const precedingRowText = (row, count = 4) => {
+        const chunks = [];
+        for (let previous = row?.previousElementSibling, depth = 0; previous && depth < count; previous = previous.previousElementSibling, depth++) {
+          const text = normalize(previous.innerText || previous.textContent || '');
+          if (/\bproblem\s*#\s*[1-3]\b/.test(text)) break;
+          if (text) chunks.push(text);
+        }
+        return chunks.join(' ');
+      };
+      const localCellText = (el) => {
+        const cell = el.closest('td, th');
+        if (!cell) return '';
+        const chunks = [];
+        for (let previous = cell.previousElementSibling; previous; previous = previous.previousElementSibling) {
+          const text = normalize(previous.innerText || previous.textContent || '');
+          if (text) chunks.unshift(text);
+        }
+        return chunks.join(' ');
+      };
+      const patterns = {
+        assessment_date: /\bassessment date\b/,
+        strengths: /\bstrengths\b/,
+        risk_factors: /\brisk factors\b/,
+        problem_statement: /\bproblem statement\b/,
+        goal: /\bgoal\b/,
+        objectives: /\bobjectives\b/,
+        target_date: /\b(target date|estimated length of treatment)\b/,
+        completion_date: /\bcompletion date\b/,
+        therapeutic_interventions: /\btherapeutic interventions\b/,
+        review_comments: /\breview\s*\/?\s*comments\b/,
+        safety_planning: /\bsafety planning\b/,
+        next_review_date: /\bnext review(?: date| on or before)?\b/
+      };
+      const pattern = patterns[semantic];
+      if (!pattern) return null;
+      const expectedProblem = Number(item.problemNumber || 0);
+      const candidates = fields.map((el, index) => {
+        const row = el.closest('tr');
+        if (!row) return null;
+        const problemNumber = problemNumberForRow(row);
+        if (expectedProblem && problemNumber !== expectedProblem) return null;
+        if (!expectedProblem && problemNumber && !['safety_planning', 'next_review_date'].includes(semantic)) return null;
+        const cellText = localCellText(el);
+        const rowText = normalize(row.innerText || row.textContent || '');
+        const previousText = precedingRowText(row);
+        let score = 0;
+        if (pattern.test(cellText)) score += 120;
+        if (pattern.test(rowText)) score += 90;
+        if (pattern.test(previousText)) score += 70;
+        if (!score) return null;
+        if (expectedProblem && problemNumber === expectedProblem) score += 40;
+        if (semantic === 'assessment_date' && /\bdate of service plan\b/.test(cellText) && !/\bassessment date\b/.test(cellText)) score -= 200;
+        if (semantic === 'target_date' && /\bcompletion date\b/.test(cellText) && !/\btarget date\b/.test(cellText)) score -= 200;
+        if (semantic === 'completion_date' && /\btarget date\b/.test(cellText) && !/\bcompletion date\b/.test(cellText)) score -= 200;
+        return { el, score, index, problemNumber, cellText, rowText, previousText };
+      }).filter(candidate => candidate && candidate.score > 0);
+      candidates.sort((a, b) => b.score - a.score || a.index - b.index);
+      return candidates[0] || null;
+    };
     const resolveMappedField = (item) => {
       const mappedDataQnFieldId = String(item.dataQnFieldId || '').trim();
       if (mappedDataQnFieldId && fieldsByDataQnFieldId.has(mappedDataQnFieldId)) {
@@ -3328,6 +3548,12 @@ function pageFill(config, merged, dryRun) {
       }
       const byAsamSafetyLabel = findAsamSafetyPlanningControlByLabel(item);
       if (byAsamSafetyLabel) return { el: byAsamSafetyLabel, strategy: 'asam-safety-label-row' };
+      if (config.workflowMode === 'treatment') {
+        const treatmentMatch = findTreatmentPlanControlByLabel(item);
+        return treatmentMatch
+          ? { el: treatmentMatch.el, strategy: `treatment-label-section(score:${treatmentMatch.score})` }
+          : { el: null, strategy: 'treatment-label-not-found' };
+      }
       return { el: fields[item.fillIndex], strategy: 'fill-index' };
     };
     for (const item of (config.fieldMap || [])) {
@@ -3359,6 +3585,20 @@ function pageFill(config, merged, dryRun) {
         source: foundValue.source,
         previousValue: before
       };
+      if (item.preserveNonBlank && String(before || '').trim()) {
+        result.skipped++;
+        const proposed = isBlankLocal(foundValue.value) ? '' : String(foundValue.value);
+        if (proposed && proposed.trim() !== String(before).trim()) {
+          result.warnings.push(`${item.label || item.treatmentField || 'Mapped field'} already contains "${String(before).slice(0, 120)}"; preserved it instead of replacing it with "${proposed.slice(0, 120)}".`);
+        }
+        result.trace.push({
+          ...base,
+          action: 'skip_preserve_existing',
+          proposedValue: proposed,
+          finalValue: before
+        });
+        continue;
+      }
       if (isBlankLocal(foundValue.value)) {
         result.skipped++;
         result.trace.push({ ...base, action: 'skip_blank', valueWritten: '' });
@@ -3461,6 +3701,39 @@ function buildDiagnosticsRuntimeConfig() {
     fieldMap: mode.fieldMap || [],
     defaultAnswers: rows,
     defaultAnswersObject: defaultRowsToObject(rows)
+  };
+}
+function buildTreatmentRuntimeConfig() {
+  const mode = workflowMode('treatment');
+  const fieldMap = [
+    { treatmentField: 'assessment_date', label: 'Assessment Date', paths: ['treatment_plan.assessment_date'] },
+    { treatmentField: 'strengths', label: 'Strengths', paths: ['treatment_plan.strengths'] },
+    { treatmentField: 'risk_factors', label: 'Risk Factors', paths: ['treatment_plan.risk_factors'] }
+  ];
+  for (let problemNumber = 1; problemNumber <= 3; problemNumber++) {
+    const base = `treatment_plan.problems.${problemNumber - 1}`;
+    fieldMap.push(
+      { treatmentField: 'problem_statement', problemNumber, label: `Problem ${problemNumber} Statement`, paths: [`${base}.problem_statement`] },
+      { treatmentField: 'goal', problemNumber, label: `Problem ${problemNumber} Goal`, paths: [`${base}.goal`] },
+      { treatmentField: 'objectives', problemNumber, label: `Problem ${problemNumber} Objectives`, paths: [`${base}.objectives_text`] },
+      { treatmentField: 'target_date', problemNumber, label: `Problem ${problemNumber} Target Date`, paths: [`${base}.target_date`, `${base}.estimated_length_of_treatment`] },
+      { treatmentField: 'completion_date', problemNumber, label: `Problem ${problemNumber} Completion Date`, paths: [`${base}.completion_date`] },
+      { treatmentField: 'therapeutic_interventions', problemNumber, label: `Problem ${problemNumber} Therapeutic Interventions`, paths: [`${base}.therapeutic_interventions_text`] },
+      { treatmentField: 'review_comments', problemNumber, label: `Problem ${problemNumber} Review/Comments`, paths: [`${base}.review_comments`] }
+    );
+  }
+  fieldMap.push(
+    { treatmentField: 'safety_planning', label: 'Safety Planning', paths: ['treatment_plan.safety_planning'] },
+    { treatmentField: 'next_review_date', label: 'Next Review Date', paths: ['treatment_plan.next_review_date'], preserveNonBlank: true }
+  );
+  return {
+    workflowMode: 'treatment',
+    selector: mode.selector || 'textarea, select, input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), [contenteditable="true"]',
+    onlyVisibleControls: mode.onlyVisibleControls ?? false,
+    expectedFieldCount: mode.expectedFieldCount,
+    fieldMap,
+    defaultAnswers: [],
+    defaultAnswersObject: {}
   };
 }
 function validateQuickNotesResponse() {
@@ -4011,6 +4284,345 @@ function assertDiagnosticsResponseComplete(summary) {
     });
   }
 }
+
+function normalizeTreatmentHeading(value) {
+  return String(value || '')
+    .replace(/\u2019/g, "'")
+    .replace(/\s+/g, ' ')
+    .replace(/\s*:\s*$/, '')
+    .trim()
+    .toLowerCase();
+}
+function treatmentHeadingInfo(line) {
+  const normalized = normalizeTreatmentHeading(line);
+  const problem = normalized.match(/^problem\s*#\s*([1-3])$/);
+  if (problem) return { key: 'problem', number: Number(problem[1]) };
+  if (normalized === 'strengths') return { key: 'strengths' };
+  if (normalized === 'risk factors') return { key: 'risk_factors' };
+  if (normalized === 'problem statement') return { key: 'problem_statement' };
+  const goal = normalized.match(/^goal(?:\s*\(([^)]+)\))?$/);
+  if (goal) return { key: 'goal', domain: goal[1] || '' };
+  if (normalized === 'objectives') return { key: 'objectives' };
+  if (normalized === 'target date') return { key: 'target_date' };
+  if (normalized === 'estimated length of treatment') return { key: 'estimated_length_of_treatment' };
+  if (normalized === 'completion date') return { key: 'completion_date' };
+  if (normalized === 'therapeutic interventions') return { key: 'therapeutic_interventions' };
+  if (/^review\s*\/?\s*comments$/.test(normalized)) return { key: 'review_comments' };
+  if (normalized === 'safety planning') return { key: 'safety_planning' };
+  if (normalized === 'next review date' || normalized === 'next review on or before') return { key: 'next_review_date' };
+  return null;
+}
+function cleanTreatmentSectionText(lines) {
+  return (lines || [])
+    .join('\n')
+    .replace(/^\s+|\s+$/g, '')
+    .replace(/\n{3,}/g, '\n\n');
+}
+function parseTreatmentNumberedList(value) {
+  const text = String(value || '').trim();
+  if (!text) return [];
+  const matches = [...text.matchAll(/(?:^|\n)\s*(\d+)\.\s*([\s\S]*?)(?=(?:\n\s*\d+\.\s*)|$)/g)];
+  if (!matches.length) {
+    return text.split(/\n+/).map(item => item.trim()).filter(Boolean);
+  }
+  return matches.map(match => match[2].replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean);
+}
+function numberedTreatmentText(items) {
+  return (items || []).map((item, index) => `${index + 1}. ${String(item || '').trim()}`).join('\n');
+}
+function treatmentSectionsFromLines(lines) {
+  const headings = [];
+  (lines || []).forEach((line, index) => {
+    const info = treatmentHeadingInfo(line);
+    if (info) headings.push({ ...info, index });
+  });
+  const values = {};
+  headings.forEach((heading, index) => {
+    if (heading.key === 'problem') return;
+    const nextIndex = headings[index + 1]?.index ?? lines.length;
+    values[heading.key] = cleanTreatmentSectionText(lines.slice(heading.index + 1, nextIndex));
+    if (heading.domain) values.goal_domain = heading.domain;
+  });
+  return values;
+}
+function normalizeTreatmentProblem(problem = {}, number = 1) {
+  const objectives = Array.isArray(problem.objectives)
+    ? problem.objectives.map(item => String(item || '').trim()).filter(Boolean)
+    : parseTreatmentNumberedList(problem.objectives || problem.objectives_text || '');
+  const interventions = Array.isArray(problem.therapeutic_interventions)
+    ? problem.therapeutic_interventions.map(item => String(item || '').trim()).filter(Boolean)
+    : parseTreatmentNumberedList(problem.therapeutic_interventions || problem.therapeutic_interventions_text || '');
+  const targetDate = String(problem.target_date || problem.estimated_length_of_treatment || '').trim();
+  return {
+    number,
+    problem_statement: String(problem.problem_statement || '').trim(),
+    goal_domain: String(problem.goal_domain || '').trim(),
+    goal: String(problem.goal || '').trim(),
+    objectives,
+    objectives_text: numberedTreatmentText(objectives),
+    target_date: targetDate,
+    estimated_length_of_treatment: String(problem.estimated_length_of_treatment || targetDate).trim(),
+    completion_date: String(problem.completion_date || '').trim(),
+    therapeutic_interventions: interventions,
+    therapeutic_interventions_text: numberedTreatmentText(interventions),
+    review_comments: String(problem.review_comments || '').trim()
+  };
+}
+function normalizeTreatmentPlanObject(value, scenarioId = '') {
+  const root = value?.treatment_plan || value || {};
+  const problems = Array.isArray(root.problems) ? root.problems : [root.problem_1, root.problem_2, root.problem_3].filter(Boolean);
+  return {
+    treatment_plan: {
+      scenario: String(root.scenario || scenarioId || '').trim(),
+      assessment_date: String(root.assessment_date || '').trim(),
+      date_of_service_plan: String(root.date_of_service_plan || '').trim(),
+      strengths: String(root.strengths || '').trim(),
+      risk_factors: String(root.risk_factors || '').trim(),
+      problems: problems.map((problem, index) => normalizeTreatmentProblem(problem, index + 1)),
+      safety_planning: String(root.safety_planning || '').trim(),
+      next_review_date: String(root.next_review_date || '').trim()
+    }
+  };
+}
+function parseTreatmentPlanText(raw, scenarioId = '') {
+  const text = String(raw || '').replace(/\r\n?/g, '\n').trim();
+  if (!text) throw blockingDiagnostic({
+    source: 'Treatment Plan response',
+    stage: 'parse',
+    category: 'missing_response',
+    workflow: 'Treatment Plan',
+    message: 'Paste Rose\'s Treatment Plan output before validating.',
+    nextAction: 'Run the selected Treatment Plan prompt, paste the complete output, and validate again.'
+  });
+  if (/^\s*\{/.test(text)) {
+    return normalizeTreatmentPlanObject(parseJsonWithDiagnostic(text, 'Treatment Plan response'), scenarioId);
+  }
+  const lines = text.split('\n');
+  const problemHeadings = lines
+    .map((line, index) => ({ index, info: treatmentHeadingInfo(line) }))
+    .filter(item => item.info?.key === 'problem');
+  const firstProblemIndex = problemHeadings[0]?.index ?? lines.length;
+  const preamble = treatmentSectionsFromLines(lines.slice(0, firstProblemIndex));
+  const problems = problemHeadings.map((heading, index) => {
+    const start = heading.index + 1;
+    const end = problemHeadings[index + 1]?.index ?? lines.length;
+    const block = lines.slice(start, end);
+    const tailIndex = block.findIndex(line => ['safety_planning', 'next_review_date'].includes(treatmentHeadingInfo(line)?.key));
+    const sections = treatmentSectionsFromLines(tailIndex >= 0 ? block.slice(0, tailIndex) : block);
+    return normalizeTreatmentProblem(sections, heading.info.number);
+  });
+  const safetyIndex = lines.findIndex(line => treatmentHeadingInfo(line)?.key === 'safety_planning');
+  const nextReviewIndex = lines.findIndex(line => treatmentHeadingInfo(line)?.key === 'next_review_date');
+  const tailSections = treatmentSectionsFromLines(lines.slice(Math.max(0, safetyIndex >= 0 ? safetyIndex : nextReviewIndex)));
+  return normalizeTreatmentPlanObject({
+    scenario: scenarioId,
+    strengths: preamble.strengths || '',
+    risk_factors: preamble.risk_factors || '',
+    problems,
+    safety_planning: tailSections.safety_planning || '',
+    next_review_date: tailSections.next_review_date || ''
+  }, scenarioId);
+}
+function treatmentScenarioWarnings(plan, scenarioId) {
+  const warnings = [];
+  const problems = plan?.problems || [];
+  const allText = [
+    plan?.strengths,
+    plan?.risk_factors,
+    ...problems.flatMap(problem => [
+      problem.problem_statement,
+      problem.goal,
+      ...problem.objectives,
+      ...problem.therapeutic_interventions
+    ])
+  ].join(' ').toLowerCase();
+  if (scenarioId === 'sud_outpatient') {
+    problems.forEach(problem => {
+      if (!/^90\s*days?$/i.test(problem.target_date)) warnings.push(`Problem ${problem.number} Target Date should be 90 days for the SUD outpatient prompt.`);
+      if (!problem.completion_date) warnings.push(`Problem ${problem.number} is missing Completion Date.`);
+    });
+    if (/\b(30-day|transition|discharge|continuity of care period|stabilization period)\b/i.test(allText)) warnings.push('The SUD outpatient response contains language Rose marked forbidden.');
+  }
+  if (scenarioId === 'sud_detox_first') {
+    if (!/7\s*[-–]\s*10\s*days/i.test(problems[0]?.target_date || '')) warnings.push('Problem 1 should use a 7-10 day detox timeframe.');
+    problems.slice(1).forEach(problem => {
+      if (!/^90\s*days?$/i.test(problem.target_date)) warnings.push(`Problem ${problem.number} should use a 90-day treatment timeframe.`);
+    });
+  }
+  if (scenarioId === 'higher_level_asam_3_7') {
+    problems.forEach(problem => {
+      if (!/(5\s*[-–]\s*7|7\s*[-–]\s*10|10\s*[-–]\s*14)\s*days/i.test(problem.target_date)) {
+        warnings.push(`Problem ${problem.number} Target Date should be 5-7, 7-10, or 10-14 days for ASAM 3.7.`);
+      }
+    });
+    if (!/medically managed residential stabilization|asam\s*3\.7/i.test(allText)) warnings.push('The higher-level response does not clearly name Medically Managed Residential Stabilization (ASAM 3.7).');
+  }
+  if (scenarioId === 'non_sud_refer_out') {
+    problems.forEach(problem => {
+      if (!/^30\s*days?$/i.test(problem.target_date)) warnings.push(`Problem ${problem.number} Target Date should be 30 days for referral out.`);
+      if (!problem.completion_date) warnings.push(`Problem ${problem.number} is missing Completion Date.`);
+    });
+    if (/\b(relapse prevention|recovery programming|sobriety maintenance|continued sud treatment|cravings|substance recovery goals)\b/i.test(allText)) {
+      warnings.push('The non-SUD referral response contains recovery language Rose marked forbidden unless clearly supported by the assessment.');
+    }
+  }
+  return warnings;
+}
+function validateTreatmentResponse() {
+  const scenarioId = selectedTreatmentPrompt()?.id || '';
+  const normalized = parseTreatmentPlanText($('treatmentResp')?.value || '', scenarioId);
+  const plan = normalized.treatment_plan;
+  const errors = [];
+  const warnings = [];
+  if (!plan.strengths) errors.push('Strengths is missing.');
+  if (!plan.risk_factors) errors.push('Risk Factors is missing.');
+  if (plan.problems.length !== 3) errors.push(`Expected 3 problems, parsed ${plan.problems.length}.`);
+  plan.problems.forEach((problem, index) => {
+    const number = index + 1;
+    if (!problem.problem_statement) errors.push(`Problem ${number} statement is missing.`);
+    if (!problem.goal) errors.push(`Problem ${number} goal is missing.`);
+    if (problem.objectives.length < 2 || problem.objectives.length > 3) warnings.push(`Problem ${number} should have 2-3 numbered objectives; parsed ${problem.objectives.length}.`);
+    if (problem.therapeutic_interventions.length < 2 || problem.therapeutic_interventions.length > 3) warnings.push(`Problem ${number} should have 2-3 numbered interventions; parsed ${problem.therapeutic_interventions.length}.`);
+    if (!problem.target_date) warnings.push(`Problem ${number} Target Date or Estimated Length of Treatment is missing.`);
+    if (!problem.review_comments) warnings.push(`Problem ${number} Review/Comments is blank.`);
+  });
+  if (!plan.safety_planning) errors.push('Safety Planning is missing.');
+  if (!plan.next_review_date) errors.push('Next Review Date is missing.');
+  warnings.push(...treatmentScenarioWarnings(plan, scenarioId));
+  if (errors.length) throw blockingDiagnostic({
+    source: 'Treatment Plan response',
+    stage: 'validation',
+    category: 'incomplete_treatment_plan',
+    workflow: 'Treatment Plan',
+    message: 'The Treatment Plan response is incomplete and was not approved for fill.',
+    details: errors.join('\n'),
+    nextAction: 'Regenerate or repair the missing sections, then validate again before filling.'
+  });
+  return {
+    ok: !warnings.length,
+    scenario: scenarioId,
+    parsedProblems: plan.problems.length,
+    objectiveCounts: plan.problems.map(problem => problem.objectives.length),
+    interventionCounts: plan.problems.map(problem => problem.therapeutic_interventions.length),
+    warnings,
+    normalized
+  };
+}
+async function saveTreatmentResponse() {
+  await chrome.storage.local.set({ [STORAGE_KEYS.treatmentResponse]: $('treatmentResp')?.value || '' });
+}
+async function prepareTreatmentResponseForFill() {
+  const validation = validateTreatmentResponse();
+  const context = await runInActiveTab(pageExtractTreatmentPlanContext, []);
+  if (context?.error) throw new Error(context.error);
+  const normalized = JSON.parse(JSON.stringify(validation.normalized));
+  const plan = normalized.treatment_plan;
+  if (!plan.assessment_date && context.dateOfServicePlan) {
+    plan.assessment_date = context.dateOfServicePlan;
+  }
+  if (!plan.date_of_service_plan && context.dateOfServicePlan) {
+    plan.date_of_service_plan = context.dateOfServicePlan;
+  }
+  return {
+    validation: {
+      ...validation,
+      warnings: [
+        ...(validation.warnings || []),
+        ...(!plan.assessment_date ? ['Assessment Date could not be copied because Date of Service Plan was not found on the active page.'] : []),
+        ...(context.assessmentDate && context.dateOfServicePlan && context.assessmentDate !== context.dateOfServicePlan
+          ? [`Assessment Date (${context.assessmentDate}) differs from Date of Service Plan (${context.dateOfServicePlan}); Rose requires them to match.`]
+          : [])
+      ]
+    },
+    normalized,
+    context
+  };
+}
+function treatmentTraceEntries() {
+  return (traceLog || []).filter(entry => entry?.mode === 'treatment' || entry?.workflowMode === 'treatment').slice(-10);
+}
+async function buildTreatmentSupportBundle() {
+  const bundle = {
+    event: 'treatment_plan_support_bundle',
+    timestamp: new Date().toISOString(),
+    extensionVersion: extensionVersion(),
+    workflowVersion: workflowConfig?.version || '',
+    treatmentPromptVersion: treatmentConfig?.version || '',
+    selectedScenario: selectedTreatmentPrompt()?.id || '',
+    selectedPromptTitle: selectedTreatmentPrompt()?.title || '',
+    activeTab: await activeTabForN8n(),
+    config: {
+      ...workflowModeSummary('treatment'),
+      runtimeFieldMap: buildTreatmentRuntimeConfig().fieldMap
+    },
+    response: null,
+    context: null,
+    scan: null,
+    discovery: null,
+    recentTreatmentTrace: treatmentTraceEntries(),
+    warnings: []
+  };
+  try {
+    const validation = validateTreatmentResponse();
+    bundle.response = {
+      ok: validation.ok,
+      parsedProblems: validation.parsedProblems,
+      objectiveCounts: validation.objectiveCounts,
+      interventionCounts: validation.interventionCounts,
+      warnings: validation.warnings,
+      normalized: validation.normalized
+    };
+  } catch (err) {
+    bundle.response = {
+      ok: false,
+      diagnostic: ensureDiagnostic(err, { workflow: 'Treatment Plan', stage: 'response_validation' }).diagnostic,
+      rawResponse: $('treatmentResp')?.value || ''
+    };
+  }
+  try {
+    bundle.context = await runInActiveTab(pageExtractTreatmentPlanContext, []);
+  } catch (err) {
+    bundle.context = ensureDiagnostic(err, { workflow: 'Treatment Plan', stage: 'page_context' }).diagnostic;
+  }
+  try {
+    bundle.scan = await runInActiveTab(pageScan, [buildTreatmentRuntimeConfig()]);
+  } catch (err) {
+    bundle.scan = ensureDiagnostic(err, { workflow: 'Treatment Plan', stage: 'page_scan' }).diagnostic;
+  }
+  try {
+    bundle.discovery = await runInActiveTab(pageDiscover, [{
+      pathPrefix: 'treatment_plan',
+      includeHiddenControls: true,
+      capturePageSource: true,
+      expandInteractiveSections: true
+    }]);
+  } catch (err) {
+    bundle.discovery = ensureDiagnostic(err, { workflow: 'Treatment Plan', stage: 'page_discovery' }).diagnostic;
+  }
+  bundle.warnings = [
+    ...(bundle.response?.warnings || []),
+    ...(bundle.context?.warnings || []),
+    ...((bundle.scan?.found && bundle.scan?.found < buildTreatmentRuntimeConfig().fieldMap.length)
+      ? [`The active page exposed ${bundle.scan.found} controls, fewer than the ${buildTreatmentRuntimeConfig().fieldMap.length} Treatment Plan fields the extension can populate.`]
+      : [])
+  ];
+  treatmentSupportBundle = bundle;
+  try {
+    const storable = bundle.discovery?.pageSource?.html
+      ? {
+          ...bundle,
+          discovery: {
+            ...bundle.discovery,
+            pageSource: { ...bundle.discovery.pageSource, html: '', htmlOmittedFromStorage: true }
+          }
+        }
+      : bundle;
+    await chrome.storage.local.set({ [STORAGE_KEYS.treatmentSupportBundle]: storable });
+  } catch {
+    await chrome.storage.local.remove([STORAGE_KEYS.treatmentSupportBundle]);
+  }
+  return bundle;
+}
 function annotateDiagnosticsFillResult(result, config) {
   if (!result || typeof result !== 'object') return result;
   const annotations = [];
@@ -4294,12 +4906,14 @@ $('loadRemote').onclick = async () => {
 $('useBundled').onclick = async () => {
   activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
   workflowConfig = normalizeWorkflowConfigUrls(window.DEFAULT_ROSE_WORKFLOW_CONFIG || {});
+  treatmentConfig = window.DEFAULT_ROSE_TREATMENT_CONFIG || { prompts: [] };
   activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG || {};
   defaultRows = getConfigDefaultRows(activeConfig);
   resetDiagnosticsPromptPreviewBase();
   await chrome.storage.local.set({
     [STORAGE_KEYS.config]: activeConfig,
     [STORAGE_KEYS.workflowConfig]: workflowConfig,
+    [STORAGE_KEYS.treatmentConfig]: treatmentConfig,
     [STORAGE_KEYS.quicknotesConfig]: activeQuickNotesConfig,
     [STORAGE_KEYS.defaultRows]: defaultRows
   });
@@ -4747,25 +5361,139 @@ $('fillDiagnosticsPage').onclick = async () => {
     setStatus(diagnosticError?.diagnostic?.category === 'invalid_json' ? 'Diagnostics JSON invalid' : 'Diagnostics fill failed');
   }
 };
-$('copyModeSourcePrompt').onclick = async () => {
-  const source = modeSourcePrompt(activeMode);
-  if (!source) {
-    setStatus('No source prompt for this mode');
+$('copyTreatmentPrompt').onclick = async () => {
+  const prompt = selectedTreatmentPrompt();
+  if (!prompt?.body) {
+    setStatus('No Treatment Plan prompt loaded');
     return;
   }
-  const body = activeMode === 'diagnostics' ? applyDiagnosticsPromptNote(source.body || '') : (source.body || '');
-  await navigator.clipboard.writeText(body);
-  setStatus(`Copied ${source.title}`);
+  await navigator.clipboard.writeText(prompt.body);
+  setStatus(`Copied Treatment Plan prompt ${prompt.number}`);
 };
-$('copyModeSourceNotes').onclick = async () => {
-  const source = modeSourcePrompt(activeMode);
-  if (!source) {
-    setStatus('No source notes for this mode');
+$('copyTreatmentPromptNotes').onclick = async () => {
+  const prompt = selectedTreatmentPrompt();
+  if (!prompt?.body) {
+    setStatus('No Treatment Plan prompt loaded');
     return;
   }
-  const body = activeMode === 'diagnostics' ? applyDiagnosticsPromptNote(source.body || '') : (source.body || '');
-  await navigator.clipboard.writeText(`${source.title}\n${source.source}\n\n${body}`);
-  setStatus(`Copied ${source.title} notes`);
+  const source = treatmentConfig?.source || {};
+  await navigator.clipboard.writeText([
+    prompt.title,
+    `${source.subject || 'Treatment Plan Prompts (4)'} | ${source.sender || ''} | ${source.receivedAt || ''}`,
+    '',
+    prompt.body
+  ].join('\n'));
+  setStatus(`Copied Treatment Plan prompt ${prompt.number} with notes`);
+};
+$('validateTreatmentResponse').onclick = async () => {
+  try {
+    const summary = validateTreatmentResponse();
+    await saveTreatmentResponse();
+    logTo('treatmentValidation', {
+      ok: summary.ok,
+      scenario: summary.scenario,
+      parsedProblems: summary.parsedProblems,
+      objectiveCounts: summary.objectiveCounts,
+      interventionCounts: summary.interventionCounts,
+      warnings: summary.warnings,
+      normalized: summary.normalized
+    });
+    setStatus(summary.warnings.length ? 'Treatment Plan parsed with warnings' : 'Treatment Plan response validated');
+  } catch (err) {
+    logErrorTo('treatmentValidation', ensureDiagnostic(err, {
+      workflow: 'Treatment Plan',
+      stage: 'response_validation',
+      nextAction: 'Paste the complete output from the selected Rose prompt, then validate again.'
+    }));
+    setStatus('Treatment Plan validation failed');
+  }
+};
+$('copyTreatmentJson').onclick = async () => {
+  try {
+    const summary = validateTreatmentResponse();
+    await saveTreatmentResponse();
+    await navigator.clipboard.writeText(JSON.stringify(summary.normalized, null, 2));
+    setStatus('Copied parsed Treatment Plan JSON');
+  } catch (err) {
+    logErrorTo('treatmentValidation', ensureDiagnostic(err, { workflow: 'Treatment Plan', stage: 'response_copy' }));
+    setStatus('Treatment Plan JSON copy failed');
+  }
+};
+$('clearTreatmentResponse').onclick = async () => {
+  $('treatmentResp').value = '';
+  await chrome.storage.local.remove([STORAGE_KEYS.treatmentResponse]);
+  logTo('treatmentValidation', 'Treatment Plan response cleared.');
+  setStatus('Cleared Treatment Plan response');
+};
+$('scanTreatmentPage').onclick = async () => {
+  try {
+    const context = await runInActiveTab(pageExtractTreatmentPlanContext, []);
+    const scan = await runInActiveTab(pageScan, [buildTreatmentRuntimeConfig()]);
+    const result = { context, scan };
+    logTo('treatmentFillResults', result);
+    await appendTrace({ ...result, mode: 'treatment' });
+    setStatus(context?.warnings?.length ? 'Treatment Plan scan has warnings' : 'Treatment Plan scan complete');
+  } catch (err) {
+    logErrorTo('treatmentFillResults', ensureDiagnostic(err, {
+      workflow: 'Treatment Plan',
+      stage: 'scan',
+      nextAction: 'Open the Treatment Plan page, then capture the support bundle.'
+    }));
+    setStatus('Treatment Plan scan failed');
+  }
+};
+$('fillTreatmentPage').onclick = async () => {
+  try {
+    setStatus('Treatment Plan fill starting...');
+    const prepared = await prepareTreatmentResponseForFill();
+    await saveTreatmentResponse();
+    const config = buildTreatmentRuntimeConfig();
+    const result = await runInActiveTab(pageFill, [config, prepared.normalized, $('treatmentDryRun').checked]);
+    const combined = {
+      ...result,
+      mode: 'treatment',
+      scenario: selectedTreatmentPrompt()?.id || '',
+      context: prepared.context,
+      validationWarnings: prepared.validation.warnings
+    };
+    logTo('treatmentFillResults', combined);
+    await appendTrace(combined);
+    if (result?.missing?.length) {
+      setStatus($('treatmentDryRun').checked ? 'Treatment Plan dry run needs field mapping' : 'Treatment Plan filled with missing fields');
+    } else {
+      setStatus($('treatmentDryRun').checked ? 'Treatment Plan dry run complete' : 'Treatment Plan fill complete');
+    }
+    if (!$('treatmentDryRun').checked) queueN8nSuccessLog('treatment', combined);
+  } catch (err) {
+    logErrorTo('treatmentFillResults', ensureDiagnostic(err, {
+      workflow: 'Treatment Plan',
+      stage: 'fill',
+      nextAction: 'Keep Dry run enabled, capture the Treatment Plan support bundle, and review every missing label before retrying.'
+    }));
+    setStatus('Treatment Plan fill failed');
+  }
+};
+$('captureTreatmentSupport').onclick = async () => {
+  try {
+    setStatus('Capturing Treatment Plan support bundle...');
+    const bundle = await buildTreatmentSupportBundle();
+    logTo('treatmentTroubleshooting', bundle);
+    setStatus(bundle.warnings?.length ? 'Treatment Plan support captured with warnings' : 'Treatment Plan support captured');
+  } catch (err) {
+    logErrorTo('treatmentTroubleshooting', ensureDiagnostic(err, { workflow: 'Treatment Plan', stage: 'support_capture' }));
+    setStatus('Treatment Plan support capture failed');
+  }
+};
+$('copyTreatmentSupport').onclick = async () => {
+  try {
+    const bundle = await buildTreatmentSupportBundle();
+    logTo('treatmentTroubleshooting', bundle);
+    await navigator.clipboard.writeText(JSON.stringify(bundle, null, 2));
+    setStatus('Copied Treatment Plan support bundle');
+  } catch (err) {
+    logErrorTo('treatmentTroubleshooting', ensureDiagnostic(err, { workflow: 'Treatment Plan', stage: 'support_copy' }));
+    setStatus('Treatment Plan support copy failed');
+  }
 };
 $('copyTraceLog').onclick = async () => {
   await navigator.clipboard.writeText(JSON.stringify(traceLog || [], null, 2));
@@ -4853,6 +5581,13 @@ $('quicknotesResp')?.addEventListener('input', saveQuickNotesResponse);
 $('mseResp')?.addEventListener('input', saveMseResponse);
 $('asamResp')?.addEventListener('input', saveAsamResponse);
 $('diagnosticsResp')?.addEventListener('input', saveDiagnosticsResponse);
+$('treatmentResp')?.addEventListener('input', saveTreatmentResponse);
+$('treatmentScenario')?.addEventListener('change', async () => {
+  activeTreatmentScenario = $('treatmentScenario').value;
+  await chrome.storage.local.set({ [STORAGE_KEYS.treatmentScenario]: activeTreatmentScenario });
+  renderTreatmentPrompt();
+  logTo('treatmentValidation', 'Scenario changed. Validate the Treatment Plan response against the selected prompt.');
+});
 $('diagnosticsPromptNote')?.addEventListener('input', async () => {
   await saveDiagnosticsPromptNote();
   renderDiagnosticsPrompt();

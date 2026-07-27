@@ -1,6 +1,6 @@
 {
   "project": "Rose ReliaTrax Workflow Modes",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "updated": "2026-06-09",
   "modes": {
     "bps": {
@@ -2715,14 +2715,17 @@
     },
     "treatment": {
       "title": "Treatment Plan",
-      "description": "Rose emailed Treatment Plan rules on 2026-05-23. Field mapping is still pending.",
-      "mappingStatus": "pending",
+      "description": "Active Treatment Plan workflow with Rose's four 2026-07-26 prompts, formatted-response parsing, scenario validation, label-aware dry-run/fill, and deep support capture pending stable live field IDs.",
+      "mappingStatus": "adaptive",
       "fieldMap": [],
       "sourcePrompt": {
-        "title": "Treatment Plan source prompt",
-        "source": "Redacted source prompt, 2026-05-23 12:46 PM Central",
-        "body": "Create a Treatment Plan based on the transcript provided. This treatment plan form is separate from the BPS and Diagnostic/Clinical Impressions form.\n\nUse exact copy/paste-ready EHR formatting. Every section header appears alone on its own line, followed by exactly one blank line before content. Use professional clinical language, third person, the client first name, and no em dashes. Do not use bullets except for the required numbered Objective and Therapeutic Intervention lists.\n\nAssessment Date must exactly copy Date of Service Plan.\n\nStrengths must be one individualized 4-6 sentence clinical paragraph. Risk Factors must be one individualized 5-8 sentence paragraph supporting medical necessity when applicable.\n\nEach problem must contain exactly 1 Goal, 3 Objectives, and 3 Therapeutic Interventions. Objectives and Therapeutic Interventions must be numbered 1. 2. 3., each as one complete sentence. Therapeutic Interventions should usually begin with Clinician will.\n\nReview/Comments should be left blank unless specifically instructed."
-      }
+        "title": "Treatment Plan prompts (4)",
+        "source": "Rosalee Harris email received 2026-07-26 8:24 PM Mountain; exact prompt bodies bundled in treatment-config.js and github-data/rose-treatment-plan-config.json",
+        "body": "Select one of Rose's four Treatment Plan scenarios in the extension: SUD outpatient/IOP, detox before outpatient/IOP, higher level ASAM 3.7, or non-SUD referral out within 30 days."
+      },
+      "promptConfigUrl": "rose-treatment-plan-config.json",
+      "selector": "textarea, select, input:not([type=\"hidden\"]):not([type=\"submit\"]):not([type=\"button\"]):not([type=\"reset\"]):not([type=\"image\"]), [contenteditable=\"true\"]",
+      "onlyVisibleControls": false
     },
     "quicknotes": {
       "title": "QuickNotes / Group Notes",
@@ -2736,6 +2739,7 @@
     }
   },
   "releaseNotes": [
+    "v0.1.12 activates Treatment Plan with Rose's four 2026-07-26 prompts, formatted-response parsing and validation, label-aware dry-run/fill, Date of Service Plan capture, and full troubleshooting support bundles.",
     "v0.1.11 removes generated tobacco missing-frequency wording and balances ASAM severity calibration so ratings follow current functional evidence without inflating severity.",
     "v0.1.10 maps Diagnostics Part 4, adds dynamic Part 3 Case Management / ASAM prompt context from live ReliaTrax textboxes, and enables Part 4 response validation plus fill.",
     "v0.1.9 recalibrates Part 3 ASAM severity guidance from the attached ASAM crosswalk, level-of-care checklist, and severity matrix so ratings err on the side of clinically supported caution, especially for current/recent homelessness and recovery-environment risk.",

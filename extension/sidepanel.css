@@ -37,7 +37,7 @@ h2 { margin: 0 0 10px; font-size: 16px; }
   white-space: nowrap;
 }
 label { font-size: 12px; font-weight: 700; display: block; margin: 8px 0 4px; }
-input, textarea {
+input, textarea, select {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #d1d5db;
