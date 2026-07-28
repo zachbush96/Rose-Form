@@ -524,6 +524,16 @@ function selectedTreatmentPrompt() {
   const selectedId = $('treatmentScenario')?.value || activeTreatmentScenario || '';
   return prompts.find(prompt => prompt.id === selectedId) || prompts[0] || null;
 }
+function treatmentPromptOutputInstructions(prompt) {
+  return String(treatmentConfig?.outputFormat?.instructions || '')
+    .replace(/\{\{SCENARIO_ID\}\}/g, String(prompt?.id || ''))
+    .trim();
+}
+function effectiveTreatmentPrompt(prompt) {
+  const clinicalPrompt = String(prompt?.body || '').trim();
+  const outputInstructions = treatmentPromptOutputInstructions(prompt);
+  return [clinicalPrompt, outputInstructions].filter(Boolean).join('\n\n---\n\n');
+}
 function renderTreatmentPrompt() {
   const select = $('treatmentScenario');
   const preview = $('treatmentPromptPreview');
@@ -549,7 +559,7 @@ function renderTreatmentPrompt() {
     return;
   }
   $('treatmentPromptMeta').textContent = `${treatmentConfig?.source?.subject || 'Treatment Plan Prompts (4)'} | received ${treatmentConfig?.source?.receivedAt || ''}`;
-  preview.textContent = selected.body || '';
+  preview.textContent = effectiveTreatmentPrompt(selected);
 }
 function renderMsePrompt() {
   const source = workflowMode('mse').sourcePrompt;
@@ -5400,16 +5410,18 @@ $('fillDiagnosticsPage').onclick = async () => {
 };
 $('copyTreatmentPrompt').onclick = async () => {
   const prompt = selectedTreatmentPrompt();
-  if (!prompt?.body) {
+  const effectivePrompt = effectiveTreatmentPrompt(prompt);
+  if (!effectivePrompt) {
     setStatus('No Treatment Plan prompt loaded');
     return;
   }
-  await navigator.clipboard.writeText(prompt.body);
+  await navigator.clipboard.writeText(effectivePrompt);
   setStatus(`Copied Treatment Plan prompt ${prompt.number}`);
 };
 $('copyTreatmentPromptNotes').onclick = async () => {
   const prompt = selectedTreatmentPrompt();
-  if (!prompt?.body) {
+  const effectivePrompt = effectiveTreatmentPrompt(prompt);
+  if (!effectivePrompt) {
     setStatus('No Treatment Plan prompt loaded');
     return;
   }
@@ -5418,7 +5430,7 @@ $('copyTreatmentPromptNotes').onclick = async () => {
     prompt.title,
     `${source.subject || 'Treatment Plan Prompts (4)'} | ${source.sender || ''} | ${source.receivedAt || ''}`,
     '',
-    prompt.body
+    effectivePrompt
   ].join('\n'));
   setStatus(`Copied Treatment Plan prompt ${prompt.number} with notes`);
 };

@@ -277,8 +277,8 @@
 
   <section class="card mode-panel mode-treatment hidden">
     <h2>Treatment Plan response</h2>
-    <p class="small">Paste Rose's copy-ready Treatment Plan output. The extension parses the headers, numbered objectives, interventions, dates, safety planning, and all three problems before filling.</p>
-    <textarea id="treatmentResp" placeholder="Paste the Treatment Plan output here"></textarea>
+    <p class="small">Paste BastionGPT's structured Treatment Plan JSON. The extension validates the same field structure used by the other sections before filling. Legacy formatted-text responses remain supported as a fallback.</p>
+    <textarea id="treatmentResp" placeholder="Paste the Treatment Plan JSON here"></textarea>
     <div class="row wrap">
       <button id="validateTreatmentResponse">Validate and parse</button>
       <button id="copyTreatmentJson">Copy parsed JSON</button>

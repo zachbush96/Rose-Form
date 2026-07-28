@@ -100,19 +100,37 @@ test('bundled and GitHub treatment prompt configs are exact mirrors', () => {
   ]);
 });
 
-test('parser and safeguards accept the SUD outpatient scenario', () => {
+test('effective prompts preserve Rose clinical content and append the JSON-only contract', () => {
+  const remoteConfig = JSON.parse(fs.readFileSync(path.join(repositoryDir, 'github-data', 'rose-treatment-plan-config.json'), 'utf8'));
+  const helperStart = sidepanelSource.indexOf('function treatmentPromptOutputInstructions');
+  const helperEnd = sidepanelSource.indexOf('function renderTreatmentPrompt');
+  const helperContext = { treatmentConfig: remoteConfig };
+  vm.createContext(helperContext);
+  vm.runInContext(sidepanelSource.slice(helperStart, helperEnd), helperContext);
+
+  remoteConfig.prompts.forEach(prompt => {
+    const effective = helperContext.effectiveTreatmentPrompt(prompt);
+    assert.ok(effective.startsWith(prompt.body));
+    assert.match(effective, /Return one valid JSON object only/);
+    assert.match(effective, new RegExp(`"scenario": "${prompt.id}"`));
+    assert.doesNotMatch(effective, /\{\{SCENARIO_ID\}\}/);
+  });
+});
+
+test('JSON parser and safeguards accept the SUD outpatient scenario', () => {
   const text = planText([
     problem(1, 'Recovery', '90 days', { completion: 'October 2026' }),
     problem(2, 'Life Skills', '90 days', { completion: 'October 2026' }),
     problem(3, 'Emotional Regulation', '90 days', { completion: 'October 2026' })
   ], '90 days from treatment plan initiation.');
-  const parsed = context.parseTreatmentPlanText(text, 'sud_outpatient').treatment_plan;
+  const legacyParsed = context.parseTreatmentPlanText(text, 'sud_outpatient');
+  const parsed = context.parseTreatmentPlanText(JSON.stringify(legacyParsed), 'sud_outpatient').treatment_plan;
 
   assert.equal(parsed.problems.length, 3);
   assert.equal(context.treatmentScenarioWarnings(parsed, 'sud_outpatient').length, 0);
 });
 
-test('parser treats Estimated Length of Treatment as the detox timeframe', () => {
+test('JSON parser treats Estimated Length of Treatment as the detox timeframe', () => {
   const text = planText([
     problem(1, 'Detox', '7–10 days', {
       estimated: true,
@@ -121,31 +139,34 @@ test('parser treats Estimated Length of Treatment as the detox timeframe', () =>
     problem(2, 'Recovery', '90 days', { estimated: true }),
     problem(3, 'Life Skills', '90 days', { estimated: true })
   ], '180 days from treatment plan initiation.');
-  const parsed = context.parseTreatmentPlanText(text, 'sud_detox_first').treatment_plan;
+  const legacyParsed = context.parseTreatmentPlanText(text, 'sud_detox_first');
+  const parsed = context.parseTreatmentPlanText(JSON.stringify(legacyParsed), 'sud_detox_first').treatment_plan;
 
   assert.equal(parsed.problems[0].target_date, '7–10 days');
   assert.equal(context.treatmentScenarioWarnings(parsed, 'sud_detox_first').length, 0);
 });
 
-test('parser and safeguards accept the ASAM 3.7 scenario', () => {
+test('JSON parser and safeguards accept the ASAM 3.7 scenario', () => {
   const asamStatement = 'Jordan requires Medically Managed Residential Stabilization (ASAM 3.7) based on the clinical presentation.';
   const text = planText([
     problem(1, 'Stabilization', '5–7 days', { statement: asamStatement }),
     problem(2, 'Withdrawal Management', '7–10 days', { statement: asamStatement }),
     problem(3, 'Psychiatric Stabilization', '10–14 days', { statement: asamStatement })
   ], 'To occur following stabilization or transition to appropriate ongoing level of care.');
-  const parsed = context.parseTreatmentPlanText(text, 'higher_level_asam_3_7').treatment_plan;
+  const legacyParsed = context.parseTreatmentPlanText(text, 'higher_level_asam_3_7');
+  const parsed = context.parseTreatmentPlanText(JSON.stringify(legacyParsed), 'higher_level_asam_3_7').treatment_plan;
 
   assert.equal(context.treatmentScenarioWarnings(parsed, 'higher_level_asam_3_7').length, 0);
 });
 
-test('parser and safeguards accept the non-SUD referral scenario', () => {
+test('JSON parser and safeguards accept the non-SUD referral scenario', () => {
   const text = planText([
     problem(1, '', '30 days', { completion: 'August 2026' }),
     problem(2, '', '30 days', { completion: 'August 2026' }),
     problem(3, '', '30 days', { completion: 'August 2026' })
   ], '30 days from treatment plan initiation.');
-  const parsed = context.parseTreatmentPlanText(text, 'non_sud_refer_out').treatment_plan;
+  const legacyParsed = context.parseTreatmentPlanText(text, 'non_sud_refer_out');
+  const parsed = context.parseTreatmentPlanText(JSON.stringify(legacyParsed), 'non_sud_refer_out').treatment_plan;
 
   assert.equal(context.treatmentScenarioWarnings(parsed, 'non_sud_refer_out').length, 0);
 });
