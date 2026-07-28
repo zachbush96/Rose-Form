@@ -294,7 +294,7 @@
       <button id="fillTreatmentPage" class="primary">Fill active page</button>
     </div>
     <label class="check"><input type="checkbox" id="treatmentDryRun" checked> Dry run, do not write</label>
-    <p class="small">Treatment Plan uses label- and section-aware matching until tomorrow's live capture supplies stable field IDs. Review the dry-run trace before turning this off.</p>
+    <p class="small">Treatment Plan uses label- and section-aware matching until an authenticated live capture supplies stable field IDs. Review the dry-run trace before turning this off.</p>
     <pre id="treatmentFillResults">No Treatment Plan scan or fill yet.</pre>
   </section>
 
@@ -304,7 +304,7 @@
       <button id="captureTreatmentSupport">Capture page and preflight</button>
       <button id="copyTreatmentSupport">Copy support bundle</button>
     </div>
-    <p class="small">Captures the active URL/title, all visible and hidden controls, field labels and DOM hints, page HTML metadata, parsed-response coverage, runtime config, and recent Treatment Plan traces. Raw page HTML is included in the copied/sent bundle for mapping tomorrow.</p>
+    <p class="small">Captures the active URL/title, all visible and hidden controls, field labels and DOM hints, page HTML metadata, parsed-response coverage, runtime config, and recent Treatment Plan traces. Raw page HTML is included in the copied bundle for stable field mapping.</p>
     <pre id="treatmentTroubleshooting">No Treatment Plan support bundle yet.</pre>
   </section>
 

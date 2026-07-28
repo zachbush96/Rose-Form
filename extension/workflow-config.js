@@ -1,7 +1,7 @@
 window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
   "project": "Rose ReliaTrax Workflow Modes",
-  "version": "0.1.12",
-  "updated": "2026-06-09",
+  "version": "0.1.13",
+  "updated": "2026-07-28",
   "modes": {
     "bps": {
       "title": "BPS Part 1",
@@ -2739,6 +2739,7 @@ window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
     }
   },
   "releaseNotes": [
+    "v0.1.13 verifies Rose's four Treatment Plan prompts against the 2026-07-26 source email and adds scenario-specific goal, timeframe, Next Review, detox, ASAM 3.7, and forbidden-language safeguards.",
     "v0.1.12 activates Treatment Plan with Rose's four 2026-07-26 prompts, formatted-response parsing and validation, label-aware dry-run/fill, Date of Service Plan capture, and full troubleshooting support bundles.",
     "v0.1.11 removes generated tobacco missing-frequency wording and balances ASAM severity calibration so ratings follow current functional evidence without inflating severity.",
     "v0.1.10 maps Diagnostics Part 4, adds dynamic Part 3 Case Management / ASAM prompt context from live ReliaTrax textboxes, and enables Part 4 response validation plus fill.",

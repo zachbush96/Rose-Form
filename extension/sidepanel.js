@@ -4426,6 +4426,24 @@ function parseTreatmentPlanText(raw, scenarioId = '') {
 function treatmentScenarioWarnings(plan, scenarioId) {
   const warnings = [];
   const problems = plan?.problems || [];
+  const normalizeGoalDomain = (value) => String(value || '')
+    .replace(/[^a-z0-9]+/gi, ' ')
+    .trim()
+    .toLowerCase();
+  const warnGoalDomains = (expectedDomains) => {
+    problems.forEach((problem, index) => {
+      const expected = expectedDomains[index];
+      const actual = normalizeGoalDomain(problem.goal_domain);
+      if (expected && actual !== normalizeGoalDomain(expected)) {
+        warnings.push(`Problem ${problem.number} should use Goal (${expected}); parsed ${problem.goal_domain ? `Goal (${problem.goal_domain})` : 'an unlabeled Goal'}.`);
+      }
+    });
+  };
+  const warnNextReview = (pattern, requirement) => {
+    if (!pattern.test(String(plan?.next_review_date || ''))) {
+      warnings.push(`Next Review Date should ${requirement}.`);
+    }
+  };
   const allText = [
     plan?.strengths,
     plan?.risk_factors,
@@ -4436,34 +4454,53 @@ function treatmentScenarioWarnings(plan, scenarioId) {
       ...problem.therapeutic_interventions
     ])
   ].join(' ').toLowerCase();
+  const objectiveText = problems.flatMap(problem => problem.objectives || []).join(' ').toLowerCase();
+  const sudForbiddenLanguage = /\b(30-day|transition|discharge|continuity of care period|stabilization period)\b/i;
   if (scenarioId === 'sud_outpatient') {
+    warnGoalDomains(['Recovery', 'Life Skills', 'Emotional Regulation']);
     problems.forEach(problem => {
       if (!/^90\s*days?$/i.test(problem.target_date)) warnings.push(`Problem ${problem.number} Target Date should be 90 days for the SUD outpatient prompt.`);
       if (!problem.completion_date) warnings.push(`Problem ${problem.number} is missing Completion Date.`);
     });
-    if (/\b(30-day|transition|discharge|continuity of care period|stabilization period)\b/i.test(allText)) warnings.push('The SUD outpatient response contains language Rose marked forbidden.');
+    warnNextReview(/\b90\s*days?\b/i, 'be 90 days from treatment plan initiation for the SUD outpatient prompt');
+    if (sudForbiddenLanguage.test(allText)) warnings.push('The SUD outpatient response contains language Rose marked forbidden.');
+    if (/\b(at least(?: one| two)?|minimum of|80% of sessions|three coping skills|once weekly|twice weekly|per week|per month)\b/i.test(objectiveText)) {
+      warnings.push('The SUD outpatient objectives contain quota or attendance language Rose marked forbidden.');
+    }
   }
   if (scenarioId === 'sud_detox_first') {
+    warnGoalDomains(['Detox', 'Recovery', 'Life Skills']);
     if (!/7\s*[-–]\s*10\s*days/i.test(problems[0]?.target_date || '')) warnings.push('Problem 1 should use a 7-10 day detox timeframe.');
     problems.slice(1).forEach(problem => {
       if (!/^90\s*days?$/i.test(problem.target_date)) warnings.push(`Problem ${problem.number} should use a 90-day treatment timeframe.`);
     });
+    warnNextReview(/\b180\s*days?\b/i, 'be 180 days from treatment plan initiation for the detox-first prompt');
+    if (sudForbiddenLanguage.test(allText)) warnings.push('The detox-first response contains language Rose marked forbidden.');
+    if (!/medically supervised detoxification|withdrawal risk/i.test(problems[0]?.problem_statement || '')) {
+      warnings.push('Problem 1 should explicitly support medically supervised detoxification due to withdrawal risk.');
+    }
   }
   if (scenarioId === 'higher_level_asam_3_7') {
+    warnGoalDomains(['Stabilization', 'Withdrawal Management', 'Psychiatric Stabilization']);
     problems.forEach(problem => {
       if (!/(5\s*[-–]\s*7|7\s*[-–]\s*10|10\s*[-–]\s*14)\s*days/i.test(problem.target_date)) {
         warnings.push(`Problem ${problem.number} Target Date should be 5-7, 7-10, or 10-14 days for ASAM 3.7.`);
       }
     });
     if (!/medically managed residential stabilization|asam\s*3\.7/i.test(allText)) warnings.push('The higher-level response does not clearly name Medically Managed Residential Stabilization (ASAM 3.7).');
+    warnNextReview(/\bfollowing stabilization\b|\btransition to appropriate ongoing level of care\b/i, 'occur following stabilization or transition to the appropriate ongoing level of care');
   }
   if (scenarioId === 'non_sud_refer_out') {
     problems.forEach(problem => {
       if (!/^30\s*days?$/i.test(problem.target_date)) warnings.push(`Problem ${problem.number} Target Date should be 30 days for referral out.`);
       if (!problem.completion_date) warnings.push(`Problem ${problem.number} is missing Completion Date.`);
     });
+    warnNextReview(/\b30\s*days?\b/i, 'be 30 days from treatment plan initiation for the non-SUD referral prompt');
     if (/\b(relapse prevention|recovery programming|sobriety maintenance|continued sud treatment|cravings|substance recovery goals)\b/i.test(allText)) {
       warnings.push('The non-SUD referral response contains recovery language Rose marked forbidden unless clearly supported by the assessment.');
+    }
+    if (/\b(at least|minimum of|one per week|twice weekly|weekly|monthly|per week|per month|identify two resources|identify three coping skills|document progress|document triggers|complete a self-assessment|complete an evaluation|80% of sessions)\b/i.test(objectiveText)) {
+      warnings.push('The non-SUD referral objectives contain quota, attendance, or homework language Rose marked forbidden.');
     }
   }
   return warnings;
