@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const extensionDir = path.resolve(__dirname, '..');
 const repositoryDir = path.resolve(extensionDir, '..');
 const sidepanelSource = fs.readFileSync(path.join(extensionDir, 'sidepanel.js'), 'utf8');
+const sidepanelHtml = fs.readFileSync(path.join(extensionDir, 'sidepanel.html'), 'utf8');
 const treatmentStart = sidepanelSource.indexOf('function normalizeTreatmentHeading');
 const treatmentEnd = sidepanelSource.indexOf('function validateTreatmentResponse');
 
@@ -114,7 +115,112 @@ test('effective prompts preserve Rose clinical content and append the JSON-only 
     assert.match(effective, /Return one valid JSON object only/);
     assert.match(effective, new RegExp(`"scenario": "${prompt.id}"`));
     assert.doesNotMatch(effective, /\{\{SCENARIO_ID\}\}/);
+    assert.match(effective, /Do not include numeric prefixes or bullet characters/);
+    assert.match(effective, /CURRENT DATE FOR COMPLETION DATE CALCULATIONS/);
+    assert.match(effective, /For a range, use the upper number/);
   });
+});
+
+test('Treatment Plan fills the webpage by default', () => {
+  const checkbox = sidepanelHtml.match(/<input[^>]+id="treatmentDryRun"[^>]*>/)?.[0] || '';
+  assert.ok(checkbox);
+  assert.doesNotMatch(checkbox, /\bchecked\b/);
+});
+
+test('shared filler preserves client wording from generated responses', () => {
+  const fillStart = sidepanelSource.indexOf('function pageFill');
+  const fillEnd = sidepanelSource.indexOf('function buildMseRuntimeConfig');
+  assert.notEqual(fillStart, -1, 'Shared page filler start was not found');
+  assert.notEqual(fillEnd, -1, 'Shared page filler end was not found');
+
+  const fillSource = sidepanelSource.slice(fillStart, fillEnd);
+  assert.doesNotMatch(fillSource, /applyClientNameToNarrative/);
+  assert.doesNotMatch(fillSource, /client name\|client first name\|first name/);
+  assert.doesNotMatch(fillSource, /\\bClient/);
+  assert.doesNotMatch(fillSource, /\\b\[Tt\]he client/);
+});
+
+test('normalization writes objectives and interventions as plain newline-separated text', () => {
+  const normalized = context.normalizeTreatmentPlanObject({
+    scenario: 'sud_outpatient',
+    problems: [{
+      objectives: ['1. First objective.', '• Second objective.'],
+      therapeutic_interventions: ['- First intervention.', '2) Second intervention.'],
+      review_comments: 'To be completed at treatment plan review.'
+    }]
+  }, 'sud_outpatient').treatment_plan;
+
+  assert.equal(normalized.problems[0].objectives_text, 'First objective.\nSecond objective.');
+  assert.equal(normalized.problems[0].therapeutic_interventions_text, 'First intervention.\nSecond intervention.');
+  assert.equal(normalized.problems[0].review_comments, '');
+});
+
+test('Review/Comments is retained only for higher-level-of-care plans', () => {
+  const higherLevel = context.normalizeTreatmentPlanObject({
+    scenario: 'higher_level_asam_3_7',
+    problems: [{ review_comments: 'Referral to ASAM 3.7 is clinically indicated.' }]
+  }, 'higher_level_asam_3_7').treatment_plan;
+  const outpatient = context.normalizeTreatmentPlanObject({
+    scenario: 'higher_level_asam_3_7',
+    problems: [{ review_comments: 'Legacy default text.' }]
+  }, 'sud_outpatient').treatment_plan;
+
+  assert.equal(higherLevel.problems[0].review_comments, 'Referral to ASAM 3.7 is clinically indicated.');
+  assert.equal(outpatient.scenario, 'sud_outpatient');
+  assert.equal(outpatient.problems[0].review_comments, '');
+});
+
+test('Completion Date is calculated from the target duration and base date', () => {
+  assert.equal(context.treatmentCompletionMonthYear('5–7 days', '07/28/2026'), 'August 2026');
+  assert.equal(context.treatmentCompletionMonthYear('7 to 10 days', '2026-07-28'), 'August 2026');
+  assert.equal(context.treatmentCompletionMonthYear('10-14 days', 'July 28, 2026'), 'August 2026');
+  assert.equal(context.treatmentCompletionMonthYear('90 days', '07/28/2026'), 'October 2026');
+  assert.equal(context.treatmentCompletionMonthYear('30 days', '12/15/2026'), 'January 2027');
+  assert.equal(context.treatmentCompletionMonthYear('TBD', '07/28/2026'), '');
+});
+
+test('normalization replaces BastionGPT Completion Date with the deterministic result', () => {
+  const plan = context.normalizeTreatmentPlanObject({
+    assessment_date: '07/28/2026',
+    problems: [
+      { target_date: '5-7 days', completion_date: 'July 2026' },
+      { target_date: '90 days', completion_date: '' },
+      { target_date: 'TBD', completion_date: 'TBD' }
+    ]
+  }, 'higher_level_asam_3_7').treatment_plan;
+
+  assert.equal(plan.problems[0].completion_date, 'August 2026');
+  assert.equal(plan.problems[1].completion_date, 'October 2026');
+  assert.equal(plan.problems[2].completion_date, 'TBD');
+});
+
+test('live Treatment Plan map uses captured Service Plan field IDs and excludes read-only controls', () => {
+  const helperStart = sidepanelSource.indexOf('function buildTreatmentRuntimeConfig');
+  const helperEnd = sidepanelSource.indexOf('function validateQuickNotesResponse');
+  const helperContext = {
+    workflowMode() {
+      return {
+        selector: 'textarea, select, input',
+        onlyVisibleControls: false
+      };
+    }
+  };
+  vm.createContext(helperContext);
+  vm.runInContext(sidepanelSource.slice(helperStart, helperEnd), helperContext);
+
+  const runtime = helperContext.buildTreatmentRuntimeConfig();
+  assert.equal(runtime.expectedFieldCount, 27);
+  assert.equal(runtime.fieldMap.length, 25);
+  assert.deepEqual(
+    Array.from(runtime.fieldMap, item => item.dataQnFieldId),
+    Array.from({ length: 25 }, (_, index) => String(10000 + index))
+  );
+  assert.equal(runtime.fieldMap[3].paths[0], 'treatment_plan.problems.0.problem_statement');
+  assert.equal(runtime.fieldMap[24].paths[0], 'treatment_plan.safety_planning');
+  assert.ok(!runtime.fieldMap.some(item => item.treatmentField === 'next_review_date'));
+  assert.ok(!runtime.fieldMap.some(item => ['10025', '10026'].includes(item.dataQnFieldId)));
+  assert.match(runtime.selector, /#notePanels \.quickNoteFormBlock/);
+  assert.notEqual(runtime.selector, 'textarea, select, input');
 });
 
 test('JSON parser and safeguards accept the SUD outpatient scenario', () => {
