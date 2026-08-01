@@ -31,6 +31,85 @@ const DEFAULT_TREATMENT_CONFIG_URL = `${CONFIG_REPO_RAW_BASE_URL}rose-treatment-
 const REMOTE_CONFIG_TIMEOUT_MS = 10000;
 const N8N_LOGGING_CONFIG = window.ROSE_N8N_LOGGING_CONFIG || {};
 
+const BPS_SUICIDE_ATTEMPT_MAPPING = [
+  { fillIndex: 114, dataQnFieldId: '10114', path: 'symptoms_suicide_self_harm.attempt_dates_and_methods' },
+  { fillIndex: 115, dataQnFieldId: '10115', path: 'symptoms_suicide_self_harm.under_influence_during_attempts' },
+  { fillIndex: 116, dataQnFieldId: '10116', path: 'symptoms_suicide_self_harm.feelings_about_past_attempts' },
+  { fillIndex: 117, dataQnFieldId: '10117', path: 'symptoms_suicide_self_harm.protective_factors' },
+  { fillIndex: 118, dataQnFieldId: '10118', path: 'symptoms_suicide_self_harm.future_attempt_triggers' }
+];
+
+function configVersionParts(value) {
+  const text = String(value ?? '').trim();
+  if (!/^\d+(?:\.\d+)*$/.test(text)) return null;
+  return text.split('.').map(part => Number(part));
+}
+function compareConfigVersions(left, right) {
+  const leftParts = configVersionParts(left);
+  const rightParts = configVersionParts(right);
+  if (!leftParts || !rightParts) return null;
+  const count = Math.max(leftParts.length, rightParts.length);
+  for (let index = 0; index < count; index++) {
+    const difference = (leftParts[index] || 0) - (rightParts[index] || 0);
+    if (difference) return difference < 0 ? -1 : 1;
+  }
+  return 0;
+}
+function bpsSuicideAttemptMappingIssues(config) {
+  if (!config || !Array.isArray(config.fieldMap)) return ['fieldMap is unavailable'];
+  const issues = [];
+  BPS_SUICIDE_ATTEMPT_MAPPING.forEach(expected => {
+    const mapped = config.fieldMap.find(item => String(item?.dataQnFieldId || '') === expected.dataQnFieldId);
+    if (!mapped) {
+      issues.push(`missing ReliaTrax field ${expected.dataQnFieldId}`);
+      return;
+    }
+    if (Number(mapped.fillIndex) !== expected.fillIndex) {
+      issues.push(`field ${expected.dataQnFieldId} uses fill index ${mapped.fillIndex} instead of ${expected.fillIndex}`);
+    }
+    if (mapped.paths?.[0] !== expected.path) {
+      issues.push(`field ${expected.dataQnFieldId} maps to ${mapped.paths?.[0] || 'no JSON path'} instead of ${expected.path}`);
+    }
+  });
+  const prompt2 = (config.prompts || []).find(prompt => prompt?.id === 'prompt2')?.body || '';
+  if (!prompt2.includes('"attempt_dates_and_methods":""')) issues.push('Prompt 2 does not request attempt_dates_and_methods');
+  if (!prompt2.includes('"future_attempt_triggers":""')) issues.push('Prompt 2 does not request future_attempt_triggers');
+  if (prompt2.includes('"attempt_methods":""')) issues.push('Prompt 2 still requests the removed attempt_methods field');
+  return issues;
+}
+function selectBpsConfig(candidate, bundled, candidateLabel = 'Remote') {
+  const bundledIssues = bpsSuicideAttemptMappingIssues(bundled);
+  if (!candidate || typeof candidate !== 'object') {
+    return {
+      config: bundled,
+      source: 'bundled',
+      warning: `${candidateLabel} BPS config was unavailable. Using bundled BPS config v${bundled?.version || '?'}.`
+    };
+  }
+  const candidateIssues = bpsSuicideAttemptMappingIssues(candidate);
+  const versionOrder = compareConfigVersions(candidate.version, bundled?.version);
+  const reasons = [];
+  if (versionOrder !== null && versionOrder < 0) {
+    reasons.push(`v${candidate.version || '?'} is older than bundled v${bundled?.version || '?'}`);
+  }
+  if (!bundledIssues.length && candidateIssues.length) {
+    reasons.push(`the protected suicide-attempt mapping is incomplete (${candidateIssues.join('; ')})`);
+  }
+  if (reasons.length && bundled && !bundledIssues.length) {
+    return {
+      config: bundled,
+      source: 'bundled',
+      warning: `${candidateLabel} BPS config was not applied because ${reasons.join(' and ')}. Using bundled BPS config v${bundled.version || '?'}.`
+    };
+  }
+  return { config: candidate, source: String(candidateLabel || 'remote').toLowerCase(), warning: '' };
+}
+function assertSafeBpsConfig(config) {
+  const issues = bpsSuicideAttemptMappingIssues(config);
+  if (!issues.length) return;
+  throw new Error(`BPS fill blocked because config v${config?.version || '?'} could shift the suicide-attempt answers: ${issues.join('; ')}. Click Use bundled config, then scan or fill again.`);
+}
+
 let activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
 let activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG;
 let workflowConfig = window.DEFAULT_ROSE_WORKFLOW_CONFIG || {};
@@ -447,8 +526,12 @@ function workflowModeSummary(mode) {
   };
 }
 function configSummary() {
+  const bpsMappingIssues = bpsSuicideAttemptMappingIssues(activeConfig);
   return {
+    bpsConfigVersion: activeConfig?.version || '',
     bpsFieldMapCount: Array.isArray(activeConfig?.fieldMap) ? activeConfig.fieldMap.length : 0,
+    bpsSuicideAttemptMappingSafe: !bpsMappingIssues.length,
+    bpsSuicideAttemptMappingIssues: bpsMappingIssues,
     workflowVersion: workflowConfig?.version || '',
     diagnostics: workflowModeSummary('diagnostics'),
     mse: workflowModeSummary('mse'),
@@ -464,6 +547,8 @@ function renderConfigMeta(message = '') {
   const diagnostics = summary.diagnostics;
   const parts = [
     message,
+    summary.bpsConfigVersion ? `BPS ${summary.bpsConfigVersion}` : 'BPS version unavailable',
+    summary.bpsSuicideAttemptMappingSafe ? 'Suicide-attempt map verified' : 'Suicide-attempt map unsafe',
     summary.workflowVersion ? `Workflow ${summary.workflowVersion}` : 'Workflow version unavailable',
     `Diagnostics map ${diagnostics.fieldMapCount}${diagnostics.expectedFieldCount ? ` / ${diagnostics.expectedFieldCount} fields expected` : ''}`
   ].filter(Boolean);
@@ -1214,13 +1299,16 @@ function renderConfigState() {
 async function loadRemoteConfig(url, { preserveDefaultRows = false } = {}) {
   const normalizedUrl = migrateLegacyConfigUrl(url);
   if (!normalizedUrl) throw new Error('Paste a raw GitHub config URL first.');
-  const cfg = await fetchRemoteConfig(normalizedUrl);
+  const remoteConfig = await fetchRemoteConfig(normalizedUrl);
+  const selection = selectBpsConfig(remoteConfig, window.DEFAULT_ROSE_BPS_CONFIG, 'Remote');
+  const cfg = selection.config;
   activeConfig = cfg;
   if (!preserveDefaultRows) {
     defaultRows = getConfigDefaultRows(cfg);
   }
   await chrome.storage.local.set({ [STORAGE_KEYS.config]: cfg, [STORAGE_KEYS.configUrl]: normalizedUrl, [STORAGE_KEYS.defaultRows]: defaultRows });
   renderConfigState();
+  return selection;
 }
 async function loadRemoteWorkflowConfig(url = DEFAULT_WORKFLOW_CONFIG_URL) {
   const normalizedUrl = migrateLegacyConfigUrl(url);
@@ -1269,7 +1357,8 @@ async function loadRemoteConfigBundle(url, options = {}) {
   } catch (err) {
     warnings.push(`Treatment Plan prompts: ${err.message}`);
   }
-  await loadRemoteConfig(url, options);
+  const bpsSelection = await loadRemoteConfig(url, options);
+  if (bpsSelection.warning) warnings.push(`BPS config: ${bpsSelection.warning}`);
   return warnings;
 }
 async function loadState() {
@@ -1294,7 +1383,8 @@ async function loadState() {
     STORAGE_KEYS.treatmentScenario,
     STORAGE_KEYS.treatmentSupportBundle
   ]);
-  activeConfig = data[STORAGE_KEYS.config] || window.DEFAULT_ROSE_BPS_CONFIG;
+  const savedBpsSelection = selectBpsConfig(data[STORAGE_KEYS.config], window.DEFAULT_ROSE_BPS_CONFIG, 'Saved');
+  activeConfig = savedBpsSelection.config;
   workflowConfig = normalizeWorkflowConfigUrls(data[STORAGE_KEYS.workflowConfig] || window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig);
   treatmentConfig = data[STORAGE_KEYS.treatmentConfig] || window.DEFAULT_ROSE_TREATMENT_CONFIG || treatmentConfig;
   activeQuickNotesConfig = data[STORAGE_KEYS.quicknotesConfig] || window.DEFAULT_ROSE_QUICKNOTES_CONFIG || activeQuickNotesConfig;
@@ -1304,6 +1394,9 @@ async function loadState() {
   discoveryReport = data[STORAGE_KEYS.discoveryReport] || null;
   activeTreatmentScenario = data[STORAGE_KEYS.treatmentScenario] || treatmentPrompts()[0]?.id || '';
   treatmentSupportBundle = data[STORAGE_KEYS.treatmentSupportBundle] || null;
+  if (savedBpsSelection.warning && data[STORAGE_KEYS.config]) {
+    await chrome.storage.local.set({ [STORAGE_KEYS.config]: activeConfig });
+  }
   const storedConfigUrl = data[STORAGE_KEYS.configUrl];
   const configUrl = migrateLegacyConfigUrl(storedConfigUrl || workflowMode('bps').configUrl || DEFAULT_REMOTE_CONFIG_URL);
   try {
@@ -1340,9 +1433,17 @@ async function loadState() {
   renderMode();
   try {
     setStatus('Loading remote config...');
-    await loadRemoteConfig(configUrl, { preserveDefaultRows: Array.isArray(data[STORAGE_KEYS.defaultRows]) });
-    logConfigResult({ ok: true, event: 'startup_remote_config_loaded', configUrl, ...configSummary() }, 'Remote config loaded');
-    setStatus('Remote config loaded');
+    const selection = await loadRemoteConfig(configUrl, { preserveDefaultRows: Array.isArray(data[STORAGE_KEYS.defaultRows]) });
+    const message = selection.warning ? 'Bundled BPS config retained' : 'Remote config loaded';
+    logConfigResult({
+      ok: true,
+      event: selection.warning ? 'startup_remote_bps_config_rejected' : 'startup_remote_config_loaded',
+      configUrl,
+      configSource: selection.source,
+      warning: selection.warning,
+      ...configSummary()
+    }, message);
+    setStatus(selection.warning ? 'Bundled BPS config retained; remote BPS config is older or unsafe' : 'Remote config loaded');
   } catch (err) {
     renderConfigState();
     logConfigResult({
@@ -5135,6 +5236,7 @@ $('scanPage').onclick = async () => {
 };
 $('fillPage').onclick = async () => {
   try {
+    assertSafeBpsConfig(activeConfig);
     const merged = validateAndMerge();
     await saveMerged(merged);
     const result = await runInActiveTab(pageFill, [buildRuntimeConfig(), merged, $('dryRun').checked]);

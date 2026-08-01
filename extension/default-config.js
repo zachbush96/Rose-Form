@@ -1,7 +1,7 @@
 window.DEFAULT_ROSE_BPS_CONFIG = {
   "project": "Rose ReliaTrax BPS Automation",
-  "version": "0.4.7",
-  "updated": "2026-07-28",
+  "version": "0.4.8",
+  "updated": "2026-07-31",
   "selector": "textarea.qn-textarea, input.qn-editable-cb",
   "expectedFieldCount": 264,
   "defaultsOverwriteExisting": true,
