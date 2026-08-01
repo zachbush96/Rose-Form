@@ -31,6 +31,85 @@ const DEFAULT_TREATMENT_CONFIG_URL = `${CONFIG_REPO_RAW_BASE_URL}rose-treatment-
 const REMOTE_CONFIG_TIMEOUT_MS = 10000;
 const N8N_LOGGING_CONFIG = window.ROSE_N8N_LOGGING_CONFIG || {};
 
+const BPS_SUICIDE_ATTEMPT_MAPPING = [
+  { fillIndex: 114, dataQnFieldId: '10114', path: 'symptoms_suicide_self_harm.attempt_dates_and_methods' },
+  { fillIndex: 115, dataQnFieldId: '10115', path: 'symptoms_suicide_self_harm.under_influence_during_attempts' },
+  { fillIndex: 116, dataQnFieldId: '10116', path: 'symptoms_suicide_self_harm.feelings_about_past_attempts' },
+  { fillIndex: 117, dataQnFieldId: '10117', path: 'symptoms_suicide_self_harm.protective_factors' },
+  { fillIndex: 118, dataQnFieldId: '10118', path: 'symptoms_suicide_self_harm.future_attempt_triggers' }
+];
+
+function configVersionParts(value) {
+  const text = String(value ?? '').trim();
+  if (!/^\d+(?:\.\d+)*$/.test(text)) return null;
+  return text.split('.').map(part => Number(part));
+}
+function compareConfigVersions(left, right) {
+  const leftParts = configVersionParts(left);
+  const rightParts = configVersionParts(right);
+  if (!leftParts || !rightParts) return null;
+  const count = Math.max(leftParts.length, rightParts.length);
+  for (let index = 0; index < count; index++) {
+    const difference = (leftParts[index] || 0) - (rightParts[index] || 0);
+    if (difference) return difference < 0 ? -1 : 1;
+  }
+  return 0;
+}
+function bpsSuicideAttemptMappingIssues(config) {
+  if (!config || !Array.isArray(config.fieldMap)) return ['fieldMap is unavailable'];
+  const issues = [];
+  BPS_SUICIDE_ATTEMPT_MAPPING.forEach(expected => {
+    const mapped = config.fieldMap.find(item => String(item?.dataQnFieldId || '') === expected.dataQnFieldId);
+    if (!mapped) {
+      issues.push(`missing ReliaTrax field ${expected.dataQnFieldId}`);
+      return;
+    }
+    if (Number(mapped.fillIndex) !== expected.fillIndex) {
+      issues.push(`field ${expected.dataQnFieldId} uses fill index ${mapped.fillIndex} instead of ${expected.fillIndex}`);
+    }
+    if (mapped.paths?.[0] !== expected.path) {
+      issues.push(`field ${expected.dataQnFieldId} maps to ${mapped.paths?.[0] || 'no JSON path'} instead of ${expected.path}`);
+    }
+  });
+  const prompt2 = (config.prompts || []).find(prompt => prompt?.id === 'prompt2')?.body || '';
+  if (!prompt2.includes('"attempt_dates_and_methods":""')) issues.push('Prompt 2 does not request attempt_dates_and_methods');
+  if (!prompt2.includes('"future_attempt_triggers":""')) issues.push('Prompt 2 does not request future_attempt_triggers');
+  if (prompt2.includes('"attempt_methods":""')) issues.push('Prompt 2 still requests the removed attempt_methods field');
+  return issues;
+}
+function selectBpsConfig(candidate, bundled, candidateLabel = 'Remote') {
+  const bundledIssues = bpsSuicideAttemptMappingIssues(bundled);
+  if (!candidate || typeof candidate !== 'object') {
+    return {
+      config: bundled,
+      source: 'bundled',
+      warning: `${candidateLabel} BPS config was unavailable. Using bundled BPS config v${bundled?.version || '?'}.`
+    };
+  }
+  const candidateIssues = bpsSuicideAttemptMappingIssues(candidate);
+  const versionOrder = compareConfigVersions(candidate.version, bundled?.version);
+  const reasons = [];
+  if (versionOrder !== null && versionOrder < 0) {
+    reasons.push(`v${candidate.version || '?'} is older than bundled v${bundled?.version || '?'}`);
+  }
+  if (!bundledIssues.length && candidateIssues.length) {
+    reasons.push(`the protected suicide-attempt mapping is incomplete (${candidateIssues.join('; ')})`);
+  }
+  if (reasons.length && bundled && !bundledIssues.length) {
+    return {
+      config: bundled,
+      source: 'bundled',
+      warning: `${candidateLabel} BPS config was not applied because ${reasons.join(' and ')}. Using bundled BPS config v${bundled.version || '?'}.`
+    };
+  }
+  return { config: candidate, source: String(candidateLabel || 'remote').toLowerCase(), warning: '' };
+}
+function assertSafeBpsConfig(config) {
+  const issues = bpsSuicideAttemptMappingIssues(config);
+  if (!issues.length) return;
+  throw new Error(`BPS fill blocked because config v${config?.version || '?'} could shift the suicide-attempt answers: ${issues.join('; ')}. Click Use bundled config, then scan or fill again.`);
+}
+
 let activeConfig = window.DEFAULT_ROSE_BPS_CONFIG;
 let activeQuickNotesConfig = window.DEFAULT_ROSE_QUICKNOTES_CONFIG;
 let workflowConfig = window.DEFAULT_ROSE_WORKFLOW_CONFIG || {};
@@ -447,8 +526,12 @@ function workflowModeSummary(mode) {
   };
 }
 function configSummary() {
+  const bpsMappingIssues = bpsSuicideAttemptMappingIssues(activeConfig);
   return {
+    bpsConfigVersion: activeConfig?.version || '',
     bpsFieldMapCount: Array.isArray(activeConfig?.fieldMap) ? activeConfig.fieldMap.length : 0,
+    bpsSuicideAttemptMappingSafe: !bpsMappingIssues.length,
+    bpsSuicideAttemptMappingIssues: bpsMappingIssues,
     workflowVersion: workflowConfig?.version || '',
     diagnostics: workflowModeSummary('diagnostics'),
     mse: workflowModeSummary('mse'),
@@ -464,6 +547,8 @@ function renderConfigMeta(message = '') {
   const diagnostics = summary.diagnostics;
   const parts = [
     message,
+    summary.bpsConfigVersion ? `BPS ${summary.bpsConfigVersion}` : 'BPS version unavailable',
+    summary.bpsSuicideAttemptMappingSafe ? 'Suicide-attempt map verified' : 'Suicide-attempt map unsafe',
     summary.workflowVersion ? `Workflow ${summary.workflowVersion}` : 'Workflow version unavailable',
     `Diagnostics map ${diagnostics.fieldMapCount}${diagnostics.expectedFieldCount ? ` / ${diagnostics.expectedFieldCount} fields expected` : ''}`
   ].filter(Boolean);
@@ -524,6 +609,29 @@ function selectedTreatmentPrompt() {
   const selectedId = $('treatmentScenario')?.value || activeTreatmentScenario || '';
   return prompts.find(prompt => prompt.id === selectedId) || prompts[0] || null;
 }
+function treatmentPromptOutputInstructions(prompt) {
+  return [
+    treatmentConfig?.outputFormat?.instructions,
+    treatmentConfig?.outputFormat?.completionDateInstructions
+  ]
+    .filter(Boolean)
+    .join('\n\n')
+    .replace(/\{\{SCENARIO_ID\}\}/g, String(prompt?.id || ''))
+    .trim();
+}
+function treatmentPromptCurrentDate() {
+  const now = new Date();
+  const month = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ][now.getMonth()];
+  return `CURRENT DATE FOR COMPLETION DATE CALCULATIONS\n\n${month} ${now.getDate()}, ${now.getFullYear()}`;
+}
+function effectiveTreatmentPrompt(prompt) {
+  const clinicalPrompt = String(prompt?.body || '').trim();
+  const outputInstructions = treatmentPromptOutputInstructions(prompt);
+  return [clinicalPrompt, outputInstructions, treatmentPromptCurrentDate()].filter(Boolean).join('\n\n---\n\n');
+}
 function renderTreatmentPrompt() {
   const select = $('treatmentScenario');
   const preview = $('treatmentPromptPreview');
@@ -549,7 +657,7 @@ function renderTreatmentPrompt() {
     return;
   }
   $('treatmentPromptMeta').textContent = `${treatmentConfig?.source?.subject || 'Treatment Plan Prompts (4)'} | received ${treatmentConfig?.source?.receivedAt || ''}`;
-  preview.textContent = selected.body || '';
+  preview.textContent = effectiveTreatmentPrompt(selected);
 }
 function renderMsePrompt() {
   const source = workflowMode('mse').sourcePrompt;
@@ -1191,13 +1299,16 @@ function renderConfigState() {
 async function loadRemoteConfig(url, { preserveDefaultRows = false } = {}) {
   const normalizedUrl = migrateLegacyConfigUrl(url);
   if (!normalizedUrl) throw new Error('Paste a raw GitHub config URL first.');
-  const cfg = await fetchRemoteConfig(normalizedUrl);
+  const remoteConfig = await fetchRemoteConfig(normalizedUrl);
+  const selection = selectBpsConfig(remoteConfig, window.DEFAULT_ROSE_BPS_CONFIG, 'Remote');
+  const cfg = selection.config;
   activeConfig = cfg;
   if (!preserveDefaultRows) {
     defaultRows = getConfigDefaultRows(cfg);
   }
   await chrome.storage.local.set({ [STORAGE_KEYS.config]: cfg, [STORAGE_KEYS.configUrl]: normalizedUrl, [STORAGE_KEYS.defaultRows]: defaultRows });
   renderConfigState();
+  return selection;
 }
 async function loadRemoteWorkflowConfig(url = DEFAULT_WORKFLOW_CONFIG_URL) {
   const normalizedUrl = migrateLegacyConfigUrl(url);
@@ -1246,7 +1357,8 @@ async function loadRemoteConfigBundle(url, options = {}) {
   } catch (err) {
     warnings.push(`Treatment Plan prompts: ${err.message}`);
   }
-  await loadRemoteConfig(url, options);
+  const bpsSelection = await loadRemoteConfig(url, options);
+  if (bpsSelection.warning) warnings.push(`BPS config: ${bpsSelection.warning}`);
   return warnings;
 }
 async function loadState() {
@@ -1271,7 +1383,8 @@ async function loadState() {
     STORAGE_KEYS.treatmentScenario,
     STORAGE_KEYS.treatmentSupportBundle
   ]);
-  activeConfig = data[STORAGE_KEYS.config] || window.DEFAULT_ROSE_BPS_CONFIG;
+  const savedBpsSelection = selectBpsConfig(data[STORAGE_KEYS.config], window.DEFAULT_ROSE_BPS_CONFIG, 'Saved');
+  activeConfig = savedBpsSelection.config;
   workflowConfig = normalizeWorkflowConfigUrls(data[STORAGE_KEYS.workflowConfig] || window.DEFAULT_ROSE_WORKFLOW_CONFIG || workflowConfig);
   treatmentConfig = data[STORAGE_KEYS.treatmentConfig] || window.DEFAULT_ROSE_TREATMENT_CONFIG || treatmentConfig;
   activeQuickNotesConfig = data[STORAGE_KEYS.quicknotesConfig] || window.DEFAULT_ROSE_QUICKNOTES_CONFIG || activeQuickNotesConfig;
@@ -1281,6 +1394,9 @@ async function loadState() {
   discoveryReport = data[STORAGE_KEYS.discoveryReport] || null;
   activeTreatmentScenario = data[STORAGE_KEYS.treatmentScenario] || treatmentPrompts()[0]?.id || '';
   treatmentSupportBundle = data[STORAGE_KEYS.treatmentSupportBundle] || null;
+  if (savedBpsSelection.warning && data[STORAGE_KEYS.config]) {
+    await chrome.storage.local.set({ [STORAGE_KEYS.config]: activeConfig });
+  }
   const storedConfigUrl = data[STORAGE_KEYS.configUrl];
   const configUrl = migrateLegacyConfigUrl(storedConfigUrl || workflowMode('bps').configUrl || DEFAULT_REMOTE_CONFIG_URL);
   try {
@@ -1317,9 +1433,17 @@ async function loadState() {
   renderMode();
   try {
     setStatus('Loading remote config...');
-    await loadRemoteConfig(configUrl, { preserveDefaultRows: Array.isArray(data[STORAGE_KEYS.defaultRows]) });
-    logConfigResult({ ok: true, event: 'startup_remote_config_loaded', configUrl, ...configSummary() }, 'Remote config loaded');
-    setStatus('Remote config loaded');
+    const selection = await loadRemoteConfig(configUrl, { preserveDefaultRows: Array.isArray(data[STORAGE_KEYS.defaultRows]) });
+    const message = selection.warning ? 'Bundled BPS config retained' : 'Remote config loaded';
+    logConfigResult({
+      ok: true,
+      event: selection.warning ? 'startup_remote_bps_config_rejected' : 'startup_remote_config_loaded',
+      configUrl,
+      configSource: selection.source,
+      warning: selection.warning,
+      ...configSummary()
+    }, message);
+    setStatus(selection.warning ? 'Bundled BPS config retained; remote BPS config is older or unsafe' : 'Remote config loaded');
   } catch (err) {
     renderConfigState();
     logConfigResult({
@@ -1519,8 +1643,11 @@ function pageExtractDiagnosticsPart3Context() {
 function pageExtractTreatmentPlanContext() {
   try {
     const selector = 'textarea, select, input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), [contenteditable="true"]';
-    const controls = [...document.querySelectorAll(selector)];
     const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const treatmentRoot = [...document.querySelectorAll('#notePanels .notePanel, #notePanels .quickNoteFormBlock')]
+      .find(root => /\b(service plan standardized form|problem\s*#\s*1)\b/i.test(normalize(root.innerText || root.textContent || ''))) ||
+      document;
+    const controls = [...treatmentRoot.querySelectorAll(selector)];
     const valueOf = (el) => {
       if (!el) return '';
       if (el.getAttribute('contenteditable') === 'true') return String(el.textContent || '').trim();
@@ -1549,6 +1676,7 @@ function pageExtractTreatmentPlanContext() {
       };
     };
     const summaries = controls.map(controlSummary);
+    const byDataQnFieldId = (fieldId) => summaries.find(item => item.dataQnFieldId === String(fieldId));
     const scoredDate = (kind) => summaries.map(item => {
       const local = `${item.precedingCellText} ${item.rowText}`.toLowerCase();
       let score = 0;
@@ -1558,8 +1686,31 @@ function pageExtractTreatmentPlanContext() {
       if (kind === 'service' && /\bassessment date\b/.test(item.precedingCellText.toLowerCase()) && !/\bdate of service plan\b/.test(item.precedingCellText.toLowerCase())) score -= 200;
       return { item, score };
     }).filter(candidate => candidate.score > 0).sort((a, b) => b.score - a.score || a.item.index - b.item.index)[0]?.item;
-    const assessment = scoredDate('assessment');
-    const service = scoredDate('service');
+    const staticValueAfterLabel = (pattern) => {
+      for (const cell of treatmentRoot.querySelectorAll('td, th')) {
+        const label = normalize(cell.innerText || cell.textContent || '');
+        if (!pattern.test(label)) continue;
+        const valueCell = cell.nextElementSibling;
+        const value = normalize(valueCell?.innerText || valueCell?.textContent || '');
+        if (!value) continue;
+        return {
+          index: -1,
+          tag: valueCell.tagName || '',
+          type: 'static',
+          id: valueCell.id || '',
+          name: '',
+          dataQnFieldId: valueCell.getAttribute?.('data-qn-field-id') || '',
+          value,
+          precedingCellText: label,
+          rowText: normalize(cell.closest('tr')?.innerText || cell.closest('tr')?.textContent || ''),
+          contextText: normalize(cell.closest('tr')?.innerText || cell.closest('tr')?.textContent || '')
+        };
+      }
+      return null;
+    };
+    const assessment = byDataQnFieldId('10000') || scoredDate('assessment');
+    const service = staticValueAfterLabel(/^date of service plan\s*:?$/i) || scoredDate('service');
+    const nextReview = staticValueAfterLabel(/^next review on or before\s*:?$/i);
     return {
       event: 'treatment_plan_context',
       timestamp: new Date().toISOString(),
@@ -1568,13 +1719,16 @@ function pageExtractTreatmentPlanContext() {
       controlCount: controls.length,
       assessmentDate: assessment?.value || '',
       dateOfServicePlan: service?.value || '',
+      nextReviewDate: nextReview?.value || '',
       assessmentDateControl: assessment || null,
       dateOfServicePlanControl: service || null,
+      nextReviewDateControl: nextReview || null,
       treatmentTextPresent: /treatment plan|problem\s*#\s*1|safety planning/i.test(normalize(document.body?.innerText || '')),
       warnings: [
         ...(!assessment ? ['Assessment Date control was not identified.'] : []),
         ...(!service ? ['Date of Service Plan control was not identified.'] : []),
-        ...(service && !service.value ? ['Date of Service Plan is blank.'] : [])
+        ...(service && !service.value ? ['Date of Service Plan is blank.'] : []),
+        ...(!nextReview ? ['Read-only Next Review value was not identified.'] : [])
       ]
     };
   } catch (err) { return { error: err.message }; }
@@ -2291,15 +2445,6 @@ function pageFill(config, merged, dryRun) {
   };
   const clientFirstNameFromData = findClientFirstName(merged || {});
   const clientSubject = () => clientFirstNameFromData || 'Client';
-  const applyClientNameToNarrative = (value) => {
-    if (typeof value !== 'string' || !clientFirstNameFromData) return value;
-    return value
-      .replace(/\[(?:client name|client first name|first name)\]/gi, clientFirstNameFromData)
-      .replace(/\b[Tt]he client['’]s\b/g, `${clientFirstNameFromData}'s`)
-      .replace(/\b[Tt]he client\b/g, clientFirstNameFromData)
-      .replace(/\bClient['’]s\b/g, `${clientFirstNameFromData}'s`)
-      .replace(/\bClient\b/g, clientFirstNameFromData);
-  };
   const asamSafetyWhySubject = (value) => {
     if (clientFirstNameFromData) return clientFirstNameFromData;
     const text = normalizedTextValue(value).replace(/^(the client|client|the patient|patient)\b/i, '').trim();
@@ -2319,7 +2464,7 @@ function pageFill(config, merged, dryRun) {
       ])
     );
     if (needed === 'No' && hasUsefulValue(value)) return `${asamSafetyWhySubject(value)} denies being a suicide risk`;
-    return applyClientNameToNarrative(value);
+    return value;
   };
   const withPeriod = (value) => {
     const text = normalizedTextValue(value);
@@ -2736,6 +2881,17 @@ function pageFill(config, merged, dryRun) {
     if (choiceIsYes(normalized, 'sexual_history.tested_std_hepatitis_hiv')) {
       setChoiceLocal(normalized, 'sexual_history.wants_sexual_health_resources_if_no', 'no');
     }
+    const combinedAttemptPath = 'symptoms_suicide_self_harm.attempt_dates_and_methods';
+    if (!hasSpecificValue(getPath(normalized, combinedAttemptPath))) {
+      const legacyAttemptDetails = [
+        getPath(normalized, 'symptoms_suicide_self_harm.attempt_dates'),
+        getPath(normalized, 'symptoms_suicide_self_harm.attempt_methods')
+      ].filter(hasSpecificValue).map(normalizedTextValue);
+      if (legacyAttemptDetails.length) {
+        setPathLocal(normalized, combinedAttemptPath, [...new Set(legacyAttemptDetails)].join(' '));
+        dataShapeWarnings.push('Combined legacy suicide-attempt date and method fields for the single ReliaTrax textbox.');
+      }
+    }
     normalizeSuicideAttemptFeelings(normalized);
     if (choiceIsNo(normalized, 'medical.dental_problems')) {
       setPathLocal(normalized, 'medical.dentist_next_plan', `${clientSubject()} reports no dental problems or plans to see a dentist at this time.`);
@@ -2943,7 +3099,7 @@ function pageFill(config, merged, dryRun) {
       });
     }
     if (choiceIsNo(data, 'symptoms_suicide_self_harm.history_suicide_attempts')) {
-      ['attempt_count', 'attempt_dates', 'attempt_methods', 'under_influence_during_attempts', 'feelings_about_past_attempts'].forEach(field => {
+      ['attempt_count', 'attempt_dates_and_methods', 'under_influence_during_attempts', 'feelings_about_past_attempts', 'protective_factors', 'future_attempt_triggers'].forEach(field => {
         set(`symptoms_suicide_self_harm.${field}`, 'n/a');
       });
     }
@@ -3093,14 +3249,14 @@ function pageFill(config, merged, dryRun) {
       return formatAsamSafetyWhy(value);
     }
     const substanceMatch = String(matchedPath || '').match(/^substance_use\.substance_([123])\.age_first_use$/);
-    if (!substanceMatch || isBlankLocal(value)) return applyClientNameToNarrative(value);
+    if (!substanceMatch || isBlankLocal(value)) return value;
     if (substanceMatch[1] === '3') {
-      return applyClientNameToNarrative(parseSubstanceAgeValue(value).age || value);
+      return parseSubstanceAgeValue(value).age || value;
     }
     const substance = firstUsefulPathValue(merged, [`substance_use.substance_${substanceMatch[1]}.substance`]);
     const text = String(value);
-    if (!hasUsefulValue(substance) || /age of first use:/i.test(text)) return applyClientNameToNarrative(value);
-    return applyClientNameToNarrative(`${substance}\n\nAge of first use: ${text}`);
+    if (!hasUsefulValue(substance) || /age of first use:/i.test(text)) return value;
+    return `${substance}\n\nAge of first use: ${text}`;
   };
   const defaultObj = mergeDefaults(buildRoseRuleDefaults(merged), config.defaultAnswersObject || {});
   normalizeMseOtherTextSelections(defaultObj, 'MSE default');
@@ -3705,32 +3861,33 @@ function buildDiagnosticsRuntimeConfig() {
 }
 function buildTreatmentRuntimeConfig() {
   const mode = workflowMode('treatment');
+  const treatmentSelector = '#notePanels .quickNoteFormBlock textarea.qn-textarea, #notePanels .quickNoteFormBlock input.qn-editable-cb';
   const fieldMap = [
-    { treatmentField: 'assessment_date', label: 'Assessment Date', paths: ['treatment_plan.assessment_date'] },
-    { treatmentField: 'strengths', label: 'Strengths', paths: ['treatment_plan.strengths'] },
-    { treatmentField: 'risk_factors', label: 'Risk Factors', paths: ['treatment_plan.risk_factors'] }
+    { dataQnFieldId: '10000', treatmentField: 'assessment_date', label: 'Assessment Date', paths: ['treatment_plan.assessment_date'] },
+    { dataQnFieldId: '10001', treatmentField: 'strengths', label: 'Strengths', paths: ['treatment_plan.strengths'] },
+    { dataQnFieldId: '10002', treatmentField: 'risk_factors', label: 'Risk Factors', paths: ['treatment_plan.risk_factors'] }
   ];
   for (let problemNumber = 1; problemNumber <= 3; problemNumber++) {
     const base = `treatment_plan.problems.${problemNumber - 1}`;
+    const firstFieldId = 10003 + ((problemNumber - 1) * 7);
     fieldMap.push(
-      { treatmentField: 'problem_statement', problemNumber, label: `Problem ${problemNumber} Statement`, paths: [`${base}.problem_statement`] },
-      { treatmentField: 'goal', problemNumber, label: `Problem ${problemNumber} Goal`, paths: [`${base}.goal`] },
-      { treatmentField: 'objectives', problemNumber, label: `Problem ${problemNumber} Objectives`, paths: [`${base}.objectives_text`] },
-      { treatmentField: 'target_date', problemNumber, label: `Problem ${problemNumber} Target Date`, paths: [`${base}.target_date`, `${base}.estimated_length_of_treatment`] },
-      { treatmentField: 'completion_date', problemNumber, label: `Problem ${problemNumber} Completion Date`, paths: [`${base}.completion_date`] },
-      { treatmentField: 'therapeutic_interventions', problemNumber, label: `Problem ${problemNumber} Therapeutic Interventions`, paths: [`${base}.therapeutic_interventions_text`] },
-      { treatmentField: 'review_comments', problemNumber, label: `Problem ${problemNumber} Review/Comments`, paths: [`${base}.review_comments`] }
+      { dataQnFieldId: String(firstFieldId), treatmentField: 'problem_statement', problemNumber, label: `Problem ${problemNumber} Statement`, paths: [`${base}.problem_statement`] },
+      { dataQnFieldId: String(firstFieldId + 1), treatmentField: 'goal', problemNumber, label: `Problem ${problemNumber} Goal`, paths: [`${base}.goal`] },
+      { dataQnFieldId: String(firstFieldId + 2), treatmentField: 'objectives', problemNumber, label: `Problem ${problemNumber} Objectives`, paths: [`${base}.objectives_text`] },
+      { dataQnFieldId: String(firstFieldId + 3), treatmentField: 'target_date', problemNumber, label: `Problem ${problemNumber} Target Date`, paths: [`${base}.target_date`, `${base}.estimated_length_of_treatment`] },
+      { dataQnFieldId: String(firstFieldId + 4), treatmentField: 'completion_date', problemNumber, label: `Problem ${problemNumber} Completion Date`, paths: [`${base}.completion_date`] },
+      { dataQnFieldId: String(firstFieldId + 5), treatmentField: 'therapeutic_interventions', problemNumber, label: `Problem ${problemNumber} Therapeutic Interventions`, paths: [`${base}.therapeutic_interventions_text`] },
+      { dataQnFieldId: String(firstFieldId + 6), treatmentField: 'review_comments', problemNumber, label: `Problem ${problemNumber} Review/Comments`, paths: [`${base}.review_comments`] }
     );
   }
   fieldMap.push(
-    { treatmentField: 'safety_planning', label: 'Safety Planning', paths: ['treatment_plan.safety_planning'] },
-    { treatmentField: 'next_review_date', label: 'Next Review Date', paths: ['treatment_plan.next_review_date'], preserveNonBlank: true }
+    { dataQnFieldId: '10024', treatmentField: 'safety_planning', label: 'Safety Planning', paths: ['treatment_plan.safety_planning'] }
   );
   return {
     workflowMode: 'treatment',
-    selector: mode.selector || 'textarea, select, input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]), [contenteditable="true"]',
+    selector: treatmentSelector,
     onlyVisibleControls: mode.onlyVisibleControls ?? false,
-    expectedFieldCount: mode.expectedFieldCount,
+    expectedFieldCount: 27,
     fieldMap,
     defaultAnswers: [],
     defaultAnswersObject: {}
@@ -4323,12 +4480,78 @@ function parseTreatmentNumberedList(value) {
   if (!text) return [];
   const matches = [...text.matchAll(/(?:^|\n)\s*(\d+)\.\s*([\s\S]*?)(?=(?:\n\s*\d+\.\s*)|$)/g)];
   if (!matches.length) {
-    return text.split(/\n+/).map(item => item.trim()).filter(Boolean);
+    return text.split(/\n+/).map(item => item.replace(/^\s*(?:\d+[.)]|[-*•▪◦])\s*/, '').trim()).filter(Boolean);
   }
   return matches.map(match => match[2].replace(/\s*\n\s*/g, ' ').trim()).filter(Boolean);
 }
-function numberedTreatmentText(items) {
-  return (items || []).map((item, index) => `${index + 1}. ${String(item || '').trim()}`).join('\n');
+function treatmentLinesText(items) {
+  return (items || [])
+    .map(item => String(item || '').replace(/^\s*(?:\d+[.)]|[-*•▪◦])\s*/, '').trim())
+    .filter(Boolean)
+    .join('\n');
+}
+function treatmentDateParts(value) {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return { year: value.getFullYear(), month: value.getMonth(), day: value.getDate() };
+  }
+  const text = String(value || '').trim();
+  const numeric = text.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  const iso = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:T.*)?$/);
+  let year;
+  let month;
+  let day;
+  if (numeric) {
+    year = Number(numeric[3]);
+    month = Number(numeric[1]) - 1;
+    day = Number(numeric[2]);
+  } else if (iso) {
+    year = Number(iso[1]);
+    month = Number(iso[2]) - 1;
+    day = Number(iso[3]);
+  } else if (text) {
+    const parsed = new Date(text);
+    if (!Number.isNaN(parsed.getTime())) {
+      year = parsed.getFullYear();
+      month = parsed.getMonth();
+      day = parsed.getDate();
+    }
+  }
+  if (Number.isInteger(year) && Number.isInteger(month) && Number.isInteger(day)) {
+    const verified = new Date(year, month, day, 12);
+    if (verified.getFullYear() === year && verified.getMonth() === month && verified.getDate() === day) {
+      return { year, month, day };
+    }
+  }
+  const now = new Date();
+  return { year: now.getFullYear(), month: now.getMonth(), day: now.getDate() };
+}
+function treatmentTargetDays(value) {
+  const match = String(value || '')
+    .replace(/[–—]/g, '-')
+    .match(/\b(\d+)\s*(?:(?:-|to)\s*(\d+)\s*)?days?\b/i);
+  if (!match) return null;
+  return Number(match[2] || match[1]);
+}
+function treatmentCompletionMonthYear(targetDate, baseDateValue = '') {
+  const days = treatmentTargetDays(targetDate);
+  if (!Number.isFinite(days)) return '';
+  const base = treatmentDateParts(baseDateValue);
+  const completion = new Date(base.year, base.month, base.day + days, 12);
+  const month = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ][completion.getMonth()];
+  return `${month} ${completion.getFullYear()}`;
+}
+function applyTreatmentCompletionDates(plan, baseDateValue = '') {
+  (plan?.problems || []).forEach(problem => {
+    const calculated = treatmentCompletionMonthYear(
+      problem.target_date || problem.estimated_length_of_treatment,
+      baseDateValue
+    );
+    if (calculated) problem.completion_date = calculated;
+  });
+  return plan;
 }
 function treatmentSectionsFromLines(lines) {
   const headings = [];
@@ -4345,12 +4568,12 @@ function treatmentSectionsFromLines(lines) {
   });
   return values;
 }
-function normalizeTreatmentProblem(problem = {}, number = 1) {
+function normalizeTreatmentProblem(problem = {}, number = 1, scenarioId = '') {
   const objectives = Array.isArray(problem.objectives)
-    ? problem.objectives.map(item => String(item || '').trim()).filter(Boolean)
+    ? problem.objectives.map(item => String(item || '').replace(/^\s*(?:\d+[.)]|[-*•▪◦])\s*/, '').trim()).filter(Boolean)
     : parseTreatmentNumberedList(problem.objectives || problem.objectives_text || '');
   const interventions = Array.isArray(problem.therapeutic_interventions)
-    ? problem.therapeutic_interventions.map(item => String(item || '').trim()).filter(Boolean)
+    ? problem.therapeutic_interventions.map(item => String(item || '').replace(/^\s*(?:\d+[.)]|[-*•▪◦])\s*/, '').trim()).filter(Boolean)
     : parseTreatmentNumberedList(problem.therapeutic_interventions || problem.therapeutic_interventions_text || '');
   const targetDate = String(problem.target_date || problem.estimated_length_of_treatment || '').trim();
   return {
@@ -4359,29 +4582,32 @@ function normalizeTreatmentProblem(problem = {}, number = 1) {
     goal_domain: String(problem.goal_domain || '').trim(),
     goal: String(problem.goal || '').trim(),
     objectives,
-    objectives_text: numberedTreatmentText(objectives),
+    objectives_text: treatmentLinesText(objectives),
     target_date: targetDate,
     estimated_length_of_treatment: String(problem.estimated_length_of_treatment || targetDate).trim(),
     completion_date: String(problem.completion_date || '').trim(),
     therapeutic_interventions: interventions,
-    therapeutic_interventions_text: numberedTreatmentText(interventions),
-    review_comments: String(problem.review_comments || '').trim()
+    therapeutic_interventions_text: treatmentLinesText(interventions),
+    review_comments: scenarioId === 'higher_level_asam_3_7' ? String(problem.review_comments || '').trim() : ''
   };
 }
 function normalizeTreatmentPlanObject(value, scenarioId = '') {
   const root = value?.treatment_plan || value || {};
   const problems = Array.isArray(root.problems) ? root.problems : [root.problem_1, root.problem_2, root.problem_3].filter(Boolean);
+  const normalizedScenario = String(scenarioId || root.scenario || '').trim();
+  const plan = {
+    scenario: normalizedScenario,
+    assessment_date: String(root.assessment_date || '').trim(),
+    date_of_service_plan: String(root.date_of_service_plan || '').trim(),
+    strengths: String(root.strengths || '').trim(),
+    risk_factors: String(root.risk_factors || '').trim(),
+    problems: problems.map((problem, index) => normalizeTreatmentProblem(problem, index + 1, normalizedScenario)),
+    safety_planning: String(root.safety_planning || '').trim(),
+    next_review_date: String(root.next_review_date || '').trim()
+  };
+  applyTreatmentCompletionDates(plan, plan.date_of_service_plan || plan.assessment_date);
   return {
-    treatment_plan: {
-      scenario: String(root.scenario || scenarioId || '').trim(),
-      assessment_date: String(root.assessment_date || '').trim(),
-      date_of_service_plan: String(root.date_of_service_plan || '').trim(),
-      strengths: String(root.strengths || '').trim(),
-      risk_factors: String(root.risk_factors || '').trim(),
-      problems: problems.map((problem, index) => normalizeTreatmentProblem(problem, index + 1)),
-      safety_planning: String(root.safety_planning || '').trim(),
-      next_review_date: String(root.next_review_date || '').trim()
-    }
+    treatment_plan: plan
   };
 }
 function parseTreatmentPlanText(raw, scenarioId = '') {
@@ -4409,7 +4635,7 @@ function parseTreatmentPlanText(raw, scenarioId = '') {
     const block = lines.slice(start, end);
     const tailIndex = block.findIndex(line => ['safety_planning', 'next_review_date'].includes(treatmentHeadingInfo(line)?.key));
     const sections = treatmentSectionsFromLines(tailIndex >= 0 ? block.slice(0, tailIndex) : block);
-    return normalizeTreatmentProblem(sections, heading.info.number);
+    return normalizeTreatmentProblem(sections, heading.info.number, scenarioId);
   });
   const safetyIndex = lines.findIndex(line => treatmentHeadingInfo(line)?.key === 'safety_planning');
   const nextReviewIndex = lines.findIndex(line => treatmentHeadingInfo(line)?.key === 'next_review_date');
@@ -4426,6 +4652,24 @@ function parseTreatmentPlanText(raw, scenarioId = '') {
 function treatmentScenarioWarnings(plan, scenarioId) {
   const warnings = [];
   const problems = plan?.problems || [];
+  const normalizeGoalDomain = (value) => String(value || '')
+    .replace(/[^a-z0-9]+/gi, ' ')
+    .trim()
+    .toLowerCase();
+  const warnGoalDomains = (expectedDomains) => {
+    problems.forEach((problem, index) => {
+      const expected = expectedDomains[index];
+      const actual = normalizeGoalDomain(problem.goal_domain);
+      if (expected && actual !== normalizeGoalDomain(expected)) {
+        warnings.push(`Problem ${problem.number} should use Goal (${expected}); parsed ${problem.goal_domain ? `Goal (${problem.goal_domain})` : 'an unlabeled Goal'}.`);
+      }
+    });
+  };
+  const warnNextReview = (pattern, requirement) => {
+    if (!pattern.test(String(plan?.next_review_date || ''))) {
+      warnings.push(`Next Review Date should ${requirement}.`);
+    }
+  };
   const allText = [
     plan?.strengths,
     plan?.risk_factors,
@@ -4436,34 +4680,53 @@ function treatmentScenarioWarnings(plan, scenarioId) {
       ...problem.therapeutic_interventions
     ])
   ].join(' ').toLowerCase();
+  const objectiveText = problems.flatMap(problem => problem.objectives || []).join(' ').toLowerCase();
+  const sudForbiddenLanguage = /\b(30-day|transition|discharge|continuity of care period|stabilization period)\b/i;
   if (scenarioId === 'sud_outpatient') {
+    warnGoalDomains(['Recovery', 'Life Skills', 'Emotional Regulation']);
     problems.forEach(problem => {
       if (!/^90\s*days?$/i.test(problem.target_date)) warnings.push(`Problem ${problem.number} Target Date should be 90 days for the SUD outpatient prompt.`);
       if (!problem.completion_date) warnings.push(`Problem ${problem.number} is missing Completion Date.`);
     });
-    if (/\b(30-day|transition|discharge|continuity of care period|stabilization period)\b/i.test(allText)) warnings.push('The SUD outpatient response contains language Rose marked forbidden.');
+    warnNextReview(/\b90\s*days?\b/i, 'be 90 days from treatment plan initiation for the SUD outpatient prompt');
+    if (sudForbiddenLanguage.test(allText)) warnings.push('The SUD outpatient response contains language Rose marked forbidden.');
+    if (/\b(at least(?: one| two)?|minimum of|80% of sessions|three coping skills|once weekly|twice weekly|per week|per month)\b/i.test(objectiveText)) {
+      warnings.push('The SUD outpatient objectives contain quota or attendance language Rose marked forbidden.');
+    }
   }
   if (scenarioId === 'sud_detox_first') {
+    warnGoalDomains(['Detox', 'Recovery', 'Life Skills']);
     if (!/7\s*[-–]\s*10\s*days/i.test(problems[0]?.target_date || '')) warnings.push('Problem 1 should use a 7-10 day detox timeframe.');
     problems.slice(1).forEach(problem => {
       if (!/^90\s*days?$/i.test(problem.target_date)) warnings.push(`Problem ${problem.number} should use a 90-day treatment timeframe.`);
     });
+    warnNextReview(/\b180\s*days?\b/i, 'be 180 days from treatment plan initiation for the detox-first prompt');
+    if (sudForbiddenLanguage.test(allText)) warnings.push('The detox-first response contains language Rose marked forbidden.');
+    if (!/medically supervised detoxification|withdrawal risk/i.test(problems[0]?.problem_statement || '')) {
+      warnings.push('Problem 1 should explicitly support medically supervised detoxification due to withdrawal risk.');
+    }
   }
   if (scenarioId === 'higher_level_asam_3_7') {
+    warnGoalDomains(['Stabilization', 'Withdrawal Management', 'Psychiatric Stabilization']);
     problems.forEach(problem => {
       if (!/(5\s*[-–]\s*7|7\s*[-–]\s*10|10\s*[-–]\s*14)\s*days/i.test(problem.target_date)) {
         warnings.push(`Problem ${problem.number} Target Date should be 5-7, 7-10, or 10-14 days for ASAM 3.7.`);
       }
     });
     if (!/medically managed residential stabilization|asam\s*3\.7/i.test(allText)) warnings.push('The higher-level response does not clearly name Medically Managed Residential Stabilization (ASAM 3.7).');
+    warnNextReview(/\bfollowing stabilization\b|\btransition to appropriate ongoing level of care\b/i, 'occur following stabilization or transition to the appropriate ongoing level of care');
   }
   if (scenarioId === 'non_sud_refer_out') {
     problems.forEach(problem => {
       if (!/^30\s*days?$/i.test(problem.target_date)) warnings.push(`Problem ${problem.number} Target Date should be 30 days for referral out.`);
       if (!problem.completion_date) warnings.push(`Problem ${problem.number} is missing Completion Date.`);
     });
+    warnNextReview(/\b30\s*days?\b/i, 'be 30 days from treatment plan initiation for the non-SUD referral prompt');
     if (/\b(relapse prevention|recovery programming|sobriety maintenance|continued sud treatment|cravings|substance recovery goals)\b/i.test(allText)) {
       warnings.push('The non-SUD referral response contains recovery language Rose marked forbidden unless clearly supported by the assessment.');
+    }
+    if (/\b(at least|minimum of|one per week|twice weekly|weekly|monthly|per week|per month|identify two resources|identify three coping skills|document progress|document triggers|complete a self-assessment|complete an evaluation|80% of sessions)\b/i.test(objectiveText)) {
+      warnings.push('The non-SUD referral objectives contain quota, attendance, or homework language Rose marked forbidden.');
     }
   }
   return warnings;
@@ -4481,10 +4744,10 @@ function validateTreatmentResponse() {
     const number = index + 1;
     if (!problem.problem_statement) errors.push(`Problem ${number} statement is missing.`);
     if (!problem.goal) errors.push(`Problem ${number} goal is missing.`);
-    if (problem.objectives.length < 2 || problem.objectives.length > 3) warnings.push(`Problem ${number} should have 2-3 numbered objectives; parsed ${problem.objectives.length}.`);
-    if (problem.therapeutic_interventions.length < 2 || problem.therapeutic_interventions.length > 3) warnings.push(`Problem ${number} should have 2-3 numbered interventions; parsed ${problem.therapeutic_interventions.length}.`);
+    if (problem.objectives.length < 2 || problem.objectives.length > 3) warnings.push(`Problem ${number} should have 2-3 objectives on separate lines; parsed ${problem.objectives.length}.`);
+    if (problem.therapeutic_interventions.length < 2 || problem.therapeutic_interventions.length > 3) warnings.push(`Problem ${number} should have 2-3 interventions on separate lines; parsed ${problem.therapeutic_interventions.length}.`);
     if (!problem.target_date) warnings.push(`Problem ${number} Target Date or Estimated Length of Treatment is missing.`);
-    if (!problem.review_comments) warnings.push(`Problem ${number} Review/Comments is blank.`);
+    if (scenarioId === 'higher_level_asam_3_7' && !problem.review_comments) warnings.push(`Problem ${number} Review/Comments is required for the higher-level-of-care scenario.`);
   });
   if (!plan.safety_planning) errors.push('Safety Planning is missing.');
   if (!plan.next_review_date) errors.push('Next Review Date is missing.');
@@ -4523,6 +4786,13 @@ async function prepareTreatmentResponseForFill() {
   if (!plan.date_of_service_plan && context.dateOfServicePlan) {
     plan.date_of_service_plan = context.dateOfServicePlan;
   }
+  applyTreatmentCompletionDates(
+    plan,
+    context.dateOfServicePlan || plan.date_of_service_plan || plan.assessment_date
+  );
+  const comparableReviewValue = (value) => String(value || '').toLowerCase().replace(/[.\s]+$/g, '').trim();
+  const nextReviewMismatch = context.nextReviewDate && plan.next_review_date &&
+    comparableReviewValue(context.nextReviewDate) !== comparableReviewValue(plan.next_review_date);
   return {
     validation: {
       ...validation,
@@ -4531,6 +4801,9 @@ async function prepareTreatmentResponseForFill() {
         ...(!plan.assessment_date ? ['Assessment Date could not be copied because Date of Service Plan was not found on the active page.'] : []),
         ...(context.assessmentDate && context.dateOfServicePlan && context.assessmentDate !== context.dateOfServicePlan
           ? [`Assessment Date (${context.assessmentDate}) differs from Date of Service Plan (${context.dateOfServicePlan}); Rose requires them to match.`]
+          : []),
+        ...(nextReviewMismatch
+          ? [`The form's read-only Next Review value is "${context.nextReviewDate}", while the response requires "${plan.next_review_date}". The extension left the form value unchanged.`]
           : [])
       ]
     },
@@ -4963,6 +5236,7 @@ $('scanPage').onclick = async () => {
 };
 $('fillPage').onclick = async () => {
   try {
+    assertSafeBpsConfig(activeConfig);
     const merged = validateAndMerge();
     await saveMerged(merged);
     const result = await runInActiveTab(pageFill, [buildRuntimeConfig(), merged, $('dryRun').checked]);
@@ -5363,16 +5637,18 @@ $('fillDiagnosticsPage').onclick = async () => {
 };
 $('copyTreatmentPrompt').onclick = async () => {
   const prompt = selectedTreatmentPrompt();
-  if (!prompt?.body) {
+  const effectivePrompt = effectiveTreatmentPrompt(prompt);
+  if (!effectivePrompt) {
     setStatus('No Treatment Plan prompt loaded');
     return;
   }
-  await navigator.clipboard.writeText(prompt.body);
+  await navigator.clipboard.writeText(effectivePrompt);
   setStatus(`Copied Treatment Plan prompt ${prompt.number}`);
 };
 $('copyTreatmentPromptNotes').onclick = async () => {
   const prompt = selectedTreatmentPrompt();
-  if (!prompt?.body) {
+  const effectivePrompt = effectiveTreatmentPrompt(prompt);
+  if (!effectivePrompt) {
     setStatus('No Treatment Plan prompt loaded');
     return;
   }
@@ -5381,7 +5657,7 @@ $('copyTreatmentPromptNotes').onclick = async () => {
     prompt.title,
     `${source.subject || 'Treatment Plan Prompts (4)'} | ${source.sender || ''} | ${source.receivedAt || ''}`,
     '',
-    prompt.body
+    effectivePrompt
   ].join('\n'));
   setStatus(`Copied Treatment Plan prompt ${prompt.number} with notes`);
 };

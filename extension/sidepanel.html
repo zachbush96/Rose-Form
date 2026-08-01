@@ -277,8 +277,8 @@
 
   <section class="card mode-panel mode-treatment hidden">
     <h2>Treatment Plan response</h2>
-    <p class="small">Paste Rose's copy-ready Treatment Plan output. The extension parses the headers, numbered objectives, interventions, dates, safety planning, and all three problems before filling.</p>
-    <textarea id="treatmentResp" placeholder="Paste the Treatment Plan output here"></textarea>
+    <p class="small">Paste BastionGPT's structured Treatment Plan JSON. The extension validates the same field structure used by the other sections before filling. Legacy formatted-text responses remain supported as a fallback.</p>
+    <textarea id="treatmentResp" placeholder="Paste the Treatment Plan JSON here"></textarea>
     <div class="row wrap">
       <button id="validateTreatmentResponse">Validate and parse</button>
       <button id="copyTreatmentJson">Copy parsed JSON</button>
@@ -293,8 +293,8 @@
       <button id="scanTreatmentPage">Scan active page</button>
       <button id="fillTreatmentPage" class="primary">Fill active page</button>
     </div>
-    <label class="check"><input type="checkbox" id="treatmentDryRun" checked> Dry run, do not write</label>
-    <p class="small">Treatment Plan uses label- and section-aware matching until tomorrow's live capture supplies stable field IDs. Review the dry-run trace before turning this off.</p>
+    <label class="check"><input type="checkbox" id="treatmentDryRun"> Dry run, do not write</label>
+    <p class="small">Treatment Plan writes to the mapped Service Plan fields by default. Turn on dry run when you only want to preview the fill trace.</p>
     <pre id="treatmentFillResults">No Treatment Plan scan or fill yet.</pre>
   </section>
 
@@ -304,7 +304,7 @@
       <button id="captureTreatmentSupport">Capture page and preflight</button>
       <button id="copyTreatmentSupport">Copy support bundle</button>
     </div>
-    <p class="small">Captures the active URL/title, all visible and hidden controls, field labels and DOM hints, page HTML metadata, parsed-response coverage, runtime config, and recent Treatment Plan traces. Raw page HTML is included in the copied/sent bundle for mapping tomorrow.</p>
+    <p class="small">Captures the active URL/title, all visible and hidden controls, field labels and DOM hints, page HTML metadata, parsed-response coverage, runtime config, and recent Treatment Plan traces. Raw page HTML is included in the copied bundle for stable field mapping.</p>
     <pre id="treatmentTroubleshooting">No Treatment Plan support bundle yet.</pre>
   </section>
 

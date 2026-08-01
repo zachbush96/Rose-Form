@@ -1,7 +1,7 @@
 window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
   "project": "Rose ReliaTrax Workflow Modes",
-  "version": "0.1.12",
-  "updated": "2026-06-09",
+  "version": "0.1.17",
+  "updated": "2026-07-28",
   "modes": {
     "bps": {
       "title": "BPS Part 1",
@@ -2715,16 +2715,17 @@ window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
     },
     "treatment": {
       "title": "Treatment Plan",
-      "description": "Active Treatment Plan workflow with Rose's four 2026-07-26 prompts, formatted-response parsing, scenario validation, label-aware dry-run/fill, and deep support capture pending stable live field IDs.",
-      "mappingStatus": "adaptive",
+      "description": "Mapped Treatment Plan workflow with deterministic Completion Date month/year calculation from each numeric Target Date, blank Review/Comments except for higher-level-of-care plans, plain newline-separated objectives and interventions, and direct webpage filling enabled by default.",
+      "mappingStatus": "mapped",
       "fieldMap": [],
+      "expectedFieldCount": 27,
       "sourcePrompt": {
         "title": "Treatment Plan prompts (4)",
-        "source": "Rosalee Harris email received 2026-07-26 8:24 PM Mountain; exact prompt bodies bundled in treatment-config.js and github-data/rose-treatment-plan-config.json",
-        "body": "Select one of Rose's four Treatment Plan scenarios in the extension: SUD outpatient/IOP, detox before outpatient/IOP, higher level ASAM 3.7, or non-SUD referral out within 30 days."
+        "source": "Rosalee Harris email received 2026-07-26 8:24 PM Mountain; exact clinical prompt bodies are preserved and the extension appends a shared mandatory JSON output contract",
+        "body": "Select one of Rose's four Treatment Plan scenarios in the extension: SUD outpatient/IOP, detox before outpatient/IOP, higher level ASAM 3.7, or non-SUD referral out within 30 days. The copied prompt requires one structured JSON object compatible with the extension's Treatment Plan parser."
       },
       "promptConfigUrl": "rose-treatment-plan-config.json",
-      "selector": "textarea, select, input:not([type=\"hidden\"]):not([type=\"submit\"]):not([type=\"button\"]):not([type=\"reset\"]):not([type=\"image\"]), [contenteditable=\"true\"]",
+      "selector": "#notePanels .quickNoteFormBlock textarea.qn-textarea, #notePanels .quickNoteFormBlock input.qn-editable-cb",
       "onlyVisibleControls": false
     },
     "quicknotes": {
@@ -2739,6 +2740,11 @@ window.DEFAULT_ROSE_WORKFLOW_CONFIG = {
     }
   },
   "releaseNotes": [
+    "v0.1.17 calculates every numeric Treatment Plan Completion Date from the Date of Service Plan or assessment date, falling back to today, and uses the upper endpoint for day ranges.",
+    "v0.1.16 applies Rose's Treatment Plan feedback: Review/Comments stays blank except for higher-level-of-care scenario 3, objectives and interventions fill as plain newline-separated text, and webpage writing is the default instead of dry run.",
+    "v0.1.15 maps Treatment Plan fields 10000-10024 from Rose's live support capture, scopes filling to the active Service Plan, reads the static Date of Service Plan, and never targets the Client accepted/denied checkboxes as Next Review.",
+    "v0.1.14 preserves Rose's four clinical prompts and appends a mandatory shared JSON-only output contract so Treatment Plan responses follow the same structured parsing workflow as earlier extension sections.",
+    "v0.1.13 verifies Rose's four Treatment Plan prompts against the 2026-07-26 source email and adds scenario-specific goal, timeframe, Next Review, detox, ASAM 3.7, and forbidden-language safeguards.",
     "v0.1.12 activates Treatment Plan with Rose's four 2026-07-26 prompts, formatted-response parsing and validation, label-aware dry-run/fill, Date of Service Plan capture, and full troubleshooting support bundles.",
     "v0.1.11 removes generated tobacco missing-frequency wording and balances ASAM severity calibration so ratings follow current functional evidence without inflating severity.",
     "v0.1.10 maps Diagnostics Part 4, adds dynamic Part 3 Case Management / ASAM prompt context from live ReliaTrax textboxes, and enables Part 4 response validation plus fill.",
