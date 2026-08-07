@@ -233,7 +233,9 @@ function jsonParseLocation(err, raw) {
   const message = String(err?.message || '');
   const positionMatch = message.match(/\bposition\s+(\d+)\b/i);
   const lineColumnMatch = message.match(/\bline\s+(\d+)\s+column\s+(\d+)\b/i);
-  const position = positionMatch ? Number(positionMatch[1]) : undefined;
+  const position = positionMatch
+    ? Number(positionMatch[1])
+    : (/unexpected end|end of json input/i.test(message) ? String(raw || '').length : undefined);
   const computed = Number.isInteger(position) ? jsonLineColumnFromPosition(raw, position) : {};
   return {
     position,
@@ -262,8 +264,11 @@ function jsonErrorSnippet(raw, location) {
     `${' '.repeat(caretOffset)}^`
   ].join('\n');
 }
-function likelyJsonParseCause(err) {
+function likelyJsonParseCause(err, raw = '', location = {}) {
   const message = String(err?.message || '');
+  if (Number.isInteger(location?.position) && location.position >= String(raw || '').length) {
+    return 'The response ends before its JSON object is complete. BastionGPT likely truncated the response or omitted a closing brace or required section.';
+  }
   if (/bad control character|unterminated string/i.test(message)) {
     return 'A raw line break, tab, or other control character is inside a JSON string. BastionGPT likely returned malformed JSON or the copied response inserted an illegal character.';
   }
@@ -286,12 +291,12 @@ function jsonParseDiagnostic(raw, label, err) {
     workflow: label,
     message: `${label} is not valid JSON. Nothing was filled.`,
     parserMessage: err?.message || String(err),
-    likelyCause: likelyJsonParseCause(err),
+    likelyCause: likelyJsonParseCause(err, raw, location),
     position: location.position,
     line: location.line,
     column: location.column,
     snippet: jsonErrorSnippet(raw, location),
-    nextAction: 'Regenerate or repair the BastionGPT response so it is one valid JSON object, then validate again before filling.'
+    nextAction: 'Regenerate the complete BastionGPT response as one valid JSON object. Do not guess at missing braces or delete sections; then validate again before filling.'
   };
 }
 function parseJsonWithDiagnostic(raw, label) {
@@ -302,6 +307,137 @@ function parseJsonWithDiagnostic(raw, label) {
     wrapped.diagnostic = jsonParseDiagnostic(raw, label, err);
     throw wrapped;
   }
+}
+const BPS_PROMPT_1_REQUIRED_SHAPE = [
+  { path: 'living_situation', type: 'object' },
+  { path: 'substance_use', type: 'object' },
+  { path: 'substance_use.no_history' },
+  { path: 'substance_use.substance_1', type: 'object' },
+  { path: 'substance_use.substance_2', type: 'object' },
+  { path: 'substance_use.substance_3', type: 'object' },
+  { path: 'substance_use.other_substances' },
+  { path: 'tobacco', type: 'object' },
+  { path: 'withdrawal', type: 'object' },
+  { path: 'previous_substance_use_treatment', type: 'object' }
+];
+const BPS_PROMPT_1_TOP_LEVEL_SECTIONS = [
+  'living_situation',
+  'substance_use',
+  'tobacco',
+  'withdrawal',
+  'previous_substance_use_treatment'
+];
+function objectHasOwnPath(value, path) {
+  let current = value;
+  for (const part of String(path || '').split('.')) {
+    if (!current || typeof current !== 'object' || Array.isArray(current) || !Object.hasOwn(current, part)) return false;
+    current = current[part];
+  }
+  return true;
+}
+function objectValueAtPath(value, path) {
+  return String(path || '').split('.').reduce((current, part) => current?.[part], value);
+}
+function findNestedKeyPaths(value, key, path = '', matches = []) {
+  if (!value || typeof value !== 'object') return matches;
+  for (const [childKey, childValue] of Object.entries(value)) {
+    const childPath = path ? `${path}.${childKey}` : childKey;
+    if (childKey === key) matches.push(childPath);
+    if (childValue && typeof childValue === 'object') findNestedKeyPaths(childValue, key, childPath, matches);
+  }
+  return matches;
+}
+function bpsPrompt1StructureIssues(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return ['Prompt 1 must be one JSON object.'];
+  }
+  const issues = [];
+  const misplacedTopLevelSections = new Set();
+  for (const section of BPS_PROMPT_1_TOP_LEVEL_SECTIONS) {
+    if (Object.hasOwn(value, section)) continue;
+    const nestedPaths = findNestedKeyPaths(value, section).filter(path => path !== section);
+    if (nestedPaths.length) {
+      issues.push(`${section} must be top-level; found at ${nestedPaths[0]}.`);
+      misplacedTopLevelSections.add(section);
+    }
+  }
+  for (const requirement of BPS_PROMPT_1_REQUIRED_SHAPE) {
+    if (!objectHasOwnPath(value, requirement.path)) {
+      if (!misplacedTopLevelSections.has(requirement.path)) issues.push(`Missing ${requirement.path}.`);
+      continue;
+    }
+    const actual = objectValueAtPath(value, requirement.path);
+    if (requirement.type === 'object' && (!actual || typeof actual !== 'object' || Array.isArray(actual))) {
+      issues.push(`${requirement.path} must be an object.`);
+    }
+  }
+  return issues;
+}
+function bpsPromptStructureDiagnostic(promptNumber, value) {
+  if (promptNumber !== 1) return null;
+  const issues = bpsPrompt1StructureIssues(value);
+  if (!issues.length) return null;
+  return {
+    ok: false,
+    source: 'BastionGPT response',
+    stage: 'structure',
+    category: 'incomplete_json_structure',
+    blocking: true,
+    workflow: 'Prompt 1',
+    message: 'Prompt 1 JSON is incomplete or incorrectly structured. Nothing was filled.',
+    issues,
+    nextAction: 'Regenerate Prompt 1 in BastionGPT using the complete requested JSON shape. Do not repair it by only appending a closing brace; then validate again before filling.'
+  };
+}
+function bpsResponseWarningText(diagnostic) {
+  if (!diagnostic) return '';
+  const lines = [`${diagnostic.workflow || 'BastionGPT response'} — response blocked`];
+  if (diagnostic.category === 'invalid_json') {
+    lines.push(`Problem: ${diagnostic.likelyCause || diagnostic.parserMessage || 'The response is not valid JSON.'}`);
+    if (diagnostic.line && diagnostic.column) lines.push(`Location: line ${diagnostic.line}, column ${diagnostic.column}.`);
+    if (diagnostic.parserMessage) lines.push(`Parser: ${String(diagnostic.parserMessage).slice(0, 240)}`);
+  } else {
+    const issues = Array.isArray(diagnostic.issues) ? diagnostic.issues : [];
+    lines.push(`Problem: ${issues.slice(0, 8).join(' ') || diagnostic.message}`);
+    if (issues.length > 8) lines.push(`Plus ${issues.length - 8} more missing or misplaced section${issues.length - 8 === 1 ? '' : 's'}.`);
+  }
+  lines.push(`Next: ${diagnostic.nextAction}`);
+  return lines.join('\n');
+}
+function renderBpsResponseWarning(promptNumber, diagnostic = null) {
+  const textarea = $(`resp${promptNumber}`);
+  const warning = $(`resp${promptNumber}Warning`);
+  if (!textarea || !warning) return;
+  const visible = Boolean(diagnostic);
+  textarea.classList.toggle('json-invalid', visible);
+  textarea.setAttribute('aria-invalid', String(visible));
+  warning.textContent = visible ? bpsResponseWarningText(diagnostic) : '';
+  warning.classList.toggle('hidden', !visible);
+}
+function parseBpsResponse(promptNumber) {
+  const raw = String($(`resp${promptNumber}`)?.value || '').trim();
+  if (!raw) {
+    renderBpsResponseWarning(promptNumber);
+    return {};
+  }
+  let parsed;
+  try {
+    parsed = parseJsonWithDiagnostic(raw, `Prompt ${promptNumber}`);
+  } catch (err) {
+    renderBpsResponseWarning(promptNumber, err.diagnostic);
+    throw err;
+  }
+  const structureDiagnostic = bpsPromptStructureDiagnostic(promptNumber, parsed);
+  renderBpsResponseWarning(promptNumber, structureDiagnostic);
+  if (structureDiagnostic) {
+    const err = new Error(structureDiagnostic.message);
+    err.diagnostic = structureDiagnostic;
+    throw err;
+  }
+  return parsed;
+}
+function refreshBpsResponseWarning(promptNumber) {
+  try { parseBpsResponse(promptNumber); } catch {}
 }
 function blockingDiagnostic({ source, stage, category, workflow, message, details, nextAction }) {
   const err = new Error(message);
@@ -326,6 +462,8 @@ function deepMerge(target, source) {
   return target;
 }
 function parseJsonBox(id) {
+  const promptMatch = String(id || '').match(/^resp([1-4])$/);
+  if (promptMatch) return parseBpsResponse(Number(promptMatch[1]));
   const raw = $(id).value.trim();
   if (!raw) return {};
   return JSON.parse(raw);
@@ -1427,6 +1565,7 @@ async function loadState() {
   if ($('treatmentResp')) $('treatmentResp').value = data[STORAGE_KEYS.treatmentResponse] || '';
   if ($('treatmentTroubleshooting')) logTo('treatmentTroubleshooting', treatmentSupportBundle || 'No Treatment Plan support bundle yet.');
   (data[STORAGE_KEYS.responses] || []).forEach((v, i) => { if ($(`resp${i+1}`)) $(`resp${i+1}`).value = v || ''; });
+  [1, 2, 3, 4].forEach(refreshBpsResponseWarning);
   renderTraceLog();
   renderDiscoveryReport();
   renderVisualMappingButtons();
@@ -5222,7 +5361,10 @@ $('copyMerged').onclick = async () => {
   catch (err) { logTo('validation', err.message); }
 };
 $('clearResponses').onclick = async () => {
-  [1,2,3,4].forEach(i => $(`resp${i}`).value = '');
+  [1,2,3,4].forEach(i => {
+    $(`resp${i}`).value = '';
+    renderBpsResponseWarning(i);
+  });
   await chrome.storage.local.remove([STORAGE_KEYS.responses, STORAGE_KEYS.merged]);
   setStatus('Cleared saved responses');
 };
@@ -5852,7 +5994,10 @@ $('discoveryPrefix').addEventListener('input', async () => {
 document.querySelectorAll('.mode-btn').forEach(btn => {
   btn.addEventListener('click', () => saveMode(btn.dataset.mode).catch(err => setStatus(err.message)));
 });
-[1,2,3,4].forEach(i => $(`resp${i}`).addEventListener('input', saveResponses));
+[1,2,3,4].forEach(i => $(`resp${i}`).addEventListener('input', async () => {
+  refreshBpsResponseWarning(i);
+  await saveResponses();
+}));
 $('quicknotesResp')?.addEventListener('input', saveQuickNotesResponse);
 $('mseResp')?.addEventListener('input', saveMseResponse);
 $('asamResp')?.addEventListener('input', saveAsamResponse);

@@ -141,7 +141,23 @@ test('Prompt 2 requests the combined attempt detail and future-trigger fields', 
 
   assert.match(prompt, /"attempt_dates_and_methods":""/);
   assert.match(prompt, /"future_attempt_triggers":""/);
+  assert.match(prompt, /Use only the current keys attempt_dates_and_methods and future_attempt_triggers/);
+  assert.match(prompt, /Never output the legacy keys attempt_dates or attempt_methods/);
+  assert.match(prompt, /Always include both current keys[\s\S]*set both values to lowercase n\/a when the related history is No/);
+  assert.doesNotMatch(prompt, /"attempt_dates":""/);
   assert.doesNotMatch(prompt, /"attempt_methods":""/);
+});
+
+test('Prompt 1 requires a complete parseable structure in bundled and standalone prompts', () => {
+  const prompt = remoteConfig().prompts.find(item => item.id === 'prompt1').body;
+  const standalone = fs.readFileSync(path.join(repositoryDir, 'github-data', 'prompts', 'prompt-1.txt'), 'utf8');
+
+  for (const text of [prompt, standalone]) {
+    assert.match(text, /COMPLETENESS CHECK:/);
+    assert.match(text, /exactly these five top-level sections: living_situation, substance_use, tobacco, withdrawal, and previous_substance_use_treatment/);
+    assert.match(text, /always include no_history, substance_1, substance_2, substance_3, and other_substances/);
+    assert.match(text, /shorten narrative values rather than omitting, moving, or truncating any section/);
+  }
 });
 
 test('older or unsafe remote BPS config cannot replace the corrected bundled config', () => {
@@ -162,11 +178,11 @@ test('older or unsafe remote BPS config cannot replace the corrected bundled con
 test('a newer remote config is accepted only when the protected mapping remains intact', () => {
   const helpers = configSafetyContext();
   const newer = remoteConfig();
-  newer.version = '0.4.9';
+  newer.version = '0.5.0';
   const decision = helpers.selectBpsConfig(newer, bundledConfig(), 'Remote');
 
   assert.equal(decision.source, 'remote');
-  assert.equal(decision.config.version, '0.4.9');
+  assert.equal(decision.config.version, '0.5.0');
   assert.equal(decision.warning, '');
   assert.deepEqual(Array.from(helpers.bpsSuicideAttemptMappingIssues(newer)), []);
 });
@@ -193,6 +209,59 @@ test('legacy Prompt 2 output fills the screenshot rows without shifting answers'
   assert.equal(traceById.get('10118').action, 'skip_blank');
 });
 
+test('current combined attempt details take precedence over legacy saved keys', () => {
+  const config = remoteConfig();
+  const fieldMap = config.fieldMap.filter(item => item.fillIndex >= 114 && item.fillIndex <= 118);
+  const fields = fieldMap.map(item => ({
+    tagName: 'TEXTAREA',
+    type: 'textarea',
+    id: `field-${item.dataQnFieldId}`,
+    name: '',
+    className: 'qn-textarea',
+    value: '',
+    checked: false,
+    disabled: false,
+    readOnly: false,
+    outerHTML: `<textarea data-qn-field-id="${item.dataQnFieldId}"></textarea>`,
+    parentElement: { innerText: '' },
+    getAttribute(name) {
+      return name === 'data-qn-field-id' ? item.dataQnFieldId : '';
+    },
+    closest() { return null; }
+  }));
+  const context = {
+    document: {
+      title: 'ReliaTrax BPS test',
+      querySelector() { return null; },
+      querySelectorAll(selector) { return selector === config.selector ? fields : []; }
+    },
+    window: {},
+    location: { href: 'https://reliatrax.example.test/bps' }
+  };
+  const start = sidepanelSource.indexOf('function pageFill');
+  const end = sidepanelSource.indexOf('function buildRuntimeConfig');
+  vm.createContext(context);
+  vm.runInContext(sidepanelSource.slice(start, end), context);
+
+  const result = context.pageFill({
+    ...config,
+    expectedFieldCount: fields.length,
+    fieldMap,
+    defaultAnswers: [],
+    defaultAnswersObject: {}
+  }, {
+    symptoms_suicide_self_harm: {
+      attempt_dates_and_methods: 'Current combined details.',
+      attempt_dates: 'Stale legacy date.',
+      attempt_methods: 'Stale legacy method.'
+    }
+  }, true);
+
+  assert.equal(result.error, undefined);
+  assert.doesNotMatch(result.warnings.join('\n'), /Combined legacy suicide-attempt/);
+  assert.equal(result.trace.find(item => item.dataQnFieldId === '10114').valueWritten, 'Current combined details.');
+});
+
 test('standalone Prompt 2 and sample response use the corrected suicide-attempt shape', () => {
   const prompt2 = fs.readFileSync(path.join(repositoryDir, 'github-data', 'prompts', 'prompt-2.txt'), 'utf8');
   const sample = JSON.parse(fs.readFileSync(path.join(repositoryDir, 'github-data', 'sample-empty-combined-response.json'), 'utf8'));
@@ -200,6 +269,9 @@ test('standalone Prompt 2 and sample response use the corrected suicide-attempt 
 
   assert.match(prompt2, /"attempt_dates_and_methods":""/);
   assert.match(prompt2, /"future_attempt_triggers":""/);
+  assert.match(prompt2, /Never output the legacy keys attempt_dates or attempt_methods/);
+  assert.match(prompt2, /set both values to lowercase n\/a when the related history is No/);
+  assert.doesNotMatch(prompt2, /"attempt_dates":""/);
   assert.doesNotMatch(prompt2, /"attempt_methods":""/);
   assert.ok(Object.hasOwn(suicide, 'attempt_dates_and_methods'));
   assert.ok(Object.hasOwn(suicide, 'future_attempt_triggers'));
