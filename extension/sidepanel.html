@@ -97,10 +97,22 @@
   <section class="card mode-panel mode-bps">
     <h2>BastionGPT responses</h2>
     <p class="small">Paste each JSON response separately. This autosaves locally.</p>
-    <textarea id="resp1" placeholder="Prompt 1 JSON"></textarea>
-    <textarea id="resp2" placeholder="Prompt 2 JSON"></textarea>
-    <textarea id="resp3" placeholder="Prompt 3 JSON"></textarea>
-    <textarea id="resp4" placeholder="Prompt 4 JSON"></textarea>
+    <div class="bps-response-field">
+      <textarea id="resp1" aria-label="Prompt 1 JSON response" aria-describedby="resp1Warning" placeholder="Prompt 1 JSON"></textarea>
+      <div id="resp1Warning" class="json-warning hidden" role="alert" aria-live="assertive"></div>
+    </div>
+    <div class="bps-response-field">
+      <textarea id="resp2" aria-label="Prompt 2 JSON response" aria-describedby="resp2Warning" placeholder="Prompt 2 JSON"></textarea>
+      <div id="resp2Warning" class="json-warning hidden" role="alert" aria-live="assertive"></div>
+    </div>
+    <div class="bps-response-field">
+      <textarea id="resp3" aria-label="Prompt 3 JSON response" aria-describedby="resp3Warning" placeholder="Prompt 3 JSON"></textarea>
+      <div id="resp3Warning" class="json-warning hidden" role="alert" aria-live="assertive"></div>
+    </div>
+    <div class="bps-response-field">
+      <textarea id="resp4" aria-label="Prompt 4 JSON response" aria-describedby="resp4Warning" placeholder="Prompt 4 JSON"></textarea>
+      <div id="resp4Warning" class="json-warning hidden" role="alert" aria-live="assertive"></div>
+    </div>
     <div class="row wrap">
       <button id="validateMerge">Validate and merge</button>
       <button id="copyMerged">Copy merged JSON</button>
