@@ -308,6 +308,247 @@ function parseJsonWithDiagnostic(raw, label) {
     throw wrapped;
   }
 }
+const BPS_PROMPT_EXPECTED_TOP_LEVEL_KEYS = {
+  1: ['living_situation', 'substance_use', 'tobacco', 'withdrawal', 'previous_substance_use_treatment'],
+  2: ['mental_health', 'mental_health_treatment', 'symptoms_suicide_self_harm', 'trauma_grief', 'violence'],
+  3: ['legal', 'family', 'spiritual_cultural', 'medical', 'medications'],
+  4: ['sexual_history', 'vocational', 'educational', 'military', 'current_marital_status_and_living_environment', 'hobbies_activities', 'additional_addiction_questions', 'strengths_challenges']
+};
+function parseJsonStringToken(literal) {
+  try { return JSON.parse(literal); }
+  catch {
+    if (!literal.startsWith('"') || !literal.endsWith('"')) {
+      throw new Error('The original response contains an unterminated JSON string and cannot be safely auto-corrected.');
+    }
+    const escapedControls = literal.replace(/[\u0000-\u001f]/g, character =>
+      `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`
+    );
+    try { return JSON.parse(escapedControls); }
+    catch { throw new Error('The original response contains an invalid JSON string and cannot be safely auto-corrected.'); }
+  }
+}
+function jsonPrimitiveTokenSequence(source) {
+  const text = String(source || '');
+  const tokens = [];
+  let index = 0;
+  while (index < text.length) {
+    const char = text[index];
+    if (/\s/.test(char) || '{}[],:'.includes(char)) {
+      index += 1;
+      continue;
+    }
+    if (char === '"') {
+      const start = index;
+      index += 1;
+      let escaped = false;
+      while (index < text.length) {
+        const current = text[index++];
+        if (escaped) escaped = false;
+        else if (current === '\\') escaped = true;
+        else if (current === '"') break;
+      }
+      const literal = text.slice(start, index);
+      tokens.push(['string', parseJsonStringToken(literal)]);
+      continue;
+    }
+    const start = index;
+    while (index < text.length && !/[\s{}\[\],:]/.test(text[index])) index += 1;
+    tokens.push(['literal', text.slice(start, index)]);
+  }
+  return tokens;
+}
+function validateJsonRepairForTarget(originalRaw, correctedRaw, target) {
+  const corrected = parseJsonWithDiagnostic(String(correctedRaw || '').trim(), `${target.label} corrected response`);
+  if (!corrected || typeof corrected !== 'object' || Array.isArray(corrected)) {
+    throw new Error(`${target.label} corrected response must be one JSON object.`);
+  }
+  const actualKeys = Object.keys(corrected);
+  if (target.expectedTopLevelKeys.length && JSON.stringify(actualKeys) !== JSON.stringify(target.expectedTopLevelKeys)) {
+    throw new Error(`The correction was rejected because its top-level keys did not exactly match the known-good ${target.label} example.`);
+  }
+  const originalTokens = jsonPrimitiveTokenSequence(originalRaw);
+  const correctedTokens = jsonPrimitiveTokenSequence(correctedRaw);
+  if (JSON.stringify(originalTokens) !== JSON.stringify(correctedTokens)) {
+    throw new Error('The correction was rejected because it changed, added, removed, or reordered a key or value. The original response remains untouched.');
+  }
+  if (target.strictShape && !sameJsonShape(corrected, JSON.parse(target.knownGoodExample))) {
+    throw new Error(`The correction was rejected because it did not match the known-good ${target.label} structure.`);
+  }
+  if (target.promptNumber) {
+    const structureDiagnostic = bpsPromptStructureDiagnostic(target.promptNumber, corrected);
+    if (structureDiagnostic) throw new Error(structureDiagnostic.message);
+  }
+  return corrected;
+}
+function firstCompleteJsonObject(text) {
+  const source = String(text || '');
+  const start = source.indexOf('{');
+  if (start < 0) return '';
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let index = start; index < source.length; index++) {
+    const char = source[index];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') inString = true;
+    else if (char === '{') depth += 1;
+    else if (char === '}' && --depth === 0) return source.slice(start, index + 1);
+  }
+  return '';
+}
+function bpsPromptExpectedOutputShape(promptNumber) {
+  const expectedKeys = BPS_PROMPT_EXPECTED_TOP_LEVEL_KEYS[promptNumber] || [];
+  const prompt = (activeConfig?.prompts || []).find((item, index) =>
+    item?.id === `prompt${promptNumber}` ||
+    Number(item?.promptNumber || item?.number || 0) === promptNumber ||
+    index === promptNumber - 1
+  );
+  const body = String(prompt?.body || '');
+  const marker = 'Return ONLY this JSON structure:';
+  const markerIndex = body.lastIndexOf(marker);
+  if (markerIndex >= 0) {
+    const candidate = firstCompleteJsonObject(body.slice(markerIndex + marker.length));
+    try {
+      const parsed = JSON.parse(candidate);
+      if (JSON.stringify(Object.keys(parsed)) === JSON.stringify(expectedKeys)) return JSON.stringify(parsed);
+    } catch {}
+  }
+  return `{${expectedKeys.map(key => `"${key}":{}`).join(',')}}`;
+}
+function jsonExampleAfterMarkers(source, markers) {
+  const body = String(source || '');
+  for (const marker of markers) {
+    const markerIndex = body.toLowerCase().indexOf(String(marker).toLowerCase());
+    if (markerIndex < 0) continue;
+    const candidate = firstCompleteJsonObject(body.slice(markerIndex + marker.length));
+    try {
+      const parsed = JSON.parse(candidate);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return JSON.stringify(parsed);
+    } catch {}
+  }
+  return '';
+}
+function sameJsonShape(actual, expected) {
+  if (Array.isArray(expected)) {
+    if (!Array.isArray(actual)) return false;
+    if (!expected.length) return true;
+    return actual.every(item => sameJsonShape(item, expected[0]));
+  }
+  if (expected && typeof expected === 'object') {
+    if (!actual || typeof actual !== 'object' || Array.isArray(actual)) return false;
+    const expectedKeys = Object.keys(expected);
+    if (JSON.stringify(Object.keys(actual)) !== JSON.stringify(expectedKeys)) return false;
+    return expectedKeys.every(key => sameJsonShape(actual[key], expected[key]));
+  }
+  if (expected === null) return actual === null;
+  return typeof actual === typeof expected;
+}
+function workflowModeKnownGoodExample(mode) {
+  const bundledMode = window.DEFAULT_ROSE_WORKFLOW_CONFIG?.modes?.[mode];
+  const activeModeConfig = workflowMode(mode);
+  const body = bundledMode?.sourcePrompt?.body || activeModeConfig?.sourcePrompt?.body || '';
+  return jsonExampleAfterMarkers(body, [
+    'Use this exact top-level shape:',
+    'Use this exact top level JSON shape:'
+  ]);
+}
+function treatmentKnownGoodExample() {
+  const scenarioId = selectedTreatmentPrompt()?.id || '';
+  const instructions = window.DEFAULT_ROSE_TREATMENT_CONFIG?.outputFormat?.instructions || treatmentConfig?.outputFormat?.instructions || '';
+  return jsonExampleAfterMarkers(
+    String(instructions).replace(/\{\{SCENARIO_ID\}\}/g, scenarioId),
+    ['Use exactly this top-level shape and do not add keys:']
+  );
+}
+function quickNotesKnownGoodExample() {
+  return JSON.stringify({
+    quicknotes: {
+      controls: {
+        3: 'Example concise clinical response.',
+        7: true
+      }
+    }
+  });
+}
+function jsonRepairTarget(responseType) {
+  const bpsMatch = String(responseType || '').match(/^bps_prompt_([1-4])$/);
+  if (bpsMatch) {
+    const promptNumber = Number(bpsMatch[1]);
+    const knownGoodExample = bpsPromptExpectedOutputShape(promptNumber);
+    return {
+      responseType,
+      mode: 'bps',
+      label: `BPS Prompt ${promptNumber}`,
+      promptNumber,
+      textareaId: `resp${promptNumber}`,
+      buttonId: `resp${promptNumber}Repair`,
+      statusId: `resp${promptNumber}RepairStatus`,
+      resultId: `resp${promptNumber}RepairResult`,
+      expectedTopLevelKeys: BPS_PROMPT_EXPECTED_TOP_LEVEL_KEYS[promptNumber],
+      knownGoodExample,
+      strictShape: true,
+      validateCurrent: () => parseBpsResponse(promptNumber),
+      save: () => saveResponses()
+    };
+  }
+  const definitions = {
+    mse: {
+      label: 'MSE Part 2',
+      textareaId: 'mseResp',
+      knownGoodExample: workflowModeKnownGoodExample('mse'),
+      validateCurrent: validateMseResponse,
+      save: saveMseResponse
+    },
+    asam: {
+      label: 'Case Management and ASAM Part 3',
+      textareaId: 'asamResp',
+      knownGoodExample: workflowModeKnownGoodExample('asam'),
+      validateCurrent: validateAsamResponse,
+      save: saveAsamResponse
+    },
+    diagnostics: {
+      label: 'Diagnostics Part 4',
+      textareaId: 'diagnosticsResp',
+      knownGoodExample: workflowModeKnownGoodExample('diagnostics'),
+      validateCurrent: validateDiagnosticsResponse,
+      save: saveDiagnosticsResponse
+    },
+    treatment: {
+      label: 'Treatment Plan',
+      textareaId: 'treatmentResp',
+      knownGoodExample: treatmentKnownGoodExample(),
+      validateCurrent: validateTreatmentResponse,
+      save: saveTreatmentResponse
+    },
+    quicknotes: {
+      label: 'QuickNotes / Group Notes',
+      textareaId: 'quicknotesResp',
+      knownGoodExample: quickNotesKnownGoodExample(),
+      validateCurrent: validateQuickNotesResponse,
+      save: saveQuickNotesResponse,
+      strictShape: false,
+      flexibleTopLevelKeys: true
+    }
+  };
+  const definition = definitions[responseType];
+  if (!definition?.knownGoodExample) throw new Error('No known-good JSON example is available for this response.');
+  const textareaId = definition.textareaId;
+  return {
+    responseType,
+    mode: responseType,
+    ...definition,
+    buttonId: `${textareaId}Repair`,
+    statusId: `${textareaId}RepairStatus`,
+    resultId: `${textareaId}RepairResult`,
+    expectedTopLevelKeys: definition.flexibleTopLevelKeys ? [] : Object.keys(JSON.parse(definition.knownGoodExample)),
+    strictShape: definition.strictShape !== false
+  };
+}
 const BPS_PROMPT_1_REQUIRED_SHAPE = [
   { path: 'living_situation', type: 'object' },
   { path: 'substance_use', type: 'object' },
@@ -391,28 +632,137 @@ function bpsPromptStructureDiagnostic(promptNumber, value) {
 }
 function bpsResponseWarningText(diagnostic) {
   if (!diagnostic) return '';
-  const lines = [`${diagnostic.workflow || 'BastionGPT response'} — response blocked`];
-  if (diagnostic.category === 'invalid_json') {
-    lines.push(`Problem: ${diagnostic.likelyCause || diagnostic.parserMessage || 'The response is not valid JSON.'}`);
-    if (diagnostic.line && diagnostic.column) lines.push(`Location: line ${diagnostic.line}, column ${diagnostic.column}.`);
-    if (diagnostic.parserMessage) lines.push(`Parser: ${String(diagnostic.parserMessage).slice(0, 240)}`);
-  } else {
-    const issues = Array.isArray(diagnostic.issues) ? diagnostic.issues : [];
-    lines.push(`Problem: ${issues.slice(0, 8).join(' ') || diagnostic.message}`);
-    if (issues.length > 8) lines.push(`Plus ${issues.length - 8} more missing or misplaced section${issues.length - 8 === 1 ? '' : 's'}.`);
-  }
-  lines.push(`Next: ${diagnostic.nextAction}`);
-  return lines.join('\n');
+  return [
+    `${diagnostic.workflow || 'BastionGPT response'} needs correction.`,
+    'This response could not be read, so nothing was filled.',
+    'Use Correct with ChatGPT below, or paste a new response and try again.'
+  ].join('\n');
 }
 function renderBpsResponseWarning(promptNumber, diagnostic = null) {
   const textarea = $(`resp${promptNumber}`);
   const warning = $(`resp${promptNumber}Warning`);
   if (!textarea || !warning) return;
+  const warningText = $(`resp${promptNumber}WarningText`) || warning;
   const visible = Boolean(diagnostic);
   textarea.classList.toggle('json-invalid', visible);
   textarea.setAttribute('aria-invalid', String(visible));
-  warning.textContent = visible ? bpsResponseWarningText(diagnostic) : '';
+  warningText.textContent = visible ? bpsResponseWarningText(diagnostic) : '';
   warning.classList.toggle('hidden', !visible);
+}
+function n8nJsonRepairUrl() {
+  return N8N_LOGGING_CONFIG.enabled ? String(N8N_LOGGING_CONFIG.repairUrl || '').trim() : '';
+}
+async function requestN8nJsonRepair({ responseType, mode, responseLabel, rawJson, expectedTopLevelKeys, knownGoodExample, strictShape }) {
+  const url = n8nJsonRepairUrl();
+  if (!url) throw new Error('The correction service is not configured.');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), N8N_LOGGING_CONFIG.repairRequestTimeoutMs || 45000);
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: 'rose_json_repair_request',
+        requestVersion: 2,
+        responseType,
+        mode,
+        responseLabel,
+        rawJson,
+        expectedTopLevelKeys,
+        knownGoodExample,
+        strictShape
+      }),
+      signal: controller.signal
+    });
+    const responseText = await response.text();
+    let body = null;
+    try { body = responseText ? JSON.parse(responseText) : null; } catch {}
+    if (!response.ok) throw new Error(`The correction service returned ${response.status}.`);
+    if (!body || body.ok === false || typeof body.correctedJson !== 'string' || !body.correctedJson.trim()) {
+      throw new Error('The correction service returned an incomplete result.');
+    }
+    return body;
+  } catch (err) {
+    if (err?.name === 'AbortError') throw new Error('The correction service timed out.');
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+async function repairJsonResponseWithN8n(responseType) {
+  const target = jsonRepairTarget(responseType);
+  const textarea = $(target.textareaId);
+  const button = $(target.buttonId);
+  const repairStatus = $(target.statusId);
+  const repairResult = $(target.resultId);
+  if (button?.disabled) return;
+  const rawJson = String(textarea?.value || '').trim();
+  if (!rawJson) {
+    if (repairStatus) repairStatus.textContent = 'Paste the response first.';
+    return;
+  }
+  repairResult?.classList.toggle('hidden', true);
+  if (repairResult) repairResult.textContent = '';
+  try {
+    target.validateCurrent();
+    if (repairStatus) repairStatus.textContent = 'This response is already valid and does not need correction.';
+    return;
+  } catch {
+    // Validation failures are the entry point for syntax/structure repair.
+  }
+  if (!rawJson.startsWith('{')) {
+    if (repairStatus) repairStatus.textContent = 'Only a malformed JSON object can be corrected. Your original response is still here.';
+    return;
+  }
+  if (button) {
+    button.disabled = true;
+    button.classList.add('is-loading');
+    button.setAttribute('aria-busy', 'true');
+    button.textContent = 'Correcting…';
+  }
+  if (repairStatus) repairStatus.textContent = 'Correcting with ChatGPT and checking the result…';
+  setStatus(`Correcting ${target.label} JSON`);
+  try {
+    const response = await requestN8nJsonRepair({
+      responseType: target.responseType,
+      mode: target.mode,
+      responseLabel: target.label,
+      rawJson,
+      expectedTopLevelKeys: target.expectedTopLevelKeys,
+      knownGoodExample: target.knownGoodExample,
+      strictShape: target.strictShape
+    });
+    const corrected = validateJsonRepairForTarget(rawJson, response.correctedJson, target);
+    const originalValue = textarea.value;
+    textarea.value = JSON.stringify(corrected);
+    try {
+      target.validateCurrent();
+      await target.save();
+    } catch (err) {
+      textarea.value = originalValue;
+      throw err;
+    }
+    if (repairStatus) repairStatus.textContent = '';
+    if (repairResult) {
+      repairResult.textContent = 'Corrected and checked. The response is ready to use.';
+      repairResult.classList.toggle('hidden', false);
+    }
+    setStatus(`${target.label} JSON corrected and validated`);
+  } catch (err) {
+    console.error(`${target.label} JSON correction failed:`, err);
+    if (repairStatus) repairStatus.textContent = 'We could not correct this response right now. Your original response is still here.';
+    setStatus(`${target.label} correction failed`);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.classList.remove('is-loading');
+      button.removeAttribute('aria-busy');
+      button.textContent = 'Correct with ChatGPT';
+    }
+  }
+}
+async function repairBpsResponseWithN8n(promptNumber) {
+  return repairJsonResponseWithN8n(`bps_prompt_${promptNumber}`);
 }
 function parseBpsResponse(promptNumber) {
   const raw = String($(`resp${promptNumber}`)?.value || '').trim();
@@ -5998,6 +6348,13 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
   refreshBpsResponseWarning(i);
   await saveResponses();
 }));
+[1,2,3,4].forEach(i => $(`resp${i}Repair`)?.addEventListener('click', () => {
+  repairBpsResponseWithN8n(i);
+}));
+['mse', 'asam', 'diagnostics', 'treatment', 'quicknotes'].forEach(responseType => {
+  const target = jsonRepairTarget(responseType);
+  $(target.buttonId)?.addEventListener('click', () => repairJsonResponseWithN8n(responseType));
+});
 $('quicknotesResp')?.addEventListener('input', saveQuickNotesResponse);
 $('mseResp')?.addEventListener('input', saveMseResponse);
 $('asamResp')?.addEventListener('input', saveAsamResponse);

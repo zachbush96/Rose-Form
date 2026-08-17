@@ -99,19 +99,39 @@
     <p class="small">Paste each JSON response separately. This autosaves locally.</p>
     <div class="bps-response-field">
       <textarea id="resp1" aria-label="Prompt 1 JSON response" aria-describedby="resp1Warning" placeholder="Prompt 1 JSON"></textarea>
-      <div id="resp1Warning" class="json-warning hidden" role="alert" aria-live="assertive"></div>
+      <div id="resp1Warning" class="json-warning hidden" role="alert" aria-live="assertive">
+        <div id="resp1WarningText"></div>
+        <button id="resp1Repair" class="json-repair-button" type="button">Correct with ChatGPT</button>
+        <div id="resp1RepairStatus" class="json-repair-status" aria-live="polite"></div>
+      </div>
+      <div id="resp1RepairResult" class="json-repair-result hidden" aria-live="polite"></div>
     </div>
     <div class="bps-response-field">
       <textarea id="resp2" aria-label="Prompt 2 JSON response" aria-describedby="resp2Warning" placeholder="Prompt 2 JSON"></textarea>
-      <div id="resp2Warning" class="json-warning hidden" role="alert" aria-live="assertive"></div>
+      <div id="resp2Warning" class="json-warning hidden" role="alert" aria-live="assertive">
+        <div id="resp2WarningText"></div>
+        <button id="resp2Repair" class="json-repair-button" type="button">Correct with ChatGPT</button>
+        <div id="resp2RepairStatus" class="json-repair-status" aria-live="polite"></div>
+      </div>
+      <div id="resp2RepairResult" class="json-repair-result hidden" aria-live="polite"></div>
     </div>
     <div class="bps-response-field">
       <textarea id="resp3" aria-label="Prompt 3 JSON response" aria-describedby="resp3Warning" placeholder="Prompt 3 JSON"></textarea>
-      <div id="resp3Warning" class="json-warning hidden" role="alert" aria-live="assertive"></div>
+      <div id="resp3Warning" class="json-warning hidden" role="alert" aria-live="assertive">
+        <div id="resp3WarningText"></div>
+        <button id="resp3Repair" class="json-repair-button" type="button">Correct with ChatGPT</button>
+        <div id="resp3RepairStatus" class="json-repair-status" aria-live="polite"></div>
+      </div>
+      <div id="resp3RepairResult" class="json-repair-result hidden" aria-live="polite"></div>
     </div>
     <div class="bps-response-field">
       <textarea id="resp4" aria-label="Prompt 4 JSON response" aria-describedby="resp4Warning" placeholder="Prompt 4 JSON"></textarea>
-      <div id="resp4Warning" class="json-warning hidden" role="alert" aria-live="assertive"></div>
+      <div id="resp4Warning" class="json-warning hidden" role="alert" aria-live="assertive">
+        <div id="resp4WarningText"></div>
+        <button id="resp4Repair" class="json-repair-button" type="button">Correct with ChatGPT</button>
+        <div id="resp4RepairStatus" class="json-repair-status" aria-live="polite"></div>
+      </div>
+      <div id="resp4RepairResult" class="json-repair-result hidden" aria-live="polite"></div>
     </div>
     <div class="row wrap">
       <button id="validateMerge">Validate and merge</button>
@@ -124,7 +144,12 @@
   <section class="card mode-panel mode-mse hidden">
     <h2>MSE Part 2 response</h2>
     <p class="small">Paste the BastionGPT MSE JSON response here. This autosaves locally and validates every screenshot row.</p>
-    <textarea id="mseResp" placeholder="MSE Part 2 JSON response"></textarea>
+    <textarea id="mseResp" aria-describedby="mseRespRepairStatus mseRespRepairResult" placeholder="MSE Part 2 JSON response"></textarea>
+    <div class="json-repair-controls">
+      <button id="mseRespRepair" class="json-repair-button" type="button">Correct with ChatGPT</button>
+      <div id="mseRespRepairStatus" class="json-repair-status" aria-live="polite"></div>
+    </div>
+    <div id="mseRespRepairResult" class="json-repair-result hidden" aria-live="polite"></div>
     <div class="row wrap">
       <button id="validateMseResponse">Validate response</button>
       <button id="copyMseResponse">Copy response</button>
@@ -146,7 +171,12 @@
   <section class="card mode-panel mode-asam hidden">
     <h2>Part 3 response</h2>
     <p class="small">Paste the BastionGPT Part 3 JSON response here. This autosaves locally and validates functioning scores, ASAM dimensions, and safety planning.</p>
-    <textarea id="asamResp" placeholder="Case Management and ASAM Part 3 JSON response"></textarea>
+    <textarea id="asamResp" aria-describedby="asamRespRepairStatus asamRespRepairResult" placeholder="Case Management and ASAM Part 3 JSON response"></textarea>
+    <div class="json-repair-controls">
+      <button id="asamRespRepair" class="json-repair-button" type="button">Correct with ChatGPT</button>
+      <div id="asamRespRepairStatus" class="json-repair-status" aria-live="polite"></div>
+    </div>
+    <div id="asamRespRepairResult" class="json-repair-result hidden" aria-live="polite"></div>
     <div class="row wrap">
       <button id="validateAsamResponse">Validate response</button>
       <button id="copyAsamResponse">Copy response</button>
@@ -204,7 +234,12 @@
   <section class="card mode-panel mode-diagnostics hidden">
     <h2>Part 4 response</h2>
     <p class="small">Paste the BastionGPT Diagnostics Part 4 JSON response here. This autosaves locally and validates screening results, assessment summary, recommendations, DSM V, and level of care fields.</p>
-    <textarea id="diagnosticsResp" placeholder="Diagnostics Part 4 JSON response"></textarea>
+    <textarea id="diagnosticsResp" aria-describedby="diagnosticsRespRepairStatus diagnosticsRespRepairResult" placeholder="Diagnostics Part 4 JSON response"></textarea>
+    <div class="json-repair-controls">
+      <button id="diagnosticsRespRepair" class="json-repair-button" type="button">Correct with ChatGPT</button>
+      <div id="diagnosticsRespRepairStatus" class="json-repair-status" aria-live="polite"></div>
+    </div>
+    <div id="diagnosticsRespRepairResult" class="json-repair-result hidden" aria-live="polite"></div>
     <div class="row wrap">
       <button id="validateDiagnosticsResponse">Validate response</button>
       <button id="copyDiagnosticsResponse">Copy response</button>
@@ -265,7 +300,12 @@
       <button id="copyQuickNotesPrompt">Copy QuickNotes prompt</button>
       <button id="copyQuickNotesFieldMap">Copy field map</button>
     </div>
-    <textarea id="quicknotesResp" placeholder="QuickNotes JSON"></textarea>
+    <textarea id="quicknotesResp" aria-describedby="quicknotesRespRepairStatus quicknotesRespRepairResult" placeholder="QuickNotes JSON"></textarea>
+    <div class="json-repair-controls">
+      <button id="quicknotesRespRepair" class="json-repair-button" type="button">Correct with ChatGPT</button>
+      <div id="quicknotesRespRepairStatus" class="json-repair-status" aria-live="polite"></div>
+    </div>
+    <div id="quicknotesRespRepairResult" class="json-repair-result hidden" aria-live="polite"></div>
     <div class="row wrap">
       <button id="validateQuickNotes">Validate QuickNotes JSON</button>
       <button id="scanQuickNotesPage">Scan active page</button>
@@ -290,7 +330,12 @@
   <section class="card mode-panel mode-treatment hidden">
     <h2>Treatment Plan response</h2>
     <p class="small">Paste BastionGPT's structured Treatment Plan JSON. The extension validates the same field structure used by the other sections before filling. Legacy formatted-text responses remain supported as a fallback.</p>
-    <textarea id="treatmentResp" placeholder="Paste the Treatment Plan JSON here"></textarea>
+    <textarea id="treatmentResp" aria-describedby="treatmentRespRepairStatus treatmentRespRepairResult" placeholder="Paste the Treatment Plan JSON here"></textarea>
+    <div class="json-repair-controls">
+      <button id="treatmentRespRepair" class="json-repair-button" type="button">Correct with ChatGPT</button>
+      <div id="treatmentRespRepairStatus" class="json-repair-status" aria-live="polite"></div>
+    </div>
+    <div id="treatmentRespRepairResult" class="json-repair-result hidden" aria-live="polite"></div>
     <div class="row wrap">
       <button id="validateTreatmentResponse">Validate and parse</button>
       <button id="copyTreatmentJson">Copy parsed JSON</button>
@@ -333,8 +378,8 @@
     <pre id="traceLog"></pre>
   </details>
 
-  <section class="card troubleshooting" id="n8nTroubleshootingPane">
-    <h2>n8n troubleshooting</h2>
+  <details class="card collapsible troubleshooting" id="n8nTroubleshootingPane">
+    <summary>n8n troubleshooting</summary>
     <div class="discovery-options compact-options">
       <label class="check"><input id="n8nIncludePrompt" type="checkbox" checked> Prompt</label>
       <label class="check"><input id="n8nIncludeJson" type="checkbox" checked> JSON data</label>
@@ -344,10 +389,10 @@
       <button id="sendTroubleshootingInfo" class="primary">Automatically send information</button>
     </div>
     <pre id="n8nSendResults">No troubleshooting information sent yet.</pre>
-  </section>
+  </details>
 
-  <section class="card">
-    <h2>Remote config</h2>
+  <details class="card collapsible" id="remoteConfigPane">
+    <summary>Remote config</summary>
     <label for="configUrl">GitHub raw config URL</label>
     <input id="configUrl" placeholder="https://raw.githubusercontent.com/.../rose-reliatrax-bps-config.json">
     <div class="row wrap">
@@ -357,7 +402,7 @@
     <p class="small">Loads the BPS config, workflow prompts, workflow mapping metadata, and QuickNotes mapping from GitHub.</p>
     <p class="small" id="configMeta"></p>
     <pre id="configResults" class="config-results">No config action yet.</pre>
-  </section>
+  </details>
 
   <script src="default-config.js"></script>
   <script src="workflow-config.js"></script>
